@@ -515,18 +515,14 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
 
-<!-- ✅ AQUI É O PONTO CRÍTICO: SCRIPT EM MÓDULO (IMPORT FUNCIONA) -->
 <script type="module">
   import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-  // 🔴 TROQUE SÓ ISSO
-const SUPABASE_URL = "https://rficsflnaxayyrddxald.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
-
+  const SUPABASE_URL = "https://rficsflnaxayyrddxald.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // ====== KEYS LOCAL ======
   const STORAGE_KEY_TRANSP   = "msa_balanca_suja_transportadoras_v1";
   const LS_KEY_REGISTROS     = "msa_registros_bascula_local_v1";
   const LS_KEY_NF_SUBSTITUTA = "msa_nf_substitutas_local_v1";
@@ -538,7 +534,6 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
   let nfCache         = [];
   let isOfflineView   = false;
 
-  // ====== ELEMENTOS ======
   const selTransp    = document.getElementById("transportadora");
   const selTranspNF  = document.getElementById("transportadoraNF");
   const btnAddTransp = document.getElementById("btnAddTransp");
@@ -591,7 +586,6 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
   const btnFecharNF24h = document.getElementById("btnFecharNF24h");
   const tbodyNF24h     = document.getElementById("tbodyNF24h");
 
-  // ====== UTIL ======
   function setDbStatus(isOnline){
     if(isOnline){
       dbDot.classList.remove("offline");
@@ -655,7 +649,6 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
     return `${dd}/${mm}/${yyyy} ${hh}:${mi}:${ss}`;
   }
 
-  // ====== LOCAL STORAGE ======
   function carregarRegistrosLocal() {
     try {
       const raw = localStorage.getItem(LS_KEY_REGISTROS);
@@ -732,8 +725,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
     selTranspNF.value = trimmed;
   });
 
-  // ====== SUPABASE: HELPERS ======
-  function isoToTs(iso){ return iso; } // Supabase aceita ISO string em timestamptz
+  function isoToTs(iso){ return iso; }
 
   async function supaInsertRegistro(payload){
     const { data, error } = await supabase
@@ -759,7 +751,6 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
       .limit(5000);
     if (error) throw error;
 
-    // normaliza para o formato que seu código usa
     return (data || []).map(r => ({
       id: r.id,
       placa: r.placa,
@@ -814,20 +805,18 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
     }));
   }
 
-  // ====== SYNC OFFLINE -> ONLINE ======
   async function syncRegistrosPendentes(){
     const pendentes = registrosLocal.filter(r => !r.synced);
     if(!pendentes.length) return;
 
     for(const reg of pendentes){
-      const payloadAPI = {
+      const saved = await supaInsertRegistro({
         placa: reg.placa,
         transportadora: reg.transportadora,
         tsISO: reg.ts_iso,
         turno: reg.turno,
         diaTurno: reg.dia_turno
-      };
-      const saved = await supaInsertRegistro(payloadAPI);
+      });
       reg.synced = true;
       reg.id = saved.id;
     }
@@ -839,22 +828,20 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
     if(!pendentes.length) return;
 
     for(const reg of pendentes){
-      const payloadAPI = {
+      const saved = await supaInsertNF({
         placa: reg.placa,
         transportadora: reg.transportadora,
         nf_cancelada: reg.nf_cancelada,
         nf_substituta: reg.nf_substituta,
         motivo_cancelamento: reg.motivo_cancelamento,
         tsISO: reg.ts_iso
-      };
-      const saved = await supaInsertNF(payloadAPI);
+      });
       reg.synced = true;
       reg.id = saved.id;
     }
     salvarNFLocal();
   }
 
-  // ====== LOAD SERVER ======
   async function carregarRegistrosDoServidor() {
     try {
       await syncRegistrosPendentes();
@@ -864,14 +851,12 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
     } catch (e) {
       console.error("Erro ao buscar registros, usando offline:", e);
       setDbStatus(false);
-      alert("Banco de dados inacessível. Exibindo registros salvos localmente neste computador.");
       renderRegistros(registrosLocal, true);
     }
   }
 
   async function registrarCaminhao() {
-    const placaRaw = inpPlaca.value;
-    const placa = placaRaw.replace(/\s+/g, "").toUpperCase();
+    const placa = (inpPlaca.value || "").replace(/\s+/g, "").toUpperCase();
     if (!placa) return alert("Informe a placa do veículo.");
 
     const transp = selTransp.value;
@@ -881,15 +866,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
     const tsISO = agora.toISOString();
     const info = classificarTurno(agora);
 
-    const payloadLocal = {
+    adicionarRegistroLocal({
       placa,
       transportadora: transp,
       ts_iso: tsISO,
       turno: info.turno,
       dia_turno: info.diaTurno,
       synced: false
-    };
-    adicionarRegistroLocal(payloadLocal);
+    });
 
     try {
       const saved = await supaInsertRegistro({
@@ -942,8 +926,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
     tbodyReg.innerHTML = "";
     isOfflineView = modoOffline;
 
-    const agora = new Date();
-    const limite = new Date(agora.getTime() - 24 * 60 * 60 * 1000);
+    const limite = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
     lista
       .filter(reg => new Date(reg.ts_iso || reg.tsISO) >= limite)
@@ -1141,10 +1124,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
     if (chart7d) chart7d.destroy();
     chart7d = new Chart(ctx, {
       type: "bar",
-      data: {
-        labels,
-        datasets: [{ label: "Carretas sujas por dia (dia do turno)", data: dataVals }]
-      },
+      data: { labels, datasets: [{ label: "Carretas sujas por dia (dia do turno)", data: dataVals }] },
       options: { responsive:true, scales: { y: { beginAtZero:true, ticks:{ stepSize:1 } } } }
     });
 
@@ -1155,10 +1135,8 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
   btnFecharModal.addEventListener("click", () => { modalGrafico.style.display = "none"; });
   modalGrafico.addEventListener("click", (e) => { if (e.target === modalGrafico) modalGrafico.style.display = "none"; });
 
-  // ====== NF ======
   async function salvarNFSubstituta() {
-    const placaRaw = inpPlacaNF.value || "";
-    const placa = placaRaw.replace(/\s+/g, "").toUpperCase();
+    const placa = (inpPlacaNF.value || "").replace(/\s+/g, "").toUpperCase();
     if (!placa) return alert("Informe a placa do veículo.");
 
     const transp = selTranspNF.value;
@@ -1174,7 +1152,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
     const agora = new Date();
     const tsISO = agora.toISOString();
 
-    const payloadLocal = {
+    adicionarNFLocal({
       placa,
       transportadora: transp,
       nf_cancelada: nfCancelada,
@@ -1182,8 +1160,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
       motivo_cancelamento: motivo,
       ts_iso: tsISO,
       synced: false
-    };
-    adicionarNFLocal(payloadLocal);
+    });
 
     try{
       await supaInsertNF({
@@ -1381,10 +1358,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
     if (chart7dNF) chart7dNF.destroy();
     chart7dNF = new Chart(ctx, {
       type: "bar",
-      data: {
-        labels,
-        datasets: [{ label: "Quantidade de NF canceladas/substituídas por dia", data: dataVals }]
-      },
+      data: { labels, datasets: [{ label: "Quantidade de NF canceladas/substituídas por dia", data: dataVals }] },
       options: { responsive:true, scales: { y: { beginAtZero:true, ticks:{ stepSize:1 } } } }
     });
 
@@ -1405,8 +1379,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
       dados = nfLocal;
     }
 
-    const agora  = new Date();
-    const limite = new Date(agora.getTime() - 24*60*60*1000);
+    const limite = new Date(Date.now() - 24*60*60*1000);
 
     const lista24h = dados
       .filter(reg => {
@@ -1448,8 +1421,12 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
     modalNF24h.style.display = "flex";
   }
 
-  // ====== MODAIS ======
-  btnAbrirRegistros.addEventListener("click", () => { modalRegistros.style.display = "flex"; });
+  // MODAIS
+  btnAbrirRegistros.addEventListener("click", async () => {
+    // ✅ melhora: atualiza antes de abrir
+    await carregarRegistrosDoServidor();
+    modalRegistros.style.display = "flex";
+  });
   btnFecharRegistros.addEventListener("click", () => { modalRegistros.style.display = "none"; });
   modalRegistros.addEventListener("click", (e) => { if (e.target === modalRegistros) modalRegistros.style.display = "none"; });
 
@@ -1465,11 +1442,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
   btnFecharModalNF.addEventListener("click", () => { modalGraficoNF.style.display = "none"; });
   modalGraficoNF.addEventListener("click", (e)=>{ if(e.target === modalGraficoNF) modalGraficoNF.style.display = "none"; });
 
-  btnAbrirNF24h.addEventListener("click", abrirModalNF24h);
+  btnAbrirNF24h.addEventListener("click", async () => {
+    // ✅ melhora: recarrega NF antes de abrir
+    await abrirModalNF24h();
+  });
   btnFecharNF24h.addEventListener("click", () => { modalNF24h.style.display = "none"; });
   modalNF24h.addEventListener("click", (e) => { if (e.target === modalNF24h) modalNF24h.style.display = "none"; });
 
-  // ====== INIT ======
+  // INIT
   carregarTransportadoras();
   preencherTransportadoras();
   carregarRegistrosLocal();
@@ -1482,16 +1462,11 @@ const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
   initPeriodoPadrao();
   inpPlaca.focus();
 
-  // ping simples: se der erro, marca offline
-  try {
-    // só pra validar conexão
-    await supabase.from("registros_bascula").select("id").limit(1);
-    setDbStatus(true);
-  } catch {
-    setDbStatus(false);
-  }
+  // ✅ PING CORRETO (Supabase não "throw", retorna {error})
+  const ping = await supabase.from("registros_bascula").select("id").limit(1);
+  if (ping.error) setDbStatus(false);
+  else setDbStatus(true);
 
-  // carrega dados
   await carregarRegistrosDoServidor();
 </script>
 
