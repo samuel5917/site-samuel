@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>S-systems</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+
+<style>
+  :root {
+    --vio1:#171236;
+    --vio2:#433E7C;
+    --vio3:#8C75C7;
+    --vio4:#B68AD9;
+    --vio5:#E4B0D0;
+
+    --accent:#0ea5e9;
+    --accent-soft:#082f49;
+    --muted:#94a3b8;
+
+    --bg-main:#111827;
+  }
+
+  *{
+    box-sizing:border-box;
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+  }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background:radial-gradient(circle at top,#1f2937 0,var(--bg-main) 60%,#020617 100%);
+    color:#e5e7eb;
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .page{
+    max-width:1100px;
+    margin:0 auto;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+
+  header{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 16px;
+    border-radius:16px;
+    background:linear-gradient(135deg,rgba(15,23,42,0.9),rgba(67,62,124,0.75));
+    border:1px solid rgba(148,163,184,0.45);
+    box-shadow:0 18px 40px rgba(0,0,0,0.55);
+    backdrop-filter:blur(20px);
+  }
+  .logo-img{
+    height:56px;
+  }
+  .title-area h1{margin:0;font-size:22px;}
+  .title-area p{margin:4px 0 0;font-size:13px;color:var(--muted);}
+
+  .db-status{
+    margin-left:auto;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:12px;
+    color:var(--muted);
+    padding:4px 10px;
+    border-radius:999px;
+    background:rgba(15,23,42,0.7);
+    border:1px solid rgba(148,163,184,0.35);
+  }
+  .db-dot{
+    width:10px;
+    height:10px;
+    border-radius:999px;
+    background:#22c55e;
+    box-shadow:0 0 8px rgba(34,197,94,0.7);
+  }
+  .db-dot.offline{
+    background:#ef4444;
+    box-shadow:0 0 8px rgba(239,68,68,0.7);
+  }
+
+  .card{
+    border-radius:18px;
+    padding:16px 18px;
+    box-shadow:0 18px 40px rgba(0,0,0,0.45);
+    background:rgba(15,23,42,0.75);
+    border:1px solid rgba(148,163,184,0.35);
+    backdrop-filter:blur(16px);
+  }
+  .card h2{
+    margin:0 0 8px;
+    font-size:18px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .card h2::before{
+    content:"";
+    width:4px;
+    height:18px;
+    border-radius:999px;
+    background:linear-gradient(to bottom,var(--accent),var(--vio3));
+  }
+
+  .card-registro{
+    background:linear-gradient(135deg,rgba(67,62,124,0.55),rgba(182,138,217,0.22));
+    border:1px solid rgba(182,138,217,0.85);
+  }
+
+  label{font-size:13px;color:var(--muted);display:block;margin-bottom:4px;}
+  input,select{
+    width:100%;
+    padding:9px 11px;
+    border-radius:10px;
+    border:1px solid rgba(148,163,184,0.4);
+    background:rgba(15,23,42,0.85);
+    color:#e5e7eb;
+    font-size:14px;
+    backdrop-filter:blur(10px);
+  }
+  input::placeholder{ color:rgba(148,163,184,0.7); }
+  input:focus,select:focus{
+    outline:none;
+    border-color:var(--accent);
+    box-shadow:0 0 0 1px rgba(14,165,233,0.5);
+  }
+  .row{display:flex;flex-wrap:wrap;gap:12px;}
+  .col{flex:1 1 200px;}
+
+  .btn{
+    border:none;
+    border-radius:999px;
+    padding:9px 16px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    transition:transform .08s ease, box-shadow .08s ease, background .15s ease;
+  }
+  .btn:active{ transform:scale(0.97); box-shadow:none; }
+  .btn-primary{
+    background:var(--accent);
+    color:#020617;
+    box-shadow:0 10px 25px rgba(14,165,233,0.35);
+  }
+  .btn-primary:hover{background:#0284c7;}
+  .btn-ghost{
+    background:rgba(15,23,42,0.6);
+    color:var(--accent);
+    border:1px solid rgba(148,163,184,0.5);
+    backdrop-filter:blur(12px);
+  }
+  .btn-ghost:hover{background:var(--accent-soft);}
+  .btn-danger,.btn-delete{
+    background:rgba(15,23,42,0.8);
+    color:#f97316;
+    border:1px solid rgba(248,113,113,0.55);
+    border-radius:999px;
+    padding:4px 10px;
+    font-size:11px;
+    cursor:pointer;
+  }
+  .btn-delete{ padding:4px 8px; }
+  .btn-danger:hover,.btn-delete:hover{ background:rgba(248,113,113,0.16); }
+
+  .tag{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:4px 10px;
+    border-radius:999px;
+    font-size:11px;
+    background:rgba(15,23,42,0.8);
+    border:1px solid rgba(148,163,184,0.4);
+    color:var(--muted);
+    backdrop-filter:blur(12px);
+  }
+  table{ width:100%; border-collapse:collapse; margin-top:8px; font-size:13px; }
+  th,td{ padding:6px 8px; text-align:left; }
+  thead{ background:rgba(15,23,42,0.95); }
+  tbody tr:nth-child(odd){background:rgba(15,23,42,0.9);}
+  tbody tr:nth-child(even){background:rgba(15,23,42,0.75);}
+  th{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--muted);
+    border-bottom:1px solid rgba(148,163,184,0.4);
+  }
+  td{ border-bottom:1px dashed rgba(30,64,175,0.4); }
+  .pill-turno{
+    padding:2px 8px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:600;
+    background:rgba(34,197,94,0.1);
+    color:#bbf7d0;
+  }
+  .pill-turno2{
+    background:rgba(249,115,22,0.12);
+    color:#fed7aa;
+  }
+  footer{
+    margin-top:auto;
+    font-size:10px;
+    color:var(--muted);
+    text-align:right;
+    padding:4px 2px 0;
+  }
+
+  .box-registro{
+    background:rgba(140,117,199,0.25);
+    border-radius:12px;
+    border:1px solid rgba(182,138,217,0.8);
+    padding:12px;
+    margin-bottom:14px;
+    backdrop-filter:blur(16px);
+  }
+
+  .modal-backdrop{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,0.85);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+  }
+  .modal-content{
+    background:rgba(15,23,42,0.9);
+    border-radius:16px;
+    padding:16px;
+    border:1px solid rgba(148,163,184,0.4);
+    width:100%;
+    max-width:520px;
+    box-shadow:0 18px 40px rgba(0,0,0,0.7);
+    backdrop-filter:blur(20px);
+  }
+  .modal-large{ max-width:900px; max-height:90vh; overflow:auto; }
+
+  @media(max-width:768px){
+    body{padding:10px;}
+    .page{gap:12px;}
+    header{flex-direction:column;align-items:flex-start;}
+    .db-status{margin-left:0;}
+    .card{padding:12px 13px;}
+  }
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+</head>
+
+<body>
+<div class="page">
+<header>
+  <div class="title-area">
+    <h1>PAINEL DE APOIO OPERACIONAL</h1>
+    <p>Sistema para registrar carretas contaminadas e controlar notas fiscais canceladas</p>
+  </div>
+  <div class="db-status">
+    <span class="db-dot offline" id="dbDot"></span>
+    <span id="dbStatusText">Banco de dados: verificando...</span>
+  </div>
+</header>
+
+<section class="card card-registro">
+  <h2>REGISTRO CARRETAS CONTAMINADAS</h2>
+  <div class="row">
+    <div class="col">
+      <label for="placa">Placa do veículo</label>
+      <input id="placa" maxlength="10" placeholder="Ex: RST1A23" autocomplete="off">
+    </div>
+    <div class="col">
+      <label for="transportadora">Transportadora</label>
+      <select id="transportadora"></select>
+    </div>
+    <div class="col" style="flex:0 0 200px;display:flex;align-items:flex-end;justify-content:flex-end;gap:8px;">
+      <button id="btnAddTransp" class="btn btn-ghost" type="button">+ Nova transportadora</button>
+    </div>
+  </div>
+  <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+    <div class="tag">
+      <span>TURNOS:</span>
+      <span><strong>Turno 1</strong> 07:00 → 19:00 </span> ·
+      <span><strong>Turno 2</strong> 19:00 → 07:00 </span>
+    </div>
+    <button id="btnRegistrar" class="btn btn-primary" type="button">
+      Registrar caminhão sujo
+    </button>
+  </div>
+
+  <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
+    <button id="btnAbrirRegistros" class="btn btn-ghost" type="button">
+      Últimos registros (24h)
+    </button>
+    <button id="btnAbrirRelatorio" class="btn btn-ghost" type="button">
+      Relatórios Báscula / PDF + Gráfico
+    </button>
+  </div>
+</section>
+
+<section class="card card-registro">
+  <h2>REGISTRO NF-E CANCELADAS</h2>
+
+  <div class="box-registro">
+    <div class="row">
+      <div class="col">
+        <label for="placaNFSubst">Placa do veículo</label>
+        <input id="placaNFSubst" maxlength="10" placeholder="Ex: RST1A23" autocomplete="off">
+      </div>
+      <div class="col">
+        <label for="transportadoraNF">Transportadora</label>
+        <select id="transportadoraNF"></select>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+      <div class="col">
+        <label for="nfCancelada">NF Cancelada</label>
+        <input id="nfCancelada" maxlength="20" placeholder="Número da NF cancelada">
+      </div>
+      <div class="col">
+        <label for="nfSubstituta">NF Substituta</label>
+        <input id="nfSubstituta" maxlength="20" placeholder="Número da NF substituta">
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+      <div class="col">
+        <label for="motivoCancelamentoNF">Motivo do cancelamento</label>
+        <input id="motivoCancelamentoNF" maxlength="120" placeholder="EX: ERRO DE LANÇAMENTO, ERRO DE MATERIAL, ETC...">
+      </div>
+    </div>
+
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button id="btnSalvarNFSubst" class="btn btn-primary" type="button">
+        Salvar vínculo NF
+      </button>
+      <button id="btnAbrirNF24h" class="btn btn-ghost" type="button">
+        Últimas NF (24h)
+      </button>
+      <button id="btnAbrirRelatorioNF" class="btn btn-ghost" type="button">
+        Relatórios NF / PDF + Gráfico
+      </button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Samuel Nascimento de Jesus</span>
+</footer>
+</div>
+
+<!-- MODAL: ÚLTIMOS REGISTROS BÁSCULA -->
+<div id="modalRegistros" class="modal-backdrop">
+  <div class="modal-content modal-large">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <h3 style="margin:0;font-size:16px;">Últimos registros (apenas últimas 24h)</h3>
+      <button id="btnFecharRegistros" class="btn-danger btn-close" type="button">Fechar</button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:0;">
+      Exibindo registros das últimas 24 horas, do mais recente para o mais antigo.
+      Registros mais antigos podem ser consultados via relatório por período.
+    </p>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Data/Hora real</th>
+            <th>Turno</th>
+            <th>Placa</th>
+            <th>Transportadora</th>
+            <th style="width:70px;">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyRegistros"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ÚLTIMAS NF (24h) -->
+<div id="modalNF24h" class="modal-backdrop">
+  <div class="modal-content modal-large">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <h3 style="margin:0;font-size:16px;">Últimas NF Canceladas x Substitutas (24h)</h3>
+      <button id="btnFecharNF24h" class="btn-danger btn-close" type="button">Fechar</button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:0;">
+      Exibindo vínculos de NF cadastrados nas últimas 24 horas, do mais recente para o mais antigo.<br>
+      Dados mais antigos podem ser consultados pelo relatório por período.
+    </p>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Data/Hora</th>
+            <th>Placa</th>
+            <th>Transportadora</th>
+            <th>NF Cancelada</th>
+            <th>NF Substituta</th>
+            <th>Motivo do cancelamento</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyNF24h"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: RELATÓRIO BÁSCULA -->
+<div id="modalRelatorio" class="modal-backdrop">
+  <div class="modal-content">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <h3 style="margin:0;font-size:16px;">Relatórios Báscula / PDF + Gráfico</h3>
+      <button id="btnFecharRelatorio" class="btn-danger btn-close" type="button">Fechar</button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:0;">
+      Defina o período para gerar o relatório em PDF ou visualizar o gráfico de carretas sujas.
+    </p>
+    <div class="row">
+      <div class="col" style="max-width:260px;">
+        <label for="inicioRel">Início do período</label>
+        <input id="inicioRel" type="datetime-local">
+      </div>
+      <div class="col" style="max-width:260px;">
+        <label for="fimRel">Fim do período</label>
+        <input id="fimRel" type="datetime-local">
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-top:4px;">
+      Use o seletor de data e hora acima para definir o intervalo.
+    </p>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button id="btnRelatorioPdf" class="btn btn-primary" type="button">
+        Gerar PDF do período
+      </button>
+      <button id="btnGrafico7d" class="btn btn-ghost" type="button">
+        Gráfico últimos 7 dias
+      </button>
+    </div>
+    <p id="msgRel" style="font-size:12px;color:var(--muted);margin-top:6px;"></p>
+  </div>
+</div>
+
+<!-- MODAL: RELATÓRIO NF -->
+<div id="modalRelatorioNF" class="modal-backdrop">
+  <div class="modal-content">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <h3 style="margin:0;font-size:16px;">Relatórios NF Cancelada x NF Substituta</h3>
+      <button id="btnFecharRelatorioNF" class="btn-danger btn-close" type="button">Fechar</button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:0;">
+      Defina o período para gerar o PDF ou ver o gráfico de NF canceladas dos últimos dias.
+    </p>
+    <div class="row">
+      <div class="col" style="max-width:260px;">
+        <label for="inicioRelNF">Início do período</label>
+        <input id="inicioRelNF" type="datetime-local">
+      </div>
+      <div class="col" style="max-width:260px;">
+        <label for="fimRelNF">Fim do período</label>
+        <input id="fimRelNF" type="datetime-local">
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-top:4px;">
+      Período utilizado para filtrar pela data/hora de cadastro do vínculo NF.
+    </p>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button id="btnRelatorioPdfNF" class="btn btn-primary" type="button">
+        Gerar PDF NF
+      </button>
+      <button id="btnGrafico7dNF" class="btn btn-ghost" type="button">
+        Gráfico NF últimos 7 dias
+      </button>
+    </div>
+    <p id="msgRelNF" style="font-size:12px;color:var(--muted);margin-top:6px;"></p>
+  </div>
+</div>
+
+<!-- MODAIS GRÁFICOS -->
+<div id="modalGrafico" class="modal-backdrop">
+  <div class="modal-content modal-large">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <h3 style="margin:0;font-size:16px;">Carretas sujas - últimos 7 dias (dia do turno)</h3>
+      <button id="btnFecharModal" class="btn-danger btn-close" type="button">Fechar</button>
+    </div>
+    <canvas id="grafico7d" style="width:100%;max-height:320px;"></canvas>
+  </div>
+</div>
+
+<div id="modalGraficoNF" class="modal-backdrop">
+  <div class="modal-content modal-large">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <h3 style="margin:0;font-size:16px;">NF Canceladas x Substitutas - últimos 7 dias</h3>
+      <button id="btnFecharModalNF" class="btn-danger btn-close" type="button">Fechar</button>
+    </div>
+    <canvas id="grafico7dNFCanvas" style="width:100%;max-height:320px;"></canvas>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+
+<!-- ✅ AQUI É O PONTO CRÍTICO: SCRIPT EM MÓDULO (IMPORT FUNCIONA) -->
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+  // 🔴 TROQUE SÓ ISSO
+const SUPABASE_URL = "https://rficsflnaxayyrddxald.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
+
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ====== KEYS LOCAL ======
+  const STORAGE_KEY_TRANSP   = "msa_balanca_suja_transportadoras_v1";
+  const LS_KEY_REGISTROS     = "msa_registros_bascula_local_v1";
+  const LS_KEY_NF_SUBSTITUTA = "msa_nf_substitutas_local_v1";
+
+  let transportadoras = ["CAIO TRANSPORTES", "ECOMINING", "RODOMINAS"];
+  let registrosCache  = [];
+  let registrosLocal  = [];
+  let nfLocal         = [];
+  let nfCache         = [];
+  let isOfflineView   = false;
+
+  // ====== ELEMENTOS ======
+  const selTransp    = document.getElementById("transportadora");
+  const selTranspNF  = document.getElementById("transportadoraNF");
+  const btnAddTransp = document.getElementById("btnAddTransp");
+  const inpPlaca     = document.getElementById("placa");
+  const btnRegistrar = document.getElementById("btnRegistrar");
+  const tbodyReg     = document.getElementById("tbodyRegistros");
+
+  const inicioRel       = document.getElementById("inicioRel");
+  const fimRel          = document.getElementById("fimRel");
+  const btnRelatorioPdf = document.getElementById("btnRelatorioPdf");
+  const msgRel          = document.getElementById("msgRel");
+
+  const btnGrafico7d   = document.getElementById("btnGrafico7d");
+  const modalGrafico   = document.getElementById("modalGrafico");
+  const btnFecharModal = document.getElementById("btnFecharModal");
+  const canvasGrafico  = document.getElementById("grafico7d");
+
+  const inpPlacaNF            = document.getElementById("placaNFSubst");
+  const inpNFCancelada        = document.getElementById("nfCancelada");
+  const inpNFSubstituta       = document.getElementById("nfSubstituta");
+  const inpMotivoCancelamento = document.getElementById("motivoCancelamentoNF");
+  const btnSalvarNFSubst      = document.getElementById("btnSalvarNFSubst");
+  const inicioRelNF           = document.getElementById("inicioRelNF");
+  const fimRelNF              = document.getElementById("fimRelNF");
+  const btnRelatorioPdfNF     = document.getElementById("btnRelatorioPdfNF");
+  const msgRelNF              = document.getElementById("msgRelNF");
+  const btnGrafico7dNF        = document.getElementById("btnGrafico7dNF");
+
+  const dbDot        = document.getElementById("dbDot");
+  const dbStatusText = document.getElementById("dbStatusText");
+
+  const modalRegistros     = document.getElementById("modalRegistros");
+  const btnAbrirRegistros  = document.getElementById("btnAbrirRegistros");
+  const btnFecharRegistros = document.getElementById("btnFecharRegistros");
+
+  const modalRelatorio     = document.getElementById("modalRelatorio");
+  const btnAbrirRelatorio  = document.getElementById("btnAbrirRelatorio");
+  const btnFecharRelatorio = document.getElementById("btnFecharRelatorio");
+
+  const modalRelatorioNF     = document.getElementById("modalRelatorioNF");
+  const btnAbrirRelatorioNF  = document.getElementById("btnAbrirRelatorioNF");
+  const btnFecharRelatorioNF = document.getElementById("btnFecharRelatorioNF");
+
+  const modalGraficoNF   = document.getElementById("modalGraficoNF");
+  const btnFecharModalNF = document.getElementById("btnFecharModalNF");
+  const canvasGraficoNF  = document.getElementById("grafico7dNFCanvas");
+
+  const modalNF24h     = document.getElementById("modalNF24h");
+  const btnAbrirNF24h  = document.getElementById("btnAbrirNF24h");
+  const btnFecharNF24h = document.getElementById("btnFecharNF24h");
+  const tbodyNF24h     = document.getElementById("tbodyNF24h");
+
+  // ====== UTIL ======
+  function setDbStatus(isOnline){
+    if(isOnline){
+      dbDot.classList.remove("offline");
+      dbStatusText.textContent = "Banco de dados: ONLINE";
+    }else{
+      dbDot.classList.add("offline");
+      dbStatusText.textContent = "Banco de dados: OFFLINE";
+    }
+  }
+
+  const fpOpts = {
+    enableTime: true,
+    dateFormat: "Y-m-d\\TH:i",
+    altInput: true,
+    altFormat: "d/m/Y H:i",
+    time_24hr: true,
+    locale: flatpickr.l10ns.pt
+  };
+  flatpickr("#inicioRel", fpOpts);
+  flatpickr("#fimRel", fpOpts);
+  flatpickr("#inicioRelNF", fpOpts);
+  flatpickr("#fimRelNF", fpOpts);
+
+  function pad2(x){ return String(x).padStart(2,"0"); }
+
+  function classificarTurno(d) {
+    const ano = d.getFullYear();
+    const mes = d.getMonth();
+    const dia = d.getDate();
+
+    function fmt(y, m, d2) {
+      const mm = pad2(m + 1);
+      const dd = pad2(d2);
+      return `${y}-${mm}-${dd}`;
+    }
+
+    const inicioT1 = new Date(ano, mes, dia, 7, 0, 0);
+    const fimT1 = new Date(ano, mes, dia, 18, 59, 59);
+    const inicioT2 = new Date(ano, mes, dia, 19, 0, 0);
+    const fimDia   = new Date(ano, mes, dia, 23, 59, 59);
+    const inicioDia  = new Date(ano, mes, dia, 0, 0, 0);
+    const fimAntes7  = new Date(ano, mes, dia, 6, 59, 59);
+
+    if (d >= inicioT1 && d <= fimT1) return { turno: 1, diaTurno: fmt(ano, mes, dia) };
+    if (d >= inicioT2 && d <= fimDia) return { turno: 2, diaTurno: fmt(ano, mes, dia) };
+    if (d >= inicioDia && d <= fimAntes7) {
+      const dAnt = new Date(d);
+      dAnt.setDate(dAnt.getDate() - 1);
+      return { turno: 2, diaTurno: fmt(dAnt.getFullYear(), dAnt.getMonth(), dAnt.getDate()) };
+    }
+    return { turno: 1, diaTurno: fmt(ano, mes, dia) };
+  }
+
+  function formatarDataHora(d) {
+    const dd = pad2(d.getDate());
+    const mm = pad2(d.getMonth()+1);
+    const yyyy = d.getFullYear();
+    const hh = pad2(d.getHours());
+    const mi = pad2(d.getMinutes());
+    const ss = pad2(d.getSeconds());
+    return `${dd}/${mm}/${yyyy} ${hh}:${mi}:${ss}`;
+  }
+
+  // ====== LOCAL STORAGE ======
+  function carregarRegistrosLocal() {
+    try {
+      const raw = localStorage.getItem(LS_KEY_REGISTROS);
+      registrosLocal = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(registrosLocal)) registrosLocal = [];
+    } catch { registrosLocal = []; }
+  }
+  function salvarRegistrosLocal() {
+    try { localStorage.setItem(LS_KEY_REGISTROS, JSON.stringify(registrosLocal)); } catch {}
+  }
+  function adicionarRegistroLocal(reg) {
+    reg.synced = reg.synced ?? false;
+    registrosLocal.push(reg);
+    salvarRegistrosLocal();
+  }
+
+  function carregarNFLocal() {
+    try {
+      const raw = localStorage.getItem(LS_KEY_NF_SUBSTITUTA);
+      nfLocal = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(nfLocal)) nfLocal = [];
+    } catch { nfLocal = []; }
+  }
+  function salvarNFLocal() {
+    try { localStorage.setItem(LS_KEY_NF_SUBSTITUTA, JSON.stringify(nfLocal)); } catch {}
+  }
+  function adicionarNFLocal(reg) {
+    reg.synced = reg.synced ?? false;
+    nfLocal.push(reg);
+    salvarNFLocal();
+  }
+
+  function carregarTransportadoras() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_TRANSP);
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr) && arr.length) transportadoras = arr;
+      }
+    } catch {}
+  }
+  function salvarTransportadoras() {
+    try { localStorage.setItem(STORAGE_KEY_TRANSP, JSON.stringify(transportadoras)); } catch {}
+  }
+  function preencherTransportadoras() {
+    selTransp.innerHTML = "";
+    transportadoras.forEach(t => {
+      const opt = document.createElement("option");
+      opt.value = t;
+      opt.textContent = t;
+      selTransp.appendChild(opt);
+    });
+    selTranspNF.innerHTML = "";
+    transportadoras.forEach(t => {
+      const opt = document.createElement("option");
+      opt.value = t;
+      opt.textContent = t;
+      selTranspNF.appendChild(opt);
+    });
+  }
+
+  btnAddTransp.addEventListener("click", () => {
+    const nome = prompt("Digite o nome da nova transportadora:");
+    if (!nome) return;
+    const trimmed = nome.trim();
+    if (!trimmed) return;
+    if (!transportadoras.includes(trimmed)) {
+      transportadoras.push(trimmed);
+      transportadoras.sort();
+      salvarTransportadoras();
+      preencherTransportadoras();
+    }
+    selTransp.value = trimmed;
+    selTranspNF.value = trimmed;
+  });
+
+  // ====== SUPABASE: HELPERS ======
+  function isoToTs(iso){ return iso; } // Supabase aceita ISO string em timestamptz
+
+  async function supaInsertRegistro(payload){
+    const { data, error } = await supabase
+      .from("registros_bascula")
+      .insert([{
+        placa: payload.placa,
+        transportadora: payload.transportadora,
+        turno: payload.turno,
+        dia_turno: payload.diaTurno,
+        ts: isoToTs(payload.tsISO)
+      }])
+      .select("id, ts")
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async function supaListRegistros(){
+    const { data, error } = await supabase
+      .from("registros_bascula")
+      .select("id, placa, transportadora, turno, dia_turno, ts")
+      .order("ts", { ascending: false })
+      .limit(5000);
+    if (error) throw error;
+
+    // normaliza para o formato que seu código usa
+    return (data || []).map(r => ({
+      id: r.id,
+      placa: r.placa,
+      transportadora: r.transportadora,
+      turno: r.turno,
+      dia_turno: r.dia_turno,
+      tsISO: r.ts
+    }));
+  }
+
+  async function supaDeleteRegistro(id){
+    const { error } = await supabase
+      .from("registros_bascula")
+      .delete()
+      .eq("id", id);
+    if (error) throw error;
+  }
+
+  async function supaInsertNF(payload){
+    const { data, error } = await supabase
+      .from("nf_substitutas")
+      .insert([{
+        placa: payload.placa,
+        transportadora: payload.transportadora,
+        nf_cancelada: payload.nf_cancelada,
+        nf_substituta: payload.nf_substituta,
+        motivo_cancelamento: payload.motivo_cancelamento,
+        ts: isoToTs(payload.tsISO)
+      }])
+      .select("id, ts")
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async function supaListNF(){
+    const { data, error } = await supabase
+      .from("nf_substitutas")
+      .select("id, placa, transportadora, nf_cancelada, nf_substituta, motivo_cancelamento, ts")
+      .order("ts", { ascending: false })
+      .limit(5000);
+    if (error) throw error;
+
+    return (data || []).map(r => ({
+      id: r.id,
+      placa: r.placa,
+      transportadora: r.transportadora,
+      nf_cancelada: r.nf_cancelada,
+      nf_substituta: r.nf_substituta,
+      motivo_cancelamento: r.motivo_cancelamento,
+      tsISO: r.ts
+    }));
+  }
+
+  // ====== SYNC OFFLINE -> ONLINE ======
+  async function syncRegistrosPendentes(){
+    const pendentes = registrosLocal.filter(r => !r.synced);
+    if(!pendentes.length) return;
+
+    for(const reg of pendentes){
+      const payloadAPI = {
+        placa: reg.placa,
+        transportadora: reg.transportadora,
+        tsISO: reg.ts_iso,
+        turno: reg.turno,
+        diaTurno: reg.dia_turno
+      };
+      const saved = await supaInsertRegistro(payloadAPI);
+      reg.synced = true;
+      reg.id = saved.id;
+    }
+    salvarRegistrosLocal();
+  }
+
+  async function syncNFPendentes(){
+    const pendentes = nfLocal.filter(r => !r.synced);
+    if(!pendentes.length) return;
+
+    for(const reg of pendentes){
+      const payloadAPI = {
+        placa: reg.placa,
+        transportadora: reg.transportadora,
+        nf_cancelada: reg.nf_cancelada,
+        nf_substituta: reg.nf_substituta,
+        motivo_cancelamento: reg.motivo_cancelamento,
+        tsISO: reg.ts_iso
+      };
+      const saved = await supaInsertNF(payloadAPI);
+      reg.synced = true;
+      reg.id = saved.id;
+    }
+    salvarNFLocal();
+  }
+
+  // ====== LOAD SERVER ======
+  async function carregarRegistrosDoServidor() {
+    try {
+      await syncRegistrosPendentes();
+      registrosCache = await supaListRegistros();
+      setDbStatus(true);
+      renderRegistros(registrosCache, false);
+    } catch (e) {
+      console.error("Erro ao buscar registros, usando offline:", e);
+      setDbStatus(false);
+      alert("Banco de dados inacessível. Exibindo registros salvos localmente neste computador.");
+      renderRegistros(registrosLocal, true);
+    }
+  }
+
+  async function registrarCaminhao() {
+    const placaRaw = inpPlaca.value;
+    const placa = placaRaw.replace(/\s+/g, "").toUpperCase();
+    if (!placa) return alert("Informe a placa do veículo.");
+
+    const transp = selTransp.value;
+    if (!transp) return alert("Selecione uma transportadora.");
+
+    const agora = new Date();
+    const tsISO = agora.toISOString();
+    const info = classificarTurno(agora);
+
+    const payloadLocal = {
+      placa,
+      transportadora: transp,
+      ts_iso: tsISO,
+      turno: info.turno,
+      dia_turno: info.diaTurno,
+      synced: false
+    };
+    adicionarRegistroLocal(payloadLocal);
+
+    try {
+      const saved = await supaInsertRegistro({
+        placa,
+        transportadora: transp,
+        tsISO,
+        turno: info.turno,
+        diaTurno: info.diaTurno
+      });
+
+      setDbStatus(true);
+      const idx = registrosLocal.findIndex(r => !r.synced && r.ts_iso === tsISO && r.placa === placa);
+      if(idx > -1){
+        registrosLocal[idx].synced = true;
+        registrosLocal[idx].id = saved.id;
+        salvarRegistrosLocal();
+      }
+      await carregarRegistrosDoServidor();
+    } catch (e) {
+      console.error("Erro ao salvar online:", e);
+      setDbStatus(false);
+      alert("Servidor inacessível. Registro salvo apenas neste computador (offline).");
+      renderRegistros(registrosLocal, true);
+    }
+
+    inpPlaca.value = "";
+    inpPlaca.focus();
+  }
+
+  async function excluirRegistro(id) {
+    if (!confirm("Deseja realmente excluir este registro?")) return;
+    try {
+      await supaDeleteRegistro(id);
+      await carregarRegistrosDoServidor();
+    } catch (e) {
+      console.error("Erro ao excluir:", e);
+      setDbStatus(false);
+      alert("Erro de conexão ao excluir.");
+    }
+  }
+
+  function excluirRegistroOffline(tsIso){
+    if (!confirm("Deseja realmente excluir este registro local?")) return;
+    registrosLocal = registrosLocal.filter(r => (r.ts_iso || r.tsISO) !== tsIso);
+    salvarRegistrosLocal();
+    renderRegistros(registrosLocal, true);
+  }
+
+  function renderRegistros(lista, modoOffline) {
+    tbodyReg.innerHTML = "";
+    isOfflineView = modoOffline;
+
+    const agora = new Date();
+    const limite = new Date(agora.getTime() - 24 * 60 * 60 * 1000);
+
+    lista
+      .filter(reg => new Date(reg.ts_iso || reg.tsISO) >= limite)
+      .sort((a, b) => new Date(b.ts_iso || b.tsISO) - new Date(a.ts_iso || a.tsISO))
+      .forEach(reg => {
+        const d = new Date(reg.ts_iso || reg.tsISO);
+        const info = classificarTurno(d);
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${reg.id ?? "-"}</td>
+          <td>${formatarDataHora(d)}</td>
+          <td><span class="pill-turno${info.turno === 2 ? " pill-turno2" : ""}">Turno ${info.turno}</span></td>
+          <td>${reg.placa}</td>
+          <td>${reg.transportadora}</td>
+          <td>
+            <button class="btn-delete" data-id="${reg.id ?? ""}" data-ts="${reg.ts_iso || reg.tsISO}">Excluir</button>
+          </td>
+        `;
+        tbodyReg.appendChild(tr);
+      });
+
+    document.querySelectorAll(".btn-delete").forEach(btn => {
+      const id = btn.getAttribute("data-id");
+      const ts = btn.getAttribute("data-ts");
+      btn.onclick = () => {
+        if(isOfflineView || !id) excluirRegistroOffline(ts);
+        else excluirRegistro(id);
+      };
+    });
+  }
+
+  function initPeriodoPadrao() {
+    const agora = new Date();
+    const inicioDia = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 0,0,0);
+    function toLocal(dt){
+      const yyyy = dt.getFullYear();
+      const mm   = pad2(dt.getMonth()+1);
+      const dd   = pad2(dt.getDate());
+      const hh   = pad2(dt.getHours());
+      const mi   = pad2(dt.getMinutes());
+      return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+    }
+    inicioRel.value = toLocal(inicioDia);
+    fimRel.value    = toLocal(agora);
+    inicioRelNF.value = toLocal(inicioDia);
+    fimRelNF.value    = toLocal(agora);
+  }
+
+  function obterPeriodoERegistros(){
+    if(!inicioRel.value || !fimRel.value) return alert("Preencha o início e o fim do período."), null;
+    const di = new Date(inicioRel.value);
+    const df = new Date(fimRel.value);
+    if (isNaN(di.getTime()) || isNaN(df.getTime())) return alert("Datas/horas inválidas."), null;
+    if (di > df) return alert("O início do período é maior que o fim."), null;
+
+    const base = registrosCache.length ? registrosCache : registrosLocal;
+
+    const filtrados = base
+      .filter(reg => {
+        const d = new Date(reg.ts_iso || reg.tsISO);
+        return d >= di && d <= df;
+      })
+      .sort((a,b)=> new Date(a.ts_iso || a.tsISO) - new Date(b.ts_iso || b.tsISO));
+
+    return {di, df, filtrados};
+  }
+
+  function montarHTMLRelatorioPeriodo(di, df, filtrados){
+    const inicioFmt = formatarDataHora(di);
+    const fimFmt    = formatarDataHora(df);
+
+    const ddIni = pad2(di.getDate());
+    const mmIni = pad2(di.getMonth()+1);
+    const ddFim = pad2(df.getDate());
+    const mmFim = pad2(df.getMonth()+1);
+
+    const tituloCurto = `Relatorio_Basculas_${ddIni}_${mmIni}_a_${ddFim}_${mmFim}`;
+    const tituloVis = `Relatório Caminhões com Bascula Suja`;
+
+    let html = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>${tituloCurto}</title>
+<style>
+  body { font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:#020617; color:#e5e7eb; margin:16px; }
+  .title { font-size:16pt; font-weight:bold; margin-bottom:4px; color:#e5e7eb; }
+  .subtitle { font-size:10pt; color:#94a3b8; margin-bottom:10px; }
+  table { border-collapse:collapse; width:100%; }
+  th, td { border:1px solid #1f2937; padding:6px 8px; font-size:10pt; }
+  thead tr { background:#020617; color:#e5e7eb; }
+  tbody tr:nth-child(odd) { background:#0f172a; }
+  tbody tr:nth-child(even){ background:#020617; }
+  th { text-transform:uppercase; letter-spacing:0.05em; }
+</style>
+</head>
+<body>
+<div class="title">${tituloVis}</div>
+<div class="subtitle">
+  Período: <strong>${inicioFmt}</strong> até <strong>${fimFmt}</strong>
+  &nbsp;|&nbsp; Registros: <strong>${filtrados.length}</strong>
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Placa</th>
+      <th>Transportadora</th>
+      <th>Horário real</th>
+      <th>Turno</th>
+    </tr>
+  </thead>
+  <tbody>
+`;
+
+    filtrados.forEach((reg, idx) => {
+      const d = new Date(reg.ts_iso || reg.tsISO);
+      const info = classificarTurno(d);
+      const horario = formatarDataHora(d);
+      html += `
+    <tr>
+      <td>${idx+1}</td>
+      <td>${reg.placa}</td>
+      <td>${reg.transportadora}</td>
+      <td>${horario}</td>
+      <td>${info.turno}</td>
+    </tr>`;
+    });
+
+    html += `
+  </tbody>
+</table>
+</body>
+</html>`;
+    return {html, nomeBase: tituloCurto};
+  }
+
+  btnRelatorioPdf.addEventListener("click", () => {
+    msgRel.textContent = "";
+    const periodo = obterPeriodoERegistros();
+    if (!periodo) return;
+    const {di, df, filtrados} = periodo;
+
+    if (!filtrados.length) {
+      msgRel.textContent = "Nenhum registro encontrado nesse período.";
+      return;
+    }
+
+    const {html} = montarHTMLRelatorioPeriodo(di, df, filtrados);
+    const popup = window.open("", "_blank");
+    if (!popup) return alert("O navegador bloqueou a abertura da janela de impressão. Libere pop-ups para este site.");
+    popup.document.open();
+    popup.document.write(html);
+    popup.document.close();
+    popup.focus();
+    setTimeout(() => popup.print(), 500);
+
+    msgRel.textContent = "Relatório aberto em nova aba. Use Imprimir → Salvar como PDF.";
+  });
+
+  let chart7d = null;
+  function abrirModalGrafico7d() {
+    const base = registrosCache.length ? registrosCache : registrosLocal;
+    if (!base.length) return alert("Nenhum registro para gerar gráfico.");
+
+    const hoje = new Date();
+    const hojeDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+    const inicioDia = new Date(hojeDia);
+    inicioDia.setDate(hojeDia.getDate() - 6);
+
+    const contagemPorDia = {};
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(inicioDia);
+      d.setDate(inicioDia.getDate() + i);
+      const key = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+      contagemPorDia[key] = 0;
+    }
+
+    base.forEach(reg => {
+      const diaStr = reg.dia_turno || reg.diaTurno || null;
+      if (!diaStr) return;
+      if (Object.prototype.hasOwnProperty.call(contagemPorDia, diaStr)) contagemPorDia[diaStr]++;
+    });
+
+    const keys = Object.keys(contagemPorDia).sort();
+    const labels = keys.map(k => {
+      const [y,m,d] = k.split("-");
+      return `${d}/${m}`;
+    });
+    const dataVals = keys.map(k => contagemPorDia[k]);
+
+    const ctx = canvasGrafico.getContext("2d");
+    if (chart7d) chart7d.destroy();
+    chart7d = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [{ label: "Carretas sujas por dia (dia do turno)", data: dataVals }]
+      },
+      options: { responsive:true, scales: { y: { beginAtZero:true, ticks:{ stepSize:1 } } } }
+    });
+
+    modalGrafico.style.display = "flex";
+  }
+
+  btnGrafico7d.addEventListener("click", abrirModalGrafico7d);
+  btnFecharModal.addEventListener("click", () => { modalGrafico.style.display = "none"; });
+  modalGrafico.addEventListener("click", (e) => { if (e.target === modalGrafico) modalGrafico.style.display = "none"; });
+
+  // ====== NF ======
+  async function salvarNFSubstituta() {
+    const placaRaw = inpPlacaNF.value || "";
+    const placa = placaRaw.replace(/\s+/g, "").toUpperCase();
+    if (!placa) return alert("Informe a placa do veículo.");
+
+    const transp = selTranspNF.value;
+    if (!transp) return alert("Selecione uma transportadora.");
+
+    const nfCancelada = (inpNFCancelada.value || "").trim();
+    const nfSubst    = (inpNFSubstituta.value || "").trim();
+    const motivo     = (inpMotivoCancelamento.value || "").trim();
+
+    if (!nfCancelada || !nfSubst) return alert("Informe o número da NF cancelada e da NF substituta.");
+    if (!motivo) return alert("Informe o motivo do cancelamento.");
+
+    const agora = new Date();
+    const tsISO = agora.toISOString();
+
+    const payloadLocal = {
+      placa,
+      transportadora: transp,
+      nf_cancelada: nfCancelada,
+      nf_substituta: nfSubst,
+      motivo_cancelamento: motivo,
+      ts_iso: tsISO,
+      synced: false
+    };
+    adicionarNFLocal(payloadLocal);
+
+    try{
+      await supaInsertNF({
+        placa,
+        transportadora: transp,
+        nf_cancelada: nfCancelada,
+        nf_substituta: nfSubst,
+        motivo_cancelamento: motivo,
+        tsISO
+      });
+      setDbStatus(true);
+      await syncNFPendentes();
+      msgRelNF.textContent = "Vínculo NF salvo com sucesso.";
+      setTimeout(() => { msgRelNF.textContent = ""; }, 4000);
+    }catch(e){
+      console.error("Erro ao salvar NF online:", e);
+      setDbStatus(false);
+      alert("Servidor inacessível. NF salva apenas neste computador (offline).");
+    }
+
+    inpPlacaNF.value = "";
+    inpNFCancelada.value = "";
+    inpNFSubstituta.value = "";
+    inpMotivoCancelamento.value = "";
+  }
+
+  async function gerarRelatorioPdfNF() {
+    msgRelNF.textContent = "";
+
+    if (!inicioRelNF.value || !fimRelNF.value) return alert("Preencha o início e o fim do período para o relatório de NF.");
+    const di = new Date(inicioRelNF.value);
+    const df = new Date(fimRelNF.value);
+    if (isNaN(di.getTime()) || isNaN(df.getTime())) return alert("Datas/horas inválidas para o relatório de NF.");
+    if (di > df) return alert("O início do período é maior que o fim (NF).");
+
+    let dadosNF = [];
+    let usandoOffline = false;
+
+    try {
+      await syncNFPendentes();
+      dadosNF = await supaListNF();
+      nfCache = dadosNF;
+      setDbStatus(true);
+    } catch (e) {
+      console.error("Erro ao buscar NF substitutas, usando offline:", e);
+      setDbStatus(false);
+      alert("Banco de dados de NF inacessível. Gerando relatório apenas com os vínculos salvos neste computador.");
+      dadosNF = nfLocal;
+      usandoOffline = true;
+    }
+
+    const filtrados = dadosNF
+      .filter(reg => {
+        const ts = reg.ts_iso || reg.tsISO;
+        if (!ts) return false;
+        const d = new Date(ts);
+        return d >= di && d <= df;
+      })
+      .sort((a,b) => new Date(a.ts_iso || a.tsISO) - new Date(b.ts_iso || b.tsISO));
+
+    if (!filtrados.length) {
+      msgRelNF.textContent = "Nenhum vínculo NF encontrado nesse período.";
+      return;
+    }
+
+    const inicioFmt = formatarDataHora(di);
+    const fimFmt    = formatarDataHora(df);
+
+    const ddIni = pad2(di.getDate());
+    const mmIni = pad2(di.getMonth()+1);
+    const ddFim = pad2(df.getDate());
+    const mmFim = pad2(df.getMonth()+1);
+
+    const tituloCurto = `Relatorio_NF_Cancelada_Substituta_${ddIni}_${mmIni}_a_${ddFim}_${mmFim}`;
+    const tituloVis = `Relatório NF Cancelada x NF Substituta${usandoOffline ? " (OFFLINE)" : ""}`;
+
+    let html = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>${tituloCurto}</title>
+<style>
+  body { font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:#020617; color:#e5e7eb; margin:16px; }
+  .title { font-size:16pt; font-weight:bold; margin-bottom:4px; color:#e5e7eb; }
+  .subtitle { font-size:10pt; color:#94a3b8; margin-bottom:10px; }
+  table { border-collapse:collapse; width:100%; }
+  th, td { border:1px solid #1f2937; padding:6px 8px; font-size:10pt; }
+  thead tr { background:#020617; color:#e5e7eb; }
+  tbody tr:nth-child(odd) { background:#0f172a; }
+  tbody tr:nth-child(even){ background:#020617; }
+  th { text-transform:uppercase; letter-spacing:0.05em; }
+</style>
+</head>
+<body>
+<div class="title">${tituloVis}</div>
+<div class="subtitle">
+  Período: <strong>${inicioFmt}</strong> até <strong>${fimFmt}</strong>
+  &nbsp;|&nbsp; Registros: <strong>${filtrados.length}</strong>
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Data/Hora cadastro</th>
+      <th>Placa</th>
+      <th>Transportadora</th>
+      <th>NF Cancelada</th>
+      <th>NF Substituta</th>
+      <th>Motivo do cancelamento</th>
+    </tr>
+  </thead>
+  <tbody>
+`;
+
+    filtrados.forEach((reg, idx) => {
+      const ts = reg.ts_iso || reg.tsISO;
+      const d  = new Date(ts);
+      const dataFmt = formatarDataHora(d);
+      html += `
+    <tr>
+      <td>${idx+1}</td>
+      <td>${dataFmt}</td>
+      <td>${reg.placa || ""}</td>
+      <td>${reg.transportadora || ""}</td>
+      <td>${reg.nf_cancelada || ""}</td>
+      <td>${reg.nf_substituta || ""}</td>
+      <td>${reg.motivo_cancelamento || ""}</td>
+    </tr>`;
+    });
+
+    html += `
+  </tbody>
+</table>
+</body>
+</html>`;
+
+    const popup = window.open("", "_blank");
+    if (!popup) return alert("O navegador bloqueou a abertura da janela de impressão. Libere pop-ups para este site.");
+    popup.document.open();
+    popup.document.write(html);
+    popup.document.close();
+    popup.focus();
+    setTimeout(() => popup.print(), 500);
+
+    msgRelNF.textContent = "Relatório de NF aberto em nova aba. Use Imprimir → Salvar como PDF.";
+  }
+
+  let chart7dNF = null;
+  async function abrirModalGrafico7dNF() {
+    let dadosNF = [];
+    try {
+      await syncNFPendentes();
+      dadosNF = await supaListNF();
+      nfCache = dadosNF;
+      setDbStatus(true);
+    } catch (e) {
+      console.error("Erro ao buscar NF, usando offline:", e);
+      setDbStatus(false);
+      alert("Banco de dados de NF inacessível. Gerando gráfico apenas com os vínculos salvos neste computador.");
+      dadosNF = nfLocal;
+    }
+
+    if (!dadosNF.length) return alert("Nenhum vínculo NF disponível para gerar gráfico.");
+
+    const hoje = new Date();
+    const hojeDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+    const inicioDia = new Date(hojeDia);
+    inicioDia.setDate(hojeDia.getDate() - 6);
+
+    const contagemPorDia = {};
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(inicioDia);
+      d.setDate(inicioDia.getDate() + i);
+      const key = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+      contagemPorDia[key] = 0;
+    }
+
+    dadosNF.forEach(reg => {
+      const ts = reg.ts_iso || reg.tsISO;
+      if (!ts) return;
+      const d = new Date(ts);
+      const diaKey = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+      if (Object.prototype.hasOwnProperty.call(contagemPorDia, diaKey)) contagemPorDia[diaKey]++;
+    });
+
+    const keys = Object.keys(contagemPorDia).sort();
+    const labels = keys.map(k => {
+      const [y,m,d] = k.split("-");
+      return `${d}/${m}`;
+    });
+    const dataVals = keys.map(k => contagemPorDia[k]);
+
+    const ctx = canvasGraficoNF.getContext("2d");
+    if (chart7dNF) chart7dNF.destroy();
+    chart7dNF = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [{ label: "Quantidade de NF canceladas/substituídas por dia", data: dataVals }]
+      },
+      options: { responsive:true, scales: { y: { beginAtZero:true, ticks:{ stepSize:1 } } } }
+    });
+
+    modalGraficoNF.style.display = "flex";
+  }
+
+  async function abrirModalNF24h() {
+    let dados = [];
+    try {
+      await syncNFPendentes();
+      dados = await supaListNF();
+      nfCache = dados;
+      setDbStatus(true);
+    } catch (e) {
+      console.error("Erro ao buscar NF (24h), usando offline:", e);
+      setDbStatus(false);
+      alert("Banco de dados de NF inacessível. Exibindo apenas vínculos salvos neste computador.");
+      dados = nfLocal;
+    }
+
+    const agora  = new Date();
+    const limite = new Date(agora.getTime() - 24*60*60*1000);
+
+    const lista24h = dados
+      .filter(reg => {
+        const ts = reg.ts_iso || reg.tsISO;
+        if (!ts) return false;
+        const d = new Date(ts);
+        return d >= limite;
+      })
+      .sort((a,b) => new Date(b.ts_iso || b.tsISO) - new Date(a.ts_iso || a.tsISO));
+
+    tbodyNF24h.innerHTML = "";
+
+    lista24h.forEach((reg, idx) => {
+      const ts = reg.ts_iso || reg.tsISO;
+      const d  = new Date(ts);
+      const dataFmt = formatarDataHora(d);
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${idx+1}</td>
+        <td>${dataFmt}</td>
+        <td>${reg.placa || ""}</td>
+        <td>${reg.transportadora || ""}</td>
+        <td>${reg.nf_cancelada || ""}</td>
+        <td>${reg.nf_substituta || ""}</td>
+        <td>${reg.motivo_cancelamento || ""}</td>
+      `;
+      tbodyNF24h.appendChild(tr);
+    });
+
+    if (!lista24h.length) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td colspan="7" style="text-align:center;color:var(--muted);padding:8px;">
+        Nenhum vínculo NF foi cadastrado nas últimas 24 horas.
+      </td>`;
+      tbodyNF24h.appendChild(tr);
+    }
+
+    modalNF24h.style.display = "flex";
+  }
+
+  // ====== MODAIS ======
+  btnAbrirRegistros.addEventListener("click", () => { modalRegistros.style.display = "flex"; });
+  btnFecharRegistros.addEventListener("click", () => { modalRegistros.style.display = "none"; });
+  modalRegistros.addEventListener("click", (e) => { if (e.target === modalRegistros) modalRegistros.style.display = "none"; });
+
+  btnAbrirRelatorio.addEventListener("click", () => { modalRelatorio.style.display = "flex"; });
+  btnFecharRelatorio.addEventListener("click", () => { modalRelatorio.style.display = "none"; });
+  modalRelatorio.addEventListener("click", (e) => { if (e.target === modalRelatorio) modalRelatorio.style.display = "none"; });
+
+  btnAbrirRelatorioNF.addEventListener("click", () => { modalRelatorioNF.style.display = "flex"; });
+  btnFecharRelatorioNF.addEventListener("click", () => { modalRelatorioNF.style.display = "none"; });
+  modalRelatorioNF.addEventListener("click", (e) => { if (e.target === modalRelatorioNF) modalRelatorioNF.style.display = "none"; });
+
+  btnGrafico7dNF.addEventListener("click", abrirModalGrafico7dNF);
+  btnFecharModalNF.addEventListener("click", () => { modalGraficoNF.style.display = "none"; });
+  modalGraficoNF.addEventListener("click", (e)=>{ if(e.target === modalGraficoNF) modalGraficoNF.style.display = "none"; });
+
+  btnAbrirNF24h.addEventListener("click", abrirModalNF24h);
+  btnFecharNF24h.addEventListener("click", () => { modalNF24h.style.display = "none"; });
+  modalNF24h.addEventListener("click", (e) => { if (e.target === modalNF24h) modalNF24h.style.display = "none"; });
+
+  // ====== INIT ======
+  carregarTransportadoras();
+  preencherTransportadoras();
+  carregarRegistrosLocal();
+  carregarNFLocal();
+
+  btnRegistrar.addEventListener("click", registrarCaminhao);
+  btnSalvarNFSubst.addEventListener("click", salvarNFSubstituta);
+  btnRelatorioPdfNF.addEventListener("click", gerarRelatorioPdfNF);
+
+  initPeriodoPadrao();
+  inpPlaca.focus();
+
+  // ping simples: se der erro, marca offline
+  try {
+    // só pra validar conexão
+    await supabase.from("registros_bascula").select("id").limit(1);
+    setDbStatus(true);
+  } catch {
+    setDbStatus(false);
+  }
+
+  // carrega dados
+  await carregarRegistrosDoServidor();
+</script>
+
+</body>
+</html>
