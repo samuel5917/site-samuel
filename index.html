@@ -247,6 +247,33 @@
   }
   .modal-large{ max-width:900px; max-height:90vh; overflow:auto; }
 
+  .foto-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 10px;
+    border-radius:999px;
+    background:rgba(15,23,42,0.7);
+    border:1px solid rgba(148,163,184,0.35);
+    color:var(--muted);
+    font-size:12px;
+  }
+  .thumb{
+    width:44px;
+    height:44px;
+    border-radius:10px;
+    object-fit:cover;
+    border:1px solid rgba(148,163,184,0.35);
+    box-shadow:0 8px 18px rgba(0,0,0,0.35);
+  }
+  .thumb-empty{
+    width:44px;height:44px;border-radius:10px;
+    border:1px dashed rgba(148,163,184,0.35);
+    display:flex;align-items:center;justify-content:center;
+    color:rgba(148,163,184,0.7);
+    font-size:12px;
+  }
+
   @media(max-width:768px){
     body{padding:10px;}
     .page{gap:12px;}
@@ -288,15 +315,23 @@
       <button id="btnAddTransp" class="btn btn-ghost" type="button">+ Nova transportadora</button>
     </div>
   </div>
-  <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+
+  <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
     <div class="tag">
       <span>TURNOS:</span>
       <span><strong>Turno 1</strong> 07:00 → 19:00 </span> ·
       <span><strong>Turno 2</strong> 19:00 → 07:00 </span>
     </div>
-    <button id="btnRegistrar" class="btn btn-primary" type="button">
-      Registrar caminhão sujo
-    </button>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end;">
+      <span class="foto-badge" id="fotoStatus">📷 Sem foto</span>
+      <input id="fotoInput" type="file" accept="image/*" capture="environment" style="display:none;">
+      <button id="btnFoto" class="btn btn-ghost" type="button">📷 Foto (opcional)</button>
+
+      <button id="btnRegistrar" class="btn btn-primary" type="button">
+        Registrar caminhão sujo
+      </button>
+    </div>
   </div>
 
   <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
@@ -377,6 +412,7 @@
         <thead>
           <tr>
             <th>ID</th>
+            <th>Foto</th>
             <th>Data/Hora real</th>
             <th>Turno</th>
             <th>Placa</th>
@@ -445,7 +481,10 @@
     </p>
     <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
       <button id="btnRelatorioPdf" class="btn btn-primary" type="button">
-        Gerar PDF do período
+        PDF do período (sem imagens)
+      </button>
+      <button id="btnRelatorioPdfComImg" class="btn btn-ghost" type="button">
+        PDF do período (com imagens)
       </button>
       <button id="btnGrafico7d" class="btn btn-ghost" type="button">
         Gráfico últimos 7 dias
@@ -518,11 +557,16 @@
 <script type="module">
   import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
+  // 🔴 SEU SUPABASE
   const SUPABASE_URL = "https://rficsflnaxayyrddxald.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
 
+  // 🔴 SEU BUCKET
+  const BUCKET_IMAGENS = "bascula-contaminacao";
+
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // ====== KEYS LOCAL ======
   const STORAGE_KEY_TRANSP   = "msa_balanca_suja_transportadoras_v1";
   const LS_KEY_REGISTROS     = "msa_registros_bascula_local_v1";
   const LS_KEY_NF_SUBSTITUTA = "msa_nf_substitutas_local_v1";
@@ -534,6 +578,10 @@
   let nfCache         = [];
   let isOfflineView   = false;
 
+  // foto selecionada (para este registro)
+  let selectedPhotoFile = null;
+
+  // ====== ELEMENTOS ======
   const selTransp    = document.getElementById("transportadora");
   const selTranspNF  = document.getElementById("transportadoraNF");
   const btnAddTransp = document.getElementById("btnAddTransp");
@@ -544,6 +592,7 @@
   const inicioRel       = document.getElementById("inicioRel");
   const fimRel          = document.getElementById("fimRel");
   const btnRelatorioPdf = document.getElementById("btnRelatorioPdf");
+  const btnRelatorioPdfComImg = document.getElementById("btnRelatorioPdfComImg");
   const msgRel          = document.getElementById("msgRel");
 
   const btnGrafico7d   = document.getElementById("btnGrafico7d");
@@ -586,6 +635,12 @@
   const btnFecharNF24h = document.getElementById("btnFecharNF24h");
   const tbodyNF24h     = document.getElementById("tbodyNF24h");
 
+  // foto
+  const btnFoto = document.getElementById("btnFoto");
+  const fotoInput = document.getElementById("fotoInput");
+  const fotoStatus = document.getElementById("fotoStatus");
+
+  // ====== UTIL ======
   function setDbStatus(isOnline){
     if(isOnline){
       dbDot.classList.remove("offline");
@@ -649,6 +704,16 @@
     return `${dd}/${mm}/${yyyy} ${hh}:${mi}:${ss}`;
   }
 
+  function escapeHtml(str){
+    return String(str ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  // ====== LOCAL STORAGE ======
   function carregarRegistrosLocal() {
     try {
       const raw = localStorage.getItem(LS_KEY_REGISTROS);
@@ -725,7 +790,49 @@
     selTranspNF.value = trimmed;
   });
 
+  // ====== FOTO (UI) ======
+  function resetFotoUI(){
+    selectedPhotoFile = null;
+    fotoStatus.textContent = "📷 Sem foto";
+  }
+  btnFoto.addEventListener("click", () => fotoInput.click());
+  fotoInput.addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0];
+    if(!f){ resetFotoUI(); return; }
+    if(!f.type.startsWith("image/")){
+      alert("Selecione um arquivo de imagem.");
+      resetFotoUI();
+      return;
+    }
+    selectedPhotoFile = f;
+    fotoStatus.textContent = "📷 Foto selecionada";
+  });
+
+  // ====== SUPABASE: HELPERS ======
   function isoToTs(iso){ return iso; }
+
+  function buildPublicUrl(path){
+    // https://<project>.supabase.co/storage/v1/object/public/<bucket>/<path>
+    return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET_IMAGENS}/${path}`;
+  }
+
+  async function uploadImagemRegistro({ placa, tsISO, file }){
+    if(!file) return { foto_url:null, foto_path:null };
+
+    const safePlaca = (placa || "SEMPLACA").replace(/[^A-Z0-9]/gi,"").toUpperCase();
+    const tsSafe = tsISO.replace(/[:.]/g,"-");
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const path = `bascula/${safePlaca}/${tsSafe}.${ext}`;
+
+    const { error } = await supabase
+      .storage
+      .from(BUCKET_IMAGENS)
+      .upload(path, file, { upsert:true, cacheControl:"3600" });
+
+    if(error) throw error;
+
+    return { foto_url: buildPublicUrl(path), foto_path: path };
+  }
 
   async function supaInsertRegistro(payload){
     const { data, error } = await supabase
@@ -735,7 +842,9 @@
         transportadora: payload.transportadora,
         turno: payload.turno,
         dia_turno: payload.diaTurno,
-        ts: isoToTs(payload.tsISO)
+        ts: isoToTs(payload.tsISO),
+        foto_url: payload.foto_url ?? null,
+        foto_path: payload.foto_path ?? null
       }])
       .select("id, ts")
       .single();
@@ -746,7 +855,7 @@
   async function supaListRegistros(){
     const { data, error } = await supabase
       .from("registros_bascula")
-      .select("id, placa, transportadora, turno, dia_turno, ts")
+      .select("id, placa, transportadora, turno, dia_turno, ts, foto_url, foto_path")
       .order("ts", { ascending: false })
       .limit(5000);
     if (error) throw error;
@@ -757,7 +866,9 @@
       transportadora: r.transportadora,
       turno: r.turno,
       dia_turno: r.dia_turno,
-      tsISO: r.ts
+      tsISO: r.ts,
+      foto_url: r.foto_url ?? null,
+      foto_path: r.foto_path ?? null
     }));
   }
 
@@ -805,6 +916,7 @@
     }));
   }
 
+  // ====== SYNC OFFLINE -> ONLINE ======
   async function syncRegistrosPendentes(){
     const pendentes = registrosLocal.filter(r => !r.synced);
     if(!pendentes.length) return;
@@ -815,7 +927,9 @@
         transportadora: reg.transportadora,
         tsISO: reg.ts_iso,
         turno: reg.turno,
-        diaTurno: reg.dia_turno
+        diaTurno: reg.dia_turno,
+        foto_url: reg.foto_url ?? null,
+        foto_path: reg.foto_path ?? null
       });
       reg.synced = true;
       reg.id = saved.id;
@@ -842,6 +956,7 @@
     salvarNFLocal();
   }
 
+  // ====== LOAD SERVER ======
   async function carregarRegistrosDoServidor() {
     try {
       await syncRegistrosPendentes();
@@ -851,12 +966,14 @@
     } catch (e) {
       console.error("Erro ao buscar registros, usando offline:", e);
       setDbStatus(false);
+      alert("Banco de dados inacessível. Exibindo registros salvos localmente neste computador.");
       renderRegistros(registrosLocal, true);
     }
   }
 
   async function registrarCaminhao() {
-    const placa = (inpPlaca.value || "").replace(/\s+/g, "").toUpperCase();
+    const placaRaw = inpPlaca.value;
+    const placa = (placaRaw || "").replace(/\s+/g, "").toUpperCase();
     if (!placa) return alert("Informe a placa do veículo.");
 
     const transp = selTransp.value;
@@ -866,14 +983,34 @@
     const tsISO = agora.toISOString();
     const info = classificarTurno(agora);
 
-    adicionarRegistroLocal({
+    // 1) tenta upload da imagem (se selecionou)
+    let foto_url = null;
+    let foto_path = null;
+
+    try{
+      if(selectedPhotoFile){
+        const up = await uploadImagemRegistro({ placa, tsISO, file:selectedPhotoFile });
+        foto_url = up.foto_url;
+        foto_path = up.foto_path;
+      }
+    }catch(err){
+      console.error("Falha no upload da imagem:", err);
+      alert("Não consegui enviar a imagem (Storage). O registro será salvo sem foto.");
+      foto_url = null;
+      foto_path = null;
+    }
+
+    const payloadLocal = {
       placa,
       transportadora: transp,
       ts_iso: tsISO,
       turno: info.turno,
       dia_turno: info.diaTurno,
+      foto_url,
+      foto_path,
       synced: false
-    });
+    };
+    adicionarRegistroLocal(payloadLocal);
 
     try {
       const saved = await supaInsertRegistro({
@@ -881,7 +1018,9 @@
         transportadora: transp,
         tsISO,
         turno: info.turno,
-        diaTurno: info.diaTurno
+        diaTurno: info.diaTurno,
+        foto_url,
+        foto_path
       });
 
       setDbStatus(true);
@@ -901,6 +1040,8 @@
 
     inpPlaca.value = "";
     inpPlaca.focus();
+    fotoInput.value = "";
+    resetFotoUI();
   }
 
   async function excluirRegistro(id) {
@@ -926,7 +1067,8 @@
     tbodyReg.innerHTML = "";
     isOfflineView = modoOffline;
 
-    const limite = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const agora = new Date();
+    const limite = new Date(agora.getTime() - 24 * 60 * 60 * 1000);
 
     lista
       .filter(reg => new Date(reg.ts_iso || reg.tsISO) >= limite)
@@ -935,13 +1077,18 @@
         const d = new Date(reg.ts_iso || reg.tsISO);
         const info = classificarTurno(d);
 
+        const foto = reg.foto_url
+          ? `<img class="thumb" src="${escapeHtml(reg.foto_url)}" alt="Foto do caminhão">`
+          : `<div class="thumb-empty">—</div>`;
+
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${reg.id ?? "-"}</td>
+          <td>${foto}</td>
           <td>${formatarDataHora(d)}</td>
           <td><span class="pill-turno${info.turno === 2 ? " pill-turno2" : ""}">Turno ${info.turno}</span></td>
-          <td>${reg.placa}</td>
-          <td>${reg.transportadora}</td>
+          <td>${escapeHtml(reg.placa)}</td>
+          <td>${escapeHtml(reg.transportadora)}</td>
           <td>
             <button class="btn-delete" data-id="${reg.id ?? ""}" data-ts="${reg.ts_iso || reg.tsISO}">Excluir</button>
           </td>
@@ -995,6 +1142,7 @@
     return {di, df, filtrados};
   }
 
+  // ====== RELATÓRIO SEM IMAGENS ======
   function montarHTMLRelatorioPeriodo(di, df, filtrados){
     const inicioFmt = formatarDataHora(di);
     const fimFmt    = formatarDataHora(df);
@@ -1051,8 +1199,98 @@
       html += `
     <tr>
       <td>${idx+1}</td>
-      <td>${reg.placa}</td>
-      <td>${reg.transportadora}</td>
+      <td>${escapeHtml(reg.placa)}</td>
+      <td>${escapeHtml(reg.transportadora)}</td>
+      <td>${horario}</td>
+      <td>${info.turno}</td>
+    </tr>`;
+    });
+
+    html += `
+  </tbody>
+</table>
+</body>
+</html>`;
+    return {html, nomeBase: tituloCurto};
+  }
+
+  // ====== RELATÓRIO COM IMAGENS ======
+  function montarHTMLRelatorioPeriodoComImagens(di, df, filtrados){
+    const inicioFmt = formatarDataHora(di);
+    const fimFmt    = formatarDataHora(df);
+
+    const ddIni = pad2(di.getDate());
+    const mmIni = pad2(di.getMonth()+1);
+    const ddFim = pad2(df.getDate());
+    const mmFim = pad2(df.getMonth()+1);
+
+    const tituloCurto = `Relatorio_Basculas_COM_IMAGENS_${ddIni}_${mmIni}_a_${ddFim}_${mmFim}`;
+    const tituloVis = `Relatório Caminhões com Bascula Suja (COM IMAGENS)`;
+
+    let html = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>${tituloCurto}</title>
+<style>
+  body { font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:#020617; color:#e5e7eb; margin:16px; }
+  .title { font-size:16pt; font-weight:bold; margin-bottom:4px; color:#e5e7eb; }
+  .subtitle { font-size:10pt; color:#94a3b8; margin-bottom:10px; }
+  table { border-collapse:collapse; width:100%; }
+  th, td { border:1px solid #1f2937; padding:6px 8px; font-size:10pt; vertical-align:top; }
+  thead tr { background:#020617; color:#e5e7eb; }
+  tbody tr:nth-child(odd) { background:#0f172a; }
+  tbody tr:nth-child(even){ background:#020617; }
+  th { text-transform:uppercase; letter-spacing:0.05em; }
+  .imgbox{ display:flex; gap:10px; align-items:flex-start; }
+  .thumb{ width:110px; height:110px; object-fit:cover; border-radius:10px; border:1px solid #334155; }
+  .noimg{ width:110px; height:110px; border-radius:10px; border:1px dashed #334155; display:flex; align-items:center; justify-content:center; color:#94a3b8; }
+  a{ color:#38bdf8; text-decoration:none; }
+  a:hover{ text-decoration:underline; }
+</style>
+</head>
+<body>
+<div class="title">${tituloVis}</div>
+<div class="subtitle">
+  Período: <strong>${inicioFmt}</strong> até <strong>${fimFmt}</strong>
+  &nbsp;|&nbsp; Registros: <strong>${filtrados.length}</strong>
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Imagem</th>
+      <th>Placa</th>
+      <th>Transportadora</th>
+      <th>Horário real</th>
+      <th>Turno</th>
+    </tr>
+  </thead>
+  <tbody>
+`;
+
+    filtrados.forEach((reg, idx) => {
+      const d = new Date(reg.ts_iso || reg.tsISO);
+      const info = classificarTurno(d);
+      const horario = formatarDataHora(d);
+
+      const imgCell = reg.foto_url
+        ? `<div class="imgbox">
+             <img class="thumb" src="${escapeHtml(reg.foto_url)}" alt="Foto do caminhão">
+             <div style="font-size:9pt; color:#94a3b8;">
+               <div><strong>Link:</strong></div>
+               <div><a href="${escapeHtml(reg.foto_url)}" target="_blank">abrir imagem</a></div>
+             </div>
+           </div>`
+        : `<div class="noimg">Sem foto</div>`;
+
+      html += `
+    <tr>
+      <td>${idx+1}</td>
+      <td>${imgCell}</td>
+      <td>${escapeHtml(reg.placa)}</td>
+      <td>${escapeHtml(reg.transportadora)}</td>
       <td>${horario}</td>
       <td>${info.turno}</td>
     </tr>`;
@@ -1087,6 +1325,30 @@
     setTimeout(() => popup.print(), 500);
 
     msgRel.textContent = "Relatório aberto em nova aba. Use Imprimir → Salvar como PDF.";
+  });
+
+  btnRelatorioPdfComImg.addEventListener("click", () => {
+    msgRel.textContent = "";
+    const periodo = obterPeriodoERegistros();
+    if (!periodo) return;
+    const {di, df, filtrados} = periodo;
+
+    if (!filtrados.length) {
+      msgRel.textContent = "Nenhum registro encontrado nesse período.";
+      return;
+    }
+
+    const {html} = montarHTMLRelatorioPeriodoComImagens(di, df, filtrados);
+    const popup = window.open("", "_blank");
+    if (!popup) return alert("O navegador bloqueou a abertura da janela de impressão. Libere pop-ups para este site.");
+    popup.document.open();
+    popup.document.write(html);
+    popup.document.close();
+    popup.focus();
+    // dá um pouco mais de tempo pra carregar imagens
+    setTimeout(() => popup.print(), 900);
+
+    msgRel.textContent = "Relatório COM IMAGENS aberto. Use Imprimir → Salvar como PDF.";
   });
 
   let chart7d = null;
@@ -1124,7 +1386,10 @@
     if (chart7d) chart7d.destroy();
     chart7d = new Chart(ctx, {
       type: "bar",
-      data: { labels, datasets: [{ label: "Carretas sujas por dia (dia do turno)", data: dataVals }] },
+      data: {
+        labels,
+        datasets: [{ label: "Carretas sujas por dia (dia do turno)", data: dataVals }]
+      },
       options: { responsive:true, scales: { y: { beginAtZero:true, ticks:{ stepSize:1 } } } }
     });
 
@@ -1135,8 +1400,10 @@
   btnFecharModal.addEventListener("click", () => { modalGrafico.style.display = "none"; });
   modalGrafico.addEventListener("click", (e) => { if (e.target === modalGrafico) modalGrafico.style.display = "none"; });
 
+  // ====== NF ======
   async function salvarNFSubstituta() {
-    const placa = (inpPlacaNF.value || "").replace(/\s+/g, "").toUpperCase();
+    const placaRaw = inpPlacaNF.value || "";
+    const placa = placaRaw.replace(/\s+/g, "").toUpperCase();
     if (!placa) return alert("Informe a placa do veículo.");
 
     const transp = selTranspNF.value;
@@ -1152,7 +1419,7 @@
     const agora = new Date();
     const tsISO = agora.toISOString();
 
-    adicionarNFLocal({
+    const payloadLocal = {
       placa,
       transportadora: transp,
       nf_cancelada: nfCancelada,
@@ -1160,7 +1427,8 @@
       motivo_cancelamento: motivo,
       ts_iso: tsISO,
       synced: false
-    });
+    };
+    adicionarNFLocal(payloadLocal);
 
     try{
       await supaInsertNF({
@@ -1284,11 +1552,11 @@
     <tr>
       <td>${idx+1}</td>
       <td>${dataFmt}</td>
-      <td>${reg.placa || ""}</td>
-      <td>${reg.transportadora || ""}</td>
-      <td>${reg.nf_cancelada || ""}</td>
-      <td>${reg.nf_substituta || ""}</td>
-      <td>${reg.motivo_cancelamento || ""}</td>
+      <td>${escapeHtml(reg.placa || "")}</td>
+      <td>${escapeHtml(reg.transportadora || "")}</td>
+      <td>${escapeHtml(reg.nf_cancelada || "")}</td>
+      <td>${escapeHtml(reg.nf_substituta || "")}</td>
+      <td>${escapeHtml(reg.motivo_cancelamento || "")}</td>
     </tr>`;
     });
 
@@ -1358,7 +1626,10 @@
     if (chart7dNF) chart7dNF.destroy();
     chart7dNF = new Chart(ctx, {
       type: "bar",
-      data: { labels, datasets: [{ label: "Quantidade de NF canceladas/substituídas por dia", data: dataVals }] },
+      data: {
+        labels,
+        datasets: [{ label: "Quantidade de NF canceladas/substituídas por dia", data: dataVals }]
+      },
       options: { responsive:true, scales: { y: { beginAtZero:true, ticks:{ stepSize:1 } } } }
     });
 
@@ -1379,7 +1650,8 @@
       dados = nfLocal;
     }
 
-    const limite = new Date(Date.now() - 24*60*60*1000);
+    const agora  = new Date();
+    const limite = new Date(agora.getTime() - 24*60*60*1000);
 
     const lista24h = dados
       .filter(reg => {
@@ -1401,11 +1673,11 @@
       tr.innerHTML = `
         <td>${idx+1}</td>
         <td>${dataFmt}</td>
-        <td>${reg.placa || ""}</td>
-        <td>${reg.transportadora || ""}</td>
-        <td>${reg.nf_cancelada || ""}</td>
-        <td>${reg.nf_substituta || ""}</td>
-        <td>${reg.motivo_cancelamento || ""}</td>
+        <td>${escapeHtml(reg.placa || "")}</td>
+        <td>${escapeHtml(reg.transportadora || "")}</td>
+        <td>${escapeHtml(reg.nf_cancelada || "")}</td>
+        <td>${escapeHtml(reg.nf_substituta || "")}</td>
+        <td>${escapeHtml(reg.motivo_cancelamento || "")}</td>
       `;
       tbodyNF24h.appendChild(tr);
     });
@@ -1421,12 +1693,8 @@
     modalNF24h.style.display = "flex";
   }
 
-  // MODAIS
-  btnAbrirRegistros.addEventListener("click", async () => {
-    // ✅ melhora: atualiza antes de abrir
-    await carregarRegistrosDoServidor();
-    modalRegistros.style.display = "flex";
-  });
+  // ====== MODAIS ======
+  btnAbrirRegistros.addEventListener("click", () => { modalRegistros.style.display = "flex"; });
   btnFecharRegistros.addEventListener("click", () => { modalRegistros.style.display = "none"; });
   modalRegistros.addEventListener("click", (e) => { if (e.target === modalRegistros) modalRegistros.style.display = "none"; });
 
@@ -1442,14 +1710,11 @@
   btnFecharModalNF.addEventListener("click", () => { modalGraficoNF.style.display = "none"; });
   modalGraficoNF.addEventListener("click", (e)=>{ if(e.target === modalGraficoNF) modalGraficoNF.style.display = "none"; });
 
-  btnAbrirNF24h.addEventListener("click", async () => {
-    // ✅ melhora: recarrega NF antes de abrir
-    await abrirModalNF24h();
-  });
+  btnAbrirNF24h.addEventListener("click", abrirModalNF24h);
   btnFecharNF24h.addEventListener("click", () => { modalNF24h.style.display = "none"; });
   modalNF24h.addEventListener("click", (e) => { if (e.target === modalNF24h) modalNF24h.style.display = "none"; });
 
-  // INIT
+  // ====== INIT ======
   carregarTransportadoras();
   preencherTransportadoras();
   carregarRegistrosLocal();
@@ -1461,12 +1726,17 @@
 
   initPeriodoPadrao();
   inpPlaca.focus();
+  resetFotoUI();
 
-  // ✅ PING CORRETO (Supabase não "throw", retorna {error})
-  const ping = await supabase.from("registros_bascula").select("id").limit(1);
-  if (ping.error) setDbStatus(false);
-  else setDbStatus(true);
+  // ping simples
+  try {
+    await supabase.from("registros_bascula").select("id").limit(1);
+    setDbStatus(true);
+  } catch {
+    setDbStatus(false);
+  }
 
+  // carrega dados
   await carregarRegistrosDoServidor();
 </script>
 
