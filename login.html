@@ -8,6 +8,7 @@
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <style>
+
 body{
   margin:0;
   font-family: Arial;
@@ -17,6 +18,8 @@ body{
   align-items:center;
   height:100vh;
 }
+
+/* card */
 
 .container{
   width:95%;
@@ -29,6 +32,7 @@ body{
   justify-content:space-between;
 }
 
+/* mobile */
 @media(max-width:800px){
   .container{
     flex-direction:column;
@@ -39,6 +43,8 @@ body{
 .box{
   flex:1;
 }
+
+/* form */
 
 .login-card{
   background:white;
@@ -67,6 +73,11 @@ button{
   color:white;
   cursor:pointer;
 }
+
+#msg{
+  margin-top:10px;
+}
+
 </style>
 </head>
 
@@ -93,46 +104,45 @@ button{
 </div>
 
 <script>
-  // cria cliente (não usar o mesmo nome 'supabase')
-  const client = supabase.createClient(
-    "https://rficsflnaxayyrddxald.supabase.co",
-    "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K"
-  );
+// 👇 cria conexão com seu Supabase
+const client = supabase.createClient(
+  "https://rficsflnaxayyrddxald.supabase.co",
+  "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K"
+);
 
-  async function logar(){
+// 👇 função de login
+async function logar(){
 
-    const email = document.getElementById("email").value;
-    const senha = document.getElementById("password").value;
-    const msg = document.getElementById("msg");
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("password").value;
+  const msg = document.getElementById("msg");
 
-    msg.innerText = "Verificando...";
+  msg.innerText = "Verificando...";
 
-    const { data, error } = await client
-      .from("usuarios")
-      .select("*")
-      .eq("email", email)
-      .eq("senha", senha)
-      .maybeSingle();
+  const { data, error } = await client
+    .from("usuarios")
+    .select("*")
+    .eq("email", email)
+    .eq("senha", senha)
+    .maybeSingle();
 
-    console.log("DATA:", data);
-    console.log("ERROR:", error);
-
-    if(error){
-      msg.innerText = "Erro no Supabase: " + error.message;
-      return;
-    }
-
-    if(!data){
-      msg.innerText = "Email ou senha incorretos";
-      return;
-    }
-
-    sessionStorage.setItem("logado","true");
-
-    msg.innerText = "Login realizado, entrando...";
-
-    window.location.href = "index.html";
+  if(error){
+    msg.innerText = "Erro no Supabase";
+    return;
   }
+
+  if(!data){
+    msg.innerText = "Email ou senha incorretos";
+    return;
+  }
+
+  msg.innerText = "Login realizado!";
+
+  // 👉 não salvamos nada — sem persistência
+
+  // 👉 redireciona para o site
+  window.location.href = "index.html";
+}
 </script>
 
 </body>
