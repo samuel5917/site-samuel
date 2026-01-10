@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - S-Systems</title>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+<style>
+
+body{
+  margin:0;
+  font-family: Arial;
+  background:#bfc4ff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+/* card */
+
+.container{
+  width:95%;
+  max-width:900px;
+  background:#03133c;
+  border-radius:20px;
+  padding:40px;
+  color:white;
+  display:flex;
+  justify-content:space-between;
+}
+
+/* mobile */
+@media(max-width:800px){
+  .container{
+    flex-direction:column;
+    text-align:center;
+  }
+}
+
+.box{
+  flex:1;
+}
+
+/* form */
+
+.login-card{
+  background:white;
+  color:black;
+  padding:25px;
+  border-radius:12px;
+  width:100%;
+  max-width:350px;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:6px;
+  border:none;
+  background:#2f5dff;
+  color:white;
+  cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="box">
+<h1>Login no S-Systems</h1>
+<p>Entre para acessar o sistema</p>
+</div>
+
+<div class="login-card">
+
+<input id="email" type="email" placeholder="Email">
+
+<input id="password" type="password" placeholder="Senha">
+
+<button onclick="logar()">Entrar</button>
+
+<p id="msg"></p>
+
+</div>
+
+</div>
+
+<script>
+
+const supabase = supabase.createClient(
+  "https://rficsflnaxayyrddxald.supabase.co",
+  "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K"
+);
+
+async function logar(){
+
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("password").value;
+  const msg = document.getElementById("msg");
+
+  const { data, error } = await supabase
+  .from("usuarios")
+  .select("*")
+  .eq("email", email)
+  .eq("senha", senha)
+  .single();
+
+  if(error || !data){
+      msg.innerText = "Email ou senha incorretos";
+      return;
+  }
+
+  // salva login
+  localStorage.setItem("logado","true");
+
+  // envia para o site
+  window.location.href="index.html";
+}
+
+</script>
+
+</body>
+</html>
