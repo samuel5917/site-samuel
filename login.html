@@ -20,7 +20,6 @@ body{
   height:100vh;
 }
 
-/* bloco azul de fundo */
 .container{
   width:95%;
   max-width:900px;
@@ -33,7 +32,6 @@ body{
   gap:30px;
 }
 
-/* responsivo celular */
 @media(max-width:800px){
   .container{
     flex-direction:column;
@@ -41,11 +39,6 @@ body{
   }
 }
 
-.box{
-  flex:1;
-}
-
-/* cartão branco de login */
 .login-card{
   background:white;
   color:black;
@@ -81,34 +74,33 @@ button{
 
 <div class="container">
 
-<div class="box">
-<h1>Login no S-Systems</h1>
-<p>Entre para acessar o sistema</p>
-</div>
+  <div>
+    <h1>Login no S-Systems</h1>
+    <p>Entre para acessar o sistema</p>
+  </div>
 
-<div class="login-card">
+  <div class="login-card">
 
-<input id="email" type="email" placeholder="Email">
+    <input id="email" type="email" placeholder="Email">
 
-<input id="password" type="password" placeholder="Senha">
+    <input id="password" type="password" placeholder="Senha">
 
-<button onclick="logar()">Entrar</button>
+    <button onclick="logar()">Entrar</button>
 
-<p id="msg"></p>
+    <p id="msg"></p>
 
-</div>
+  </div>
 
 </div>
 
 <script>
 
-// conexão com supabase
-const supabase = supabase.createClient(
+// 👉 usa OUTRO nome para não conflitar
+const client = supabase.createClient(
   "https://rficsflnaxayyrddxald.supabase.co",
   "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K"
 );
 
-// função de login
 async function logar(){
 
   const email = document.getElementById("email").value;
@@ -117,7 +109,7 @@ async function logar(){
 
   msg.innerText = "Verificando...";
 
-  const { data, error } = await supabase
+  const { data, error } = await client
     .from("usuarios")
     .select("*")
     .eq("email", email)
@@ -134,12 +126,10 @@ async function logar(){
     return;
   }
 
-  // marca como logado
   localStorage.setItem("logado","true");
 
   msg.innerText = "Login realizado, entrando...";
 
-  // entra no sistema
   window.location.href = "index.html";
 }
 
