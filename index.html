@@ -261,6 +261,12 @@
 </head>
 
 <body>
+  <script>
+if (localStorage.getItem("logado") !== "true") {
+    window.location.href = "login.html";
+}
+</script>
+
 <div class="page">
 <header>
   <div class="title-area">
