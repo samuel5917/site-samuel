@@ -113,17 +113,37 @@ async function logar(){
   const senha = document.getElementById("password").value;
   const msg = document.getElementById("msg");
 
-  const { data, error } = await supabase
-  .from("usuarios")
-  .select("*")
-  .eq("email", email)
-  .eq("senha", senha)
-  .single();
+  msg.innerText = "Verificando...";
 
-  if(error || !data){
-      msg.innerText = "Email ou senha incorretos";
-      return;
+  const { data, error } = await supabase
+    .from("usuarios")
+    .select("*")
+    .eq("email", email)
+    .eq("senha", senha)
+    .maybeSingle();
+
+  console.log("DATA:", data);
+  console.log("ERROR:", error);
+
+  if(error){
+    msg.innerText = "Erro no Supabase: " + error.message;
+    return;
   }
+
+  if(!data){
+    msg.innerText = "Email ou senha incorretos";
+    return;
+  }
+
+  // salva login
+  localStorage.setItem("logado","true");
+
+  msg.innerText = "Login realizado, entrando...";
+
+  // redireciona
+  window.location.href = "index.html";
+}
+
 
   // salva login
   localStorage.setItem("logado","true");
