@@ -261,9 +261,11 @@
 </head>
 
 <body>
-  <script>
-if (localStorage.getItem("logado") !== "true") {
-    window.location.href = "login.html";
+<script>
+// Se NÃO veio do login.html, volta para login
+// Isso impede salvar login e obriga autenticar de novo se recarregar
+if (!document.referrer.includes("login.html")) {
+  window.location.href = "login.html";
 }
 </script>
 
