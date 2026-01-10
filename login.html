@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login - S-Systems</title>
 
+<!-- Supabase -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <style>
@@ -19,8 +20,7 @@ body{
   height:100vh;
 }
 
-/* card */
-
+/* bloco azul de fundo */
 .container{
   width:95%;
   max-width:900px;
@@ -30,9 +30,10 @@ body{
   color:white;
   display:flex;
   justify-content:space-between;
+  gap:30px;
 }
 
-/* mobile */
+/* responsivo celular */
 @media(max-width:800px){
   .container{
     flex-direction:column;
@@ -44,8 +45,7 @@ body{
   flex:1;
 }
 
-/* form */
-
+/* cartão branco de login */
 .login-card{
   background:white;
   color:black;
@@ -102,11 +102,13 @@ button{
 
 <script>
 
+// conexão com supabase
 const supabase = supabase.createClient(
   "https://rficsflnaxayyrddxald.supabase.co",
   "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K"
 );
 
+// função de login
 async function logar(){
 
   const email = document.getElementById("email").value;
@@ -122,9 +124,6 @@ async function logar(){
     .eq("senha", senha)
     .maybeSingle();
 
-  console.log("DATA:", data);
-  console.log("ERROR:", error);
-
   if(error){
     msg.innerText = "Erro no Supabase: " + error.message;
     return;
@@ -135,15 +134,14 @@ async function logar(){
     return;
   }
 
-  // salva login
+  // marca como logado
   localStorage.setItem("logado","true");
 
   msg.innerText = "Login realizado, entrando...";
 
-  // redireciona
+  // entra no sistema
   window.location.href = "index.html";
 }
-
 
 </script>
 
