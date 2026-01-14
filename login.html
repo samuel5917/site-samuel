@@ -2,112 +2,223 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<title>EM DESENVOLVIMENTO | Login</title>
+<title>S-Systems | Login</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 
+<!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
+<!-- Supabase SDK (v2) -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <style>
   :root {
     --primary: #3b82f6;
+    --primary-hover: #2563eb;
     --secondary: #6366f1;
     --accent: #0ea5e9;
     --danger: #ef4444;
     --success: #10b981;
+    --bg-dark: #0f172a;
     --text-main: #f1f5f9;
     --text-muted: #94a3b8;
     --border: rgba(255, 255, 255, 0.1);
     --glass: rgba(15, 23, 42, 0.85);
   }
-  *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;}
-  body{
-    min-height:100vh;color:var(--text-main);
-    display:flex;align-items:center;justify-content:center;
-    overflow:hidden;position:relative;background:#0f172a;padding:20px;
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+  body {
+    min-height: 100vh;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    background-color: #0f172a;
+    padding: 20px;
   }
-  body::before{
-    content:"";position:fixed;inset:0;
-    background-image:url('https://files.manuscdn.com/user_upload_by_module/session_file/310519663294381937/mVcfEzWMRbSkaqwQ.png');
-    background-size:cover;background-position:center;background-repeat:no-repeat;
-    opacity:.4;z-index:-1;
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: url('https://files.manuscdn.com/user_upload_by_module/session_file/310519663294381937/mVcfEzWMRbSkaqwQ.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.4;
+    z-index: -1;
   }
-  body::after{
-    content:"";position:fixed;inset:0;
-    background:radial-gradient(circle at center, transparent 0%, rgba(15,23,42,.9) 100%);
-    z-index:-1;
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, transparent 0%, rgba(15, 23, 42, 0.9) 100%);
+    z-index: -1;
   }
-  .login-container{
-    width:100%;max-width:900px;display:flex;
-    background:var(--glass);backdrop-filter:blur(24px);
-    border:1px solid var(--border);border-radius:32px;overflow:hidden;
-    box-shadow:0 40px 80px rgba(0,0,0,.6);
+
+  .login-container {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    background: var(--glass);
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--border);
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+    animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .login-info{
-    flex:1;padding:60px;display:flex;flex-direction:column;justify-content:center;
-    background:linear-gradient(135deg, rgba(59,130,246,.1), transparent);
-    border-right:1px solid var(--border);
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-  .login-info h1{
-    font-size:2.5rem;font-weight:900;letter-spacing:-.04em;line-height:1.1;margin-bottom:20px;
-    background:linear-gradient(to right,#fff,var(--accent));
-    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+
+  .login-info {
+    flex: 1;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), transparent);
+    border-right: 1px solid var(--border);
   }
-  .login-info p{color:var(--text-muted);font-size:1.1rem;font-weight:500;margin-bottom:32px;}
-  .test-credentials{
-    background:rgba(255,255,255,.05);padding:20px;border-radius:20px;border:1px solid var(--border);
+
+  .login-info h1 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    background: linear-gradient(to right, #fff, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
-  .test-credentials span{
-    display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;
-    color:var(--accent);font-weight:800;margin-bottom:8px;
+
+  .login-info p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 32px;
   }
-  .test-credentials code{font-family:monospace;color:#fff;font-size:1rem;}
-  .login-form{
-    width:400px;padding:60px;background:rgba(15,23,42,.4);
-    display:flex;flex-direction:column;justify-content:center;
+
+  .test-credentials {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
   }
-  .form-group{margin-bottom:24px;}
-  .form-label{
-    display:block;font-size:.75rem;font-weight:700;color:var(--text-muted);
-    margin-bottom:10px;text-transform:uppercase;letter-spacing:.1em;
+
+  .test-credentials span {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    font-weight: 800;
+    margin-bottom: 8px;
   }
-  .form-control{
-    width:100%;background:rgba(15,23,42,.6);border:1px solid var(--border);
-    border-radius:16px;padding:16px 20px;color:#fff;font-size:1rem;transition:.2s;
+
+  .test-credentials code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    color: white;
+    font-size: 1rem;
   }
-  .form-control:focus{
-    outline:none;border-color:var(--primary);background:rgba(15,23,42,.9);
-    box-shadow:0 0 0 4px rgba(59,130,246,.15);
+
+  .login-form {
+    width: 400px;
+    padding: 60px;
+    background: rgba(15, 23, 42, 0.4);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
-  .btn-login{
-    width:100%;padding:18px;border-radius:18px;
-    background:linear-gradient(135deg,var(--primary),var(--secondary));
-    color:#fff;font-size:1rem;font-weight:800;border:none;cursor:pointer;
-    transition:.3s;box-shadow:0 10px 25px rgba(59,130,246,.3);margin-top:12px;
+
+  .form-group { margin-bottom: 24px; }
+
+  .form-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
   }
-  .btn-login:hover{transform:translateY(-2px);box-shadow:0 15px 30px rgba(59,130,246,.4);}
-  #msg{margin-top:20px;font-size:.85rem;font-weight:600;text-align:center;min-height:1.2em;}
-  .msg-error{color:var(--danger);}
-  .msg-success{color:var(--success);}
-  .msg-info{color:var(--accent);}
-  @media (max-width:850px){
-    .login-container{flex-direction:column;max-width:450px;}
-    .login-info{padding:40px;text-align:center;border-right:none;border-bottom:1px solid var(--border);}
-    .login-form{width:100%;padding:40px;}
-    .login-info h1{font-size:2rem;}
+
+  .form-control {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 20px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(15, 23, 42, 0.9);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+  }
+
+  .btn-login {
+    width: 100%;
+    padding: 18px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    font-size: 1rem;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+    margin-top: 12px;
+  }
+
+  .btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4);
+  }
+
+  #msg {
+    margin-top: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    min-height: 1.2em;
+  }
+
+  .msg-error { color: var(--danger); }
+  .msg-success { color: var(--success); }
+  .msg-info { color: var(--accent); }
+
+  @media (max-width: 850px) {
+    .login-container { flex-direction: column; max-width: 450px; }
+    .login-info { padding: 40px; text-align: center; border-right: none; border-bottom: 1px solid var(--border); }
+    .login-form { width: 100%; padding: 40px; }
+    .login-info h1 { font-size: 2rem; }
   }
 </style>
 </head>
+
 <body>
 
 <div class="login-container">
   <div class="login-info">
-    <h1>EM DESENVOLVIMENTO</h1>
+    <h1>S-Systems</h1>
     <p>Painel de Gestão Operacional e Controle de Carretas.</p>
+
     <div class="test-credentials">
       <span>Acesso de Teste</span>
       <code>Usuário: 123 | Senha: 123</code>
@@ -131,9 +242,10 @@
 </div>
 
 <script>
+  // ====== SUPABASE (suas credenciais) ======
   const SUPABASE_URL = "https://rficsflnaxayyrddxald.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
-  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const SUPABASE_PUBLISHED_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
+  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHED_KEY);
 
   const msgEl = document.getElementById("msg");
   const btn = document.getElementById("btnLogin");
@@ -165,7 +277,7 @@
 
       if (error) {
         console.error("SUPABASE ERROR:", error);
-        setMsg("Falha no Supabase (internet/policies).", "msg-error");
+        setMsg("Erro no Supabase (policies/RLS ou internet).", "msg-error");
         btn.disabled = false;
         return;
       }
@@ -177,17 +289,17 @@
       }
 
       if (data.ativo === false) {
-        setMsg("Usuário desativado", "msg-error");
+        setMsg("Usuário desativado. Fale com o administrador.", "msg-error");
         btn.disabled = false;
         return;
       }
 
-      setMsg("Login OK! Indo para o painel...", "msg-success");
+      setMsg("Login OK! Redirecionando...", "msg-success");
 
-      // ✅ Redireciona direto
+      // ✅ Seu painel é o index.html => rota raiz "/"
       setTimeout(() => {
-        window.location.assign("/sistema_final_v5.html");
-      }, 400);
+        window.location.assign("/");
+      }, 450);
 
     } catch (e) {
       console.error("LOGIN EXCEPTION:", e);
