@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <title>S-systems</title>
-<parameter name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 
 <style>
@@ -35,6 +34,7 @@
     padding:16px;
     display:flex;
     flex-direction:column;
+    overflow-x: hidden;
   }
 
   .page{
@@ -44,6 +44,7 @@
     display:flex;
     flex-direction:column;
     gap:16px;
+    transition: transform 0.3s ease;
   }
 
   header{
@@ -57,6 +58,61 @@
     box-shadow:0 18px 40px rgba(0,0,0,0.55);
     backdrop-filter:blur(20px);
   }
+
+  /* MENU HAMBURGER */
+  .menu-btn {
+    background: none;
+    border: none;
+    color: #e5e7eb;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background 0.2s;
+  }
+  .menu-btn:hover {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 280px;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.98);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(148, 163, 184, 0.3);
+    z-index: 100;
+    transition: left 0.3s ease;
+    padding: 20px;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+  }
+  .sidebar.open {
+    left: 0;
+  }
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    padding-bottom: 15px;
+  }
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 99;
+  }
+  .sidebar-overlay.show {
+    display: block;
+  }
+
   .logo-img{
     height:56px;
   }
@@ -223,15 +279,6 @@
     padding:4px 2px 0;
   }
 
-  .box-registro{
-    background:rgba(140,117,199,0.25);
-    border-radius:12px;
-    border:1px solid rgba(182,138,217,0.8);
-    padding:12px;
-    margin-bottom:14px;
-    backdrop-filter:blur(16px);
-  }
-
   .modal-backdrop{
     position:fixed;
     inset:0;
@@ -239,7 +286,7 @@
     display:none;
     align-items:center;
     justify-content:center;
-    z-index:50;
+    z-index:150;
     backdrop-filter:blur(4px);
   }
   .modal-content{
@@ -308,8 +355,8 @@
   @media(max-width:768px){
     body{padding:10px;}
     .page{gap:12px;}
-    header{flex-direction:column;align-items:flex-start;}
-    .db-status{margin-left:0;}
+    header{flex-direction:row;align-items:center;}
+    .db-status{display:none;}
     .card{padding:12px 13px;}
   }
 </style>
@@ -321,14 +368,26 @@
 <body>
 <script>
 // Se NÃO veio do login.html, volta para login
-// Isso impede salvar login e obriga autenticar de novo se recarregar
 if (!document.referrer.includes("login.html")) {
   window.location.href = "login.html";
 }
 </script>
 
+<!-- SIDEBAR -->
+<div id="sidebarOverlay" class="sidebar-overlay"></div>
+<div id="sidebar" class="sidebar">
+  <div class="sidebar-header">
+    <h3 style="margin:0; color:var(--accent);">Menu</h3>
+    <button id="btnCloseSidebar" class="menu-btn">✕</button>
+  </div>
+  <div style="color:var(--muted); font-size:14px; text-align:center; margin-top:50px;">
+    Menu em desenvolvimento...
+  </div>
+</div>
+
 <div class="page">
 <header>
+  <button id="btnOpenSidebar" class="menu-btn">☰</button>
   <div class="title-area">
     <h1>PAINEL DE APOIO OPERACIONAL</h1>
     <p>Sistema para registrar carretas contaminadas e controlar notas fiscais canceladas</p>
@@ -347,7 +406,8 @@ if (!document.referrer.includes("login.html")) {
       <span><strong>Turno 1</strong> 07:00 → 19:00 </span> ·
       <span><strong>Turno 2</strong> 19:00 → 07:00 </span>
     </div>
-    <button id="btnAbrirModalCarreta" class="btn btn-primary" type="button">
+    <!-- BOTÃO NA DIREITA -->
+    <button id="btnAbrirModalCarreta" class="btn btn-primary" type="button" style="margin-left:auto;">
       + Registrar caminhão sujo
     </button>
   </div>
@@ -365,15 +425,18 @@ if (!document.referrer.includes("login.html")) {
 <section class="card card-registro">
   <h2>REGISTRO NF-E CANCELADAS</h2>
 
-  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-    <button id="btnAbrirModalNF" class="btn btn-primary" type="button">
+  <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button id="btnAbrirNF24h" class="btn btn-ghost" type="button">
+        Últimas NF (24h)
+      </button>
+      <button id="btnAbrirRelatorioNF" class="btn btn-ghost" type="button">
+        Relatórios NF / PDF + Gráfico
+      </button>
+    </div>
+    <!-- BOTÃO NA DIREITA -->
+    <button id="btnAbrirModalNF" class="btn btn-primary" type="button" style="margin-left:auto;">
       + Registrar NF cancelada
-    </button>
-    <button id="btnAbrirNF24h" class="btn btn-ghost" type="button">
-      Últimas NF (24h)
-    </button>
-    <button id="btnAbrirRelatorioNF" class="btn btn-ghost" type="button">
-      Relatórios NF / PDF + Gráfico
     </button>
   </div>
 </section>
@@ -383,6 +446,7 @@ if (!document.referrer.includes("login.html")) {
 </footer>
 </div>
 
+<!-- MODAIS -->
 <!-- MODAL: ADICIONAR TRANSPORTADORA -->
 <div id="modalAddTransp" class="modal-backdrop">
   <div class="modal-content">
@@ -483,10 +547,6 @@ if (!document.referrer.includes("login.html")) {
       <h3 style="margin:0;font-size:16px;">Últimos registros (apenas últimas 24h)</h3>
       <button id="btnFecharRegistros" class="btn-danger btn-close" type="button">Fechar</button>
     </div>
-    <p style="font-size:12px;color:var(--muted);margin-top:0;">
-      Exibindo registros das últimas 24 horas, do mais recente para o mais antigo.
-      Registros mais antigos podem ser consultados via relatório por período.
-    </p>
     <div style="overflow-x:auto;">
       <table>
         <thead>
@@ -513,10 +573,6 @@ if (!document.referrer.includes("login.html")) {
       <h3 style="margin:0;font-size:16px;">Últimas NF Canceladas x Substitutas (24h)</h3>
       <button id="btnFecharNF24h" class="btn-danger btn-close" type="button">Fechar</button>
     </div>
-    <p style="font-size:12px;color:var(--muted);margin-top:0;">
-      Exibindo vínculos de NF cadastrados nas últimas 24 horas, do mais recente para o mais antigo.<br>
-      Dados mais antigos podem ser consultados pelo relatório por período.
-    </p>
     <div style="overflow-x:auto;">
       <table>
         <thead>
@@ -543,29 +599,19 @@ if (!document.referrer.includes("login.html")) {
       <h3 style="margin:0;font-size:16px;">Relatórios Báscula / PDF + Gráfico</h3>
       <button id="btnFecharRelatorio" class="btn-danger btn-close" type="button">Fechar</button>
     </div>
-    <p style="font-size:12px;color:var(--muted);margin-top:0;">
-      Defina o período para gerar o relatório em PDF ou visualizar o gráfico de carretas sujas.
-    </p>
     <div class="row">
-      <div class="col" style="max-width:260px;">
+      <div class="col">
         <label for="inicioRel">Início do período</label>
         <input id="inicioRel" type="datetime-local">
       </div>
-      <div class="col" style="max-width:260px;">
+      <div class="col">
         <label for="fimRel">Fim do período</label>
         <input id="fimRel" type="datetime-local">
       </div>
     </div>
-    <p style="font-size:11px;color:var(--muted);margin-top:4px;">
-      Use o seletor de data e hora acima para definir o intervalo.
-    </p>
     <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-      <button id="btnRelatorioPdf" class="btn btn-primary" type="button">
-        Gerar PDF do período
-      </button>
-      <button id="btnGrafico7d" class="btn btn-ghost" type="button">
-        Gráfico últimos 7 dias
-      </button>
+      <button id="btnRelatorioPdf" class="btn btn-primary" type="button">Gerar PDF</button>
+      <button id="btnGrafico7d" class="btn btn-ghost" type="button">Gráfico 7 dias</button>
     </div>
     <p id="msgRel" style="font-size:12px;color:var(--muted);margin-top:6px;"></p>
   </div>
@@ -575,32 +621,22 @@ if (!document.referrer.includes("login.html")) {
 <div id="modalRelatorioNF" class="modal-backdrop">
   <div class="modal-content">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <h3 style="margin:0;font-size:16px;">Relatórios NF Cancelada x NF Substituta</h3>
+      <h3 style="margin:0;font-size:16px;">Relatórios NF</h3>
       <button id="btnFecharRelatorioNF" class="btn-danger btn-close" type="button">Fechar</button>
     </div>
-    <p style="font-size:12px;color:var(--muted);margin-top:0;">
-      Defina o período para gerar o PDF ou ver o gráfico de NF canceladas dos últimos dias.
-    </p>
     <div class="row">
-      <div class="col" style="max-width:260px;">
+      <div class="col">
         <label for="inicioRelNF">Início do período</label>
         <input id="inicioRelNF" type="datetime-local">
       </div>
-      <div class="col" style="max-width:260px;">
+      <div class="col">
         <label for="fimRelNF">Fim do período</label>
         <input id="fimRelNF" type="datetime-local">
       </div>
     </div>
-    <p style="font-size:11px;color:var(--muted);margin-top:4px;">
-      Período utilizado para filtrar pela data/hora de cadastro do vínculo NF.
-    </p>
     <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-      <button id="btnRelatorioPdfNF" class="btn btn-primary" type="button">
-        Gerar PDF NF
-      </button>
-      <button id="btnGrafico7dNF" class="btn btn-ghost" type="button">
-        Gráfico NF últimos 7 dias
-      </button>
+      <button id="btnRelatorioPdfNF" class="btn btn-primary" type="button">Gerar PDF NF</button>
+      <button id="btnGrafico7dNF" class="btn btn-ghost" type="button">Gráfico NF</button>
     </div>
     <p id="msgRelNF" style="font-size:12px;color:var(--muted);margin-top:6px;"></p>
   </div>
@@ -610,7 +646,7 @@ if (!document.referrer.includes("login.html")) {
 <div id="modalGrafico" class="modal-backdrop">
   <div class="modal-content modal-large">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <h3 style="margin:0;font-size:16px;">Carretas sujas - últimos 7 dias (dia do turno)</h3>
+      <h3 style="margin:0;font-size:16px;">Gráfico Carretas</h3>
       <button id="btnFecharModalGrafico" class="btn-danger btn-close" type="button">Fechar</button>
     </div>
     <canvas id="grafico7d" style="width:100%;max-height:320px;"></canvas>
@@ -620,7 +656,7 @@ if (!document.referrer.includes("login.html")) {
 <div id="modalGraficoNF" class="modal-backdrop">
   <div class="modal-content modal-large">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <h3 style="margin:0;font-size:16px;">NF Canceladas x Substitutas - últimos 7 dias</h3>
+      <h3 style="margin:0;font-size:16px;">Gráfico NF</h3>
       <button id="btnFecharModalGraficoNF" class="btn-danger btn-close" type="button">Fechar</button>
     </div>
     <canvas id="grafico7dNFCanvas" style="width:100%;max-height:320px;"></canvas>
@@ -635,7 +671,7 @@ if (!document.referrer.includes("login.html")) {
       <button id="btnFecharModalImagem" class="btn-danger btn-close" type="button">Fechar</button>
     </div>
     <div style="text-align:center;">
-      <img id="imagemGrande" src="" alt="Imagem da carreta" style="max-width:100%;height:auto;border-radius:8px;">
+      <img id="imagemGrande" src="" alt="Imagem" style="max-width:100%;height:auto;border-radius:8px;">
     </div>
   </div>
 </div>
@@ -662,13 +698,18 @@ if (!document.referrer.includes("login.html")) {
   let registrosLocal  = [];
   let nfLocal         = [];
   let nfCache         = [];
-  let isOfflineView   = false;
 
   // ====== ELEMENTOS ======
   const dbDot        = document.getElementById("dbDot");
   const dbStatusText = document.getElementById("dbStatusText");
 
-  // Modal Carreta
+  // Sidebar
+  const sidebar = document.getElementById("sidebar");
+  const sidebarOverlay = document.getElementById("sidebarOverlay");
+  const btnOpenSidebar = document.getElementById("btnOpenSidebar");
+  const btnCloseSidebar = document.getElementById("btnCloseSidebar");
+
+  // Modais e Botões
   const modalCarreta = document.getElementById("modalCarreta");
   const btnAbrirModalCarreta = document.getElementById("btnAbrirModalCarreta");
   const btnFecharModalCarreta = document.getElementById("btnFecharModalCarreta");
@@ -680,7 +721,6 @@ if (!document.referrer.includes("login.html")) {
   const btnSalvarCarreta = document.getElementById("btnSalvarCarreta");
   const btnAddTranspModal = document.getElementById("btnAddTranspModal");
 
-  // Modal NF
   const modalNF = document.getElementById("modalNF");
   const btnAbrirModalNF = document.getElementById("btnAbrirModalNF");
   const btnFecharModalNF = document.getElementById("btnFecharModalNF");
@@ -691,25 +731,21 @@ if (!document.referrer.includes("login.html")) {
   const motivoCancelamentoModal = document.getElementById("motivoCancelamentoModal");
   const btnSalvarNF = document.getElementById("btnSalvarNF");
 
-  // Modal Add Transportadora
   const modalAddTransp = document.getElementById("modalAddTransp");
   const btnFecharAddTransp = document.getElementById("btnFecharAddTransp");
   const nomeNovaTransp = document.getElementById("nomeNovaTransp");
   const btnSalvarTransp = document.getElementById("btnSalvarTransp");
 
-  // Modal Registros
   const modalRegistros = document.getElementById("modalRegistros");
   const btnAbrirRegistros = document.getElementById("btnAbrirRegistros");
   const btnFecharRegistros = document.getElementById("btnFecharRegistros");
   const tbodyRegistros = document.getElementById("tbodyRegistros");
 
-  // Modal NF 24h
   const modalNF24h = document.getElementById("modalNF24h");
   const btnAbrirNF24h = document.getElementById("btnAbrirNF24h");
   const btnFecharNF24h = document.getElementById("btnFecharNF24h");
   const tbodyNF24h = document.getElementById("tbodyNF24h");
 
-  // Modal Relatório
   const modalRelatorio = document.getElementById("modalRelatorio");
   const btnAbrirRelatorio = document.getElementById("btnAbrirRelatorio");
   const btnFecharRelatorio = document.getElementById("btnFecharRelatorio");
@@ -719,7 +755,6 @@ if (!document.referrer.includes("login.html")) {
   const msgRel = document.getElementById("msgRel");
   const btnGrafico7d = document.getElementById("btnGrafico7d");
 
-  // Modal Relatório NF
   const modalRelatorioNF = document.getElementById("modalRelatorioNF");
   const btnAbrirRelatorioNF = document.getElementById("btnAbrirRelatorioNF");
   const btnFecharRelatorioNF = document.getElementById("btnFecharRelatorioNF");
@@ -729,7 +764,6 @@ if (!document.referrer.includes("login.html")) {
   const msgRelNF = document.getElementById("msgRelNF");
   const btnGrafico7dNF = document.getElementById("btnGrafico7dNF");
 
-  // Modal Gráficos
   const modalGrafico = document.getElementById("modalGrafico");
   const btnFecharModalGrafico = document.getElementById("btnFecharModalGrafico");
   const canvasGrafico = document.getElementById("grafico7d");
@@ -738,7 +772,6 @@ if (!document.referrer.includes("login.html")) {
   const btnFecharModalGraficoNF = document.getElementById("btnFecharModalGraficoNF");
   const canvasGraficoNF = document.getElementById("grafico7dNFCanvas");
 
-  // Modal Visualizar Imagem
   const modalVisualizarImagem = document.getElementById("modalVisualizarImagem");
   const btnFecharModalImagem = document.getElementById("btnFecharModalImagem");
   const imagemGrande = document.getElementById("imagemGrande");
@@ -773,20 +806,17 @@ if (!document.referrer.includes("login.html")) {
     const ano = d.getFullYear();
     const mes = d.getMonth();
     const dia = d.getDate();
-
     function fmt(y, m, d2) {
       const mm = pad2(m + 1);
       const dd = pad2(d2);
       return `${y}-${mm}-${dd}`;
     }
-
     const inicioT1 = new Date(ano, mes, dia, 7, 0, 0);
     const fimT1 = new Date(ano, mes, dia, 18, 59, 59);
     const inicioT2 = new Date(ano, mes, dia, 19, 0, 0);
     const fimDia   = new Date(ano, mes, dia, 23, 59, 59);
     const inicioDia  = new Date(ano, mes, dia, 0, 0, 0);
     const fimAntes7  = new Date(ano, mes, dia, 6, 59, 59);
-
     if (d >= inicioT1 && d <= fimT1) return { turno: 1, diaTurno: fmt(ano, mes, dia) };
     if (d >= inicioT2 && d <= fimDia) return { turno: 2, diaTurno: fmt(ano, mes, dia) };
     if (d >= inicioDia && d <= fimAntes7) {
@@ -807,6 +837,15 @@ if (!document.referrer.includes("login.html")) {
     return `${dd}/${mm}/${yyyy} ${hh}:${mi}:${ss}`;
   }
 
+  // ====== SIDEBAR ======
+  function toggleSidebar() {
+    sidebar.classList.toggle("open");
+    sidebarOverlay.classList.toggle("show");
+  }
+  btnOpenSidebar.addEventListener("click", toggleSidebar);
+  btnCloseSidebar.addEventListener("click", toggleSidebar);
+  sidebarOverlay.addEventListener("click", toggleSidebar);
+
   // ====== TRANSPORTADORAS ======
   function carregarTransportadoras() {
     const stored = localStorage.getItem(STORAGE_KEY_TRANSP);
@@ -814,17 +853,13 @@ if (!document.referrer.includes("login.html")) {
       try {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) transportadoras = parsed;
-      } catch (e) {
-        console.error("Erro ao carregar transportadoras:", e);
-      }
+      } catch (e) { console.error(e); }
     }
     renderizarSelects();
   }
-
   function salvarTransportadoras() {
     localStorage.setItem(STORAGE_KEY_TRANSP, JSON.stringify(transportadoras));
   }
-
   function renderizarSelects() {
     [transportadoraModal, transportadoraNFModal].forEach(sel => {
       sel.innerHTML = '<option value="">-- Selecione --</option>';
@@ -836,100 +871,56 @@ if (!document.referrer.includes("login.html")) {
       });
     });
   }
-
   function adicionarTransportadora() {
     const nome = (nomeNovaTransp.value || "").trim().toUpperCase();
-    if (!nome) return alert("Digite o nome da transportadora.");
-    if (transportadoras.includes(nome)) return alert("Essa transportadora já existe.");
+    if (!nome) return alert("Digite o nome.");
+    if (transportadoras.includes(nome)) return alert("Já existe.");
     transportadoras.push(nome);
     transportadoras.sort();
     salvarTransportadoras();
     renderizarSelects();
     nomeNovaTransp.value = "";
     modalAddTransp.style.display = "none";
-    alert("Transportadora adicionada com sucesso!");
   }
 
   // ====== LOCAL STORAGE ======
   function carregarRegistrosLocal() {
     const stored = localStorage.getItem(LS_KEY_REGISTROS);
-    if (stored) {
-      try {
-        registrosLocal = JSON.parse(stored);
-      } catch (e) {
-        console.error("Erro ao carregar registros locais:", e);
-      }
-    }
+    if (stored) { try { registrosLocal = JSON.parse(stored); } catch (e) { console.error(e); } }
   }
-
   function salvarRegistrosLocal() {
     localStorage.setItem(LS_KEY_REGISTROS, JSON.stringify(registrosLocal));
   }
-
-  function adicionarRegistroLocal(reg) {
-    registrosLocal.push(reg);
-    salvarRegistrosLocal();
-  }
-
   function carregarNFLocal() {
     const stored = localStorage.getItem(LS_KEY_NF_SUBSTITUTA);
-    if (stored) {
-      try {
-        nfLocal = JSON.parse(stored);
-      } catch (e) {
-        console.error("Erro ao carregar NF locais:", e);
-      }
-    }
+    if (stored) { try { nfLocal = JSON.parse(stored); } catch (e) { console.error(e); } }
   }
-
   function salvarNFLocal() {
     localStorage.setItem(LS_KEY_NF_SUBSTITUTA, JSON.stringify(nfLocal));
   }
 
-  function adicionarNFLocal(nf) {
-    nfLocal.push(nf);
-    salvarNFLocal();
-  }
-
   // ====== SUPABASE ======
   async function supaInsert(payload) {
-    const { data, error } = await supabase
-      .from("registros_bascula")
-      .insert([payload]);
+    const { data, error } = await supabase.from("registros_bascula").insert([payload]);
     if (error) throw error;
     return data;
   }
-
   async function supaList() {
-    const { data, error } = await supabase
-      .from("registros_bascula")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const { data, error } = await supabase.from("registros_bascula").select("*").order("created_at", { ascending: false });
     if (error) throw error;
     return data || [];
   }
-
   async function supaDelete(id) {
-    const { error } = await supabase
-      .from("registros_bascula")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("registros_bascula").delete().eq("id", id);
     if (error) throw error;
   }
-
   async function supaInsertNF(payload) {
-    const { data, error } = await supabase
-      .from("nf_substitutas")
-      .insert([payload]);
+    const { data, error } = await supabase.from("nf_substitutas").insert([payload]);
     if (error) throw error;
     return data;
   }
-
   async function supaListNF() {
-    const { data, error } = await supabase
-      .from("nf_substitutas")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const { data, error } = await supabase.from("nf_substitutas").select("*").order("created_at", { ascending: false });
     if (error) throw error;
     return data || [];
   }
@@ -947,9 +938,7 @@ if (!document.referrer.includes("login.html")) {
           imagem: reg.imagem || null
         });
         reg.synced = true;
-      } catch (e) {
-        console.error("Erro ao sincronizar registro:", e);
-      }
+      } catch (e) { console.error(e); }
     }
     salvarRegistrosLocal();
   }
@@ -967,9 +956,7 @@ if (!document.referrer.includes("login.html")) {
           tsISO: nf.ts_iso
         });
         nf.synced = true;
-      } catch (e) {
-        console.error("Erro ao sincronizar NF:", e);
-      }
+      } catch (e) { console.error(e); }
     }
     salvarNFLocal();
   }
@@ -984,850 +971,190 @@ if (!document.referrer.includes("login.html")) {
         previewImagemCarreta.style.display = "block";
       };
       reader.readAsDataURL(file);
-    } else {
-      previewImagemCarreta.style.display = "none";
-    }
+    } else { previewImagemCarreta.style.display = "none"; }
   });
 
   // ====== SALVAR CARRETA ======
   btnSalvarCarreta.addEventListener("click", async () => {
-    const placaRaw = placaModal.value || "";
-    const placa = placaRaw.replace(/\s+/g, "").toUpperCase();
-    if (!placa) return alert("Informe a placa do veículo.");
-
+    const placa = (placaModal.value || "").replace(/\s+/g, "").toUpperCase();
+    if (!placa) return alert("Informe a placa.");
     const transp = transportadoraModal.value;
-    if (!transp) return alert("Selecione uma transportadora.");
+    if (!transp) return alert("Selecione a transportadora.");
 
     const agora = new Date();
     const tsISO = agora.toISOString();
     const info = classificarTurno(agora);
 
-    let imagemBase64 = null;
+    const salvar = async (img) => {
+      const payloadLocal = { placa, transportadora: transp, ts_iso: tsISO, turno: info.turno, dia_turno: info.diaTurno, imagem: img, synced: false };
+      registrosLocal.push(payloadLocal);
+      salvarRegistrosLocal();
+      try {
+        await supaInsert({ placa, transportadora: transp, tsISO, turno: info.turno, diaTurno: info.diaTurno, imagem: img });
+        setDbStatus(true);
+        await syncPendentes();
+        alert("Salvo!");
+      } catch (e) {
+        console.error(e);
+        setDbStatus(false);
+        alert("Salvo apenas localmente (offline).");
+      }
+      placaModal.value = ""; transportadoraModal.value = ""; imagemCarreta.value = ""; previewImagemCarreta.style.display = "none"; modalCarreta.style.display = "none";
+    };
+
     if (imagemCarreta.files[0]) {
       const reader = new FileReader();
-      reader.onload = async (ev) => {
-        imagemBase64 = ev.target.result;
-        await salvarRegistro(placa, transp, tsISO, info, imagemBase64);
-      };
+      reader.onload = (ev) => salvar(ev.target.result);
       reader.readAsDataURL(imagemCarreta.files[0]);
-    } else {
-      await salvarRegistro(placa, transp, tsISO, info, null);
-    }
+    } else { await salvar(null); }
   });
-
-  async function salvarRegistro(placa, transp, tsISO, info, imagem) {
-    const payloadLocal = {
-      placa,
-      transportadora: transp,
-      ts_iso: tsISO,
-      turno: info.turno,
-      dia_turno: info.diaTurno,
-      imagem: imagem,
-      synced: false
-    };
-    adicionarRegistroLocal(payloadLocal);
-
-    try {
-      await supaInsert({
-        placa,
-        transportadora: transp,
-        tsISO,
-        turno: info.turno,
-        diaTurno: info.diaTurno,
-        imagem: imagem
-      });
-      setDbStatus(true);
-      await syncPendentes();
-      alert("Carreta registrada com sucesso!");
-    } catch (e) {
-      console.error("Erro ao salvar carreta online:", e);
-      setDbStatus(false);
-      alert("Servidor inacessível. Carreta salva apenas neste computador (offline).");
-    }
-
-    placaModal.value = "";
-    transportadoraModal.value = "";
-    imagemCarreta.value = "";
-    previewImagemCarreta.style.display = "none";
-    modalCarreta.style.display = "none";
-  }
 
   // ====== SALVAR NF ======
   btnSalvarNF.addEventListener("click", async () => {
-    const placaRaw = placaNFModal.value || "";
-    const placa = placaRaw.replace(/\s+/g, "").toUpperCase();
-    if (!placa) return alert("Informe a placa do veículo.");
-
+    const placa = (placaNFModal.value || "").replace(/\s+/g, "").toUpperCase();
+    if (!placa) return alert("Informe a placa.");
     const transp = transportadoraNFModal.value;
-    if (!transp) return alert("Selecione uma transportadora.");
-
-    const nfCancelada = (nfCanceladaModal.value || "").trim();
-    const nfSubst = (nfSubstitutaModal.value || "").trim();
+    if (!transp) return alert("Selecione a transportadora.");
+    const nfCanc = (nfCanceladaModal.value || "").trim();
+    const nfSub = (nfSubstitutaModal.value || "").trim();
     const motivo = (motivoCancelamentoModal.value || "").trim();
-
-    if (!nfCancelada || !nfSubst) return alert("Informe o número da NF cancelada e da NF substituta.");
-    if (!motivo) return alert("Informe o motivo do cancelamento.");
+    if (!nfCanc || !nfSub || !motivo) return alert("Preencha todos os campos.");
 
     const agora = new Date();
     const tsISO = agora.toISOString();
-
-    const payloadLocal = {
-      placa,
-      transportadora: transp,
-      nf_cancelada: nfCancelada,
-      nf_substituta: nfSubst,
-      motivo_cancelamento: motivo,
-      ts_iso: tsISO,
-      synced: false
-    };
-    adicionarNFLocal(payloadLocal);
+    const payloadLocal = { placa, transportadora: transp, nf_cancelada: nfCanc, nf_substituta: nfSub, motivo_cancelamento: motivo, ts_iso: tsISO, synced: false };
+    nfLocal.push(payloadLocal);
+    salvarNFLocal();
 
     try {
-      await supaInsertNF({
-        placa,
-        transportadora: transp,
-        nf_cancelada: nfCancelada,
-        nf_substituta: nfSubst,
-        motivo_cancelamento: motivo,
-        tsISO
-      });
+      await supaInsertNF({ placa, transportadora: transp, nf_cancelada: nfCanc, nf_substituta: nfSub, motivo_cancelamento: motivo, tsISO });
       setDbStatus(true);
       await syncNFPendentes();
-      alert("Vínculo NF salvo com sucesso!");
+      alert("Salvo!");
     } catch (e) {
-      console.error("Erro ao salvar NF online:", e);
+      console.error(e);
       setDbStatus(false);
-      alert("Servidor inacessível. NF salva apenas neste computador (offline).");
+      alert("Salvo apenas localmente.");
     }
-
-    placaNFModal.value = "";
-    transportadoraNFModal.value = "";
-    nfCanceladaModal.value = "";
-    nfSubstitutaModal.value = "";
-    motivoCancelamentoModal.value = "";
-    modalNF.style.display = "none";
+    placaNFModal.value = ""; transportadoraNFModal.value = ""; nfCanceladaModal.value = ""; nfSubstitutaModal.value = ""; motivoCancelamentoModal.value = ""; modalNF.style.display = "none";
   });
 
   // ====== MODAL HANDLERS ======
-  btnAbrirModalCarreta.addEventListener("click", () => {
-    modalCarreta.style.display = "flex";
-  });
-
-  btnFecharModalCarreta.addEventListener("click", () => {
-    modalCarreta.style.display = "none";
-  });
-
-  modalCarreta.addEventListener("click", (e) => {
-    if (e.target === modalCarreta) modalCarreta.style.display = "none";
-  });
-
-  btnAbrirModalNF.addEventListener("click", () => {
-    modalNF.style.display = "flex";
-  });
-
-  btnFecharModalNF.addEventListener("click", () => {
-    modalNF.style.display = "none";
-  });
-
-  modalNF.addEventListener("click", (e) => {
-    if (e.target === modalNF) modalNF.style.display = "none";
-  });
-
-  btnAddTranspModal.addEventListener("click", () => {
-    modalAddTransp.style.display = "flex";
-  });
-
-  btnFecharAddTransp.addEventListener("click", () => {
-    modalAddTransp.style.display = "none";
-  });
-
-  modalAddTransp.addEventListener("click", (e) => {
-    if (e.target === modalAddTransp) modalAddTransp.style.display = "none";
-  });
+  const setupModal = (btn, modal, close) => {
+    if(btn) btn.addEventListener("click", () => modal.style.display = "flex");
+    if(close) close.addEventListener("click", () => modal.style.display = "none");
+    modal.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
+  };
+  setupModal(btnAbrirModalCarreta, modalCarreta, btnFecharModalCarreta);
+  setupModal(btnAbrirModalNF, modalNF, btnFecharModalNF);
+  setupModal(btnAddTranspModal, modalAddTransp, btnFecharAddTransp);
+  setupModal(btnAbrirRegistros, modalRegistros, btnFecharRegistros);
+  setupModal(btnAbrirNF24h, modalNF24h, btnFecharNF24h);
+  setupModal(btnAbrirRelatorio, modalRelatorio, btnFecharRelatorio);
+  setupModal(btnAbrirRelatorioNF, modalRelatorioNF, btnFecharRelatorioNF);
+  setupModal(null, modalGrafico, btnFecharModalGrafico);
+  setupModal(null, modalGraficoNF, btnFecharModalGraficoNF);
+  setupModal(null, modalVisualizarImagem, btnFecharModalImagem);
 
   btnSalvarTransp.addEventListener("click", adicionarTransportadora);
 
-  btnAbrirRegistros.addEventListener("click", async () => {
-    await carregarRegistros24h();
-    modalRegistros.style.display = "flex";
-  });
-
-  btnFecharRegistros.addEventListener("click", () => {
-    modalRegistros.style.display = "none";
-  });
-
-  modalRegistros.addEventListener("click", (e) => {
-    if (e.target === modalRegistros) modalRegistros.style.display = "none";
-  });
-
-  btnAbrirNF24h.addEventListener("click", async () => {
-    await carregarNF24h();
-    modalNF24h.style.display = "flex";
-  });
-
-  btnFecharNF24h.addEventListener("click", () => {
-    modalNF24h.style.display = "none";
-  });
-
-  modalNF24h.addEventListener("click", (e) => {
-    if (e.target === modalNF24h) modalNF24h.style.display = "none";
-  });
-
-  btnAbrirRelatorio.addEventListener("click", () => {
-    inicializarPeriodoRelatorio();
-    modalRelatorio.style.display = "flex";
-  });
-
-  btnFecharRelatorio.addEventListener("click", () => {
-    modalRelatorio.style.display = "none";
-  });
-
-  modalRelatorio.addEventListener("click", (e) => {
-    if (e.target === modalRelatorio) modalRelatorio.style.display = "none";
-  });
-
-  btnAbrirRelatorioNF.addEventListener("click", () => {
-    inicializarPeriodoRelatorioNF();
-    modalRelatorioNF.style.display = "flex";
-  });
-
-  btnFecharRelatorioNF.addEventListener("click", () => {
-    modalRelatorioNF.style.display = "none";
-  });
-
-  modalRelatorioNF.addEventListener("click", (e) => {
-    if (e.target === modalRelatorioNF) modalRelatorioNF.style.display = "none";
-  });
-
-  btnFecharModalGrafico.addEventListener("click", () => {
-    modalGrafico.style.display = "none";
-  });
-
-  modalGrafico.addEventListener("click", (e) => {
-    if (e.target === modalGrafico) modalGrafico.style.display = "none";
-  });
-
-  btnFecharModalGraficoNF.addEventListener("click", () => {
-    modalGraficoNF.style.display = "none";
-  });
-
-  modalGraficoNF.addEventListener("click", (e) => {
-    if (e.target === modalGraficoNF) modalGraficoNF.style.display = "none";
-  });
-
-  btnFecharModalImagem.addEventListener("click", () => {
-    modalVisualizarImagem.style.display = "none";
-  });
-
-  modalVisualizarImagem.addEventListener("click", (e) => {
-    if (e.target === modalVisualizarImagem) modalVisualizarImagem.style.display = "none";
-  });
-
-  // ====== CARREGAR REGISTROS 24H ======
+  // ====== CARREGAR DADOS ======
   async function carregarRegistros24h() {
     try {
       await syncPendentes();
-      const dados = await supaList();
-      registrosCache = dados;
+      registrosCache = await supaList();
       setDbStatus(true);
-      isOfflineView = false;
-    } catch (e) {
-      console.error("Erro ao carregar registros:", e);
-      setDbStatus(false);
-      registrosCache = registrosLocal;
-      isOfflineView = true;
-    }
+    } catch (e) { setDbStatus(false); registrosCache = registrosLocal; }
 
     const agora = new Date();
     const limite = new Date(agora.getTime() - 24 * 60 * 60 * 1000);
+    const filtrados = registrosCache.filter(reg => new Date(reg.ts_iso || reg.tsISO || reg.created_at) >= limite)
+      .sort((a, b) => new Date(b.ts_iso || b.tsISO || b.created_at) - new Date(a.ts_iso || a.tsISO || a.created_at));
 
-    const base = registrosCache.length ? registrosCache : registrosLocal;
-    const filtrados = base
-      .filter(reg => {
-        const d = new Date(reg.ts_iso || reg.tsISO || reg.created_at);
-        return d >= limite;
-      })
-      .sort((a, b) => {
-        const dA = new Date(a.ts_iso || a.tsISO || a.created_at);
-        const dB = new Date(b.ts_iso || b.tsISO || b.created_at);
-        return dB - dA;
-      });
-
-    renderizarTabelaRegistros(filtrados);
-  }
-
-  function renderizarTabelaRegistros(registros) {
-    tbodyRegistros.innerHTML = "";
-    if (!registros.length) {
-      tbodyRegistros.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);">Nenhum registro encontrado nas últimas 24 horas.</td></tr>';
-      return;
-    }
-
-    registros.forEach((reg, idx) => {
+    tbodyRegistros.innerHTML = filtrados.length ? "" : '<tr><td colspan="7" style="text-align:center;">Nenhum registro.</td></tr>';
+    filtrados.forEach((reg, idx) => {
       const d = new Date(reg.ts_iso || reg.tsISO || reg.created_at);
       const info = classificarTurno(d);
-      const horario = formatarDataHora(d);
-
       const tr = document.createElement("tr");
-      
-      const tdId = document.createElement("td");
-      tdId.textContent = reg.id || (idx + 1);
-      tr.appendChild(tdId);
-
-      const tdHorario = document.createElement("td");
-      tdHorario.textContent = horario;
-      tr.appendChild(tdHorario);
-
-      const tdTurno = document.createElement("td");
-      const spanTurno = document.createElement("span");
-      spanTurno.className = info.turno === 1 ? "pill-turno" : "pill-turno pill-turno2";
-      spanTurno.textContent = `T${info.turno}`;
-      tdTurno.appendChild(spanTurno);
-      tr.appendChild(tdTurno);
-
-      const tdPlaca = document.createElement("td");
-      tdPlaca.textContent = reg.placa;
-      tr.appendChild(tdPlaca);
-
-      const tdTransp = document.createElement("td");
-      tdTransp.textContent = reg.transportadora;
-      tr.appendChild(tdTransp);
-
-      const tdImagem = document.createElement("td");
-      if (reg.imagem) {
-        const img = document.createElement("img");
-        img.src = reg.imagem;
-        img.className = "image-thumbnail";
-        img.addEventListener("click", () => {
-          imagemGrande.src = reg.imagem;
-          modalVisualizarImagem.style.display = "flex";
-        });
-        tdImagem.appendChild(img);
-      } else {
-        tdImagem.textContent = "-";
-        tdImagem.style.color = "var(--muted)";
+      tr.innerHTML = `<td>${reg.id || (idx+1)}</td><td>${formatarDataHora(d)}</td><td><span class="pill-turno ${info.turno===2?'pill-turno2':''}">T${info.turno}</span></td><td>${reg.placa}</td><td>${reg.transportadora}</td><td class="td-img"></td><td class="td-acoes"></td>`;
+      if(reg.imagem) {
+        const img = document.createElement("img"); img.src = reg.imagem; img.className = "image-thumbnail";
+        img.onclick = () => { imagemGrande.src = reg.imagem; modalVisualizarImagem.style.display = "flex"; };
+        tr.querySelector(".td-img").appendChild(img);
+      } else { tr.querySelector(".td-img").textContent = "-"; }
+      if(reg.id) {
+        const btn = document.createElement("button"); btn.className = "btn-delete"; btn.textContent = "Excluir";
+        btn.onclick = async () => { if(confirm("Excluir?")) { try { await supaDelete(reg.id); carregarRegistros24h(); } catch(e) { alert("Erro"); } } };
+        tr.querySelector(".td-acoes").appendChild(btn);
       }
-      tr.appendChild(tdImagem);
-
-      const tdAcoes = document.createElement("td");
-      if (reg.id) {
-        const btnDel = document.createElement("button");
-        btnDel.className = "btn-delete";
-        btnDel.textContent = "Excluir";
-        btnDel.addEventListener("click", async () => {
-          if (!confirm("Tem certeza que deseja excluir este registro?")) return;
-          try {
-            await supaDelete(reg.id);
-            alert("Registro excluído com sucesso!");
-            await carregarRegistros24h();
-          } catch (e) {
-            console.error("Erro ao excluir:", e);
-            alert("Erro ao excluir registro.");
-          }
-        });
-        tdAcoes.appendChild(btnDel);
-      } else {
-        tdAcoes.textContent = "-";
-        tdAcoes.style.color = "var(--muted)";
-      }
-      tr.appendChild(tdAcoes);
-
       tbodyRegistros.appendChild(tr);
     });
   }
 
-  // ====== CARREGAR NF 24H ======
   async function carregarNF24h() {
-    try {
-      await syncNFPendentes();
-      const dados = await supaListNF();
-      nfCache = dados;
-      setDbStatus(true);
-    } catch (e) {
-      console.error("Erro ao carregar NF:", e);
-      setDbStatus(false);
-      nfCache = nfLocal;
-    }
-
+    try { await syncNFPendentes(); nfCache = await supaListNF(); setDbStatus(true); } catch (e) { setDbStatus(false); nfCache = nfLocal; }
     const agora = new Date();
     const limite = new Date(agora.getTime() - 24 * 60 * 60 * 1000);
-
-    const base = nfCache.length ? nfCache : nfLocal;
-    const filtrados = base
-      .filter(nf => {
-        const d = new Date(nf.ts_iso || nf.tsISO || nf.created_at);
-        return d >= limite;
-      })
-      .sort((a, b) => {
-        const dA = new Date(a.ts_iso || a.tsISO || a.created_at);
-        const dB = new Date(b.ts_iso || b.tsISO || b.created_at);
-        return dB - dA;
-      });
-
-    renderizarTabelaNF(filtrados);
-  }
-
-  function renderizarTabelaNF(nfs) {
-    tbodyNF24h.innerHTML = "";
-    if (!nfs.length) {
-      tbodyNF24h.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);">Nenhum vínculo NF encontrado nas últimas 24 horas.</td></tr>';
-      return;
-    }
-
-    nfs.forEach((nf, idx) => {
-      const d = new Date(nf.ts_iso || nf.tsISO || nf.created_at);
-      const horario = formatarDataHora(d);
-
+    const filtrados = nfCache.filter(nf => new Date(nf.ts_iso || nf.tsISO || nf.created_at) >= limite)
+      .sort((a, b) => new Date(b.ts_iso || b.tsISO || b.created_at) - new Date(a.ts_iso || a.tsISO || a.created_at));
+    tbodyNF24h.innerHTML = filtrados.length ? "" : '<tr><td colspan="7" style="text-align:center;">Nenhum registro.</td></tr>';
+    filtrados.forEach((nf, idx) => {
       const tr = document.createElement("tr");
-      
-      const tdIdx = document.createElement("td");
-      tdIdx.textContent = idx + 1;
-      tr.appendChild(tdIdx);
-
-      const tdHorario = document.createElement("td");
-      tdHorario.textContent = horario;
-      tr.appendChild(tdHorario);
-
-      const tdPlaca = document.createElement("td");
-      tdPlaca.textContent = nf.placa;
-      tr.appendChild(tdPlaca);
-
-      const tdTransp = document.createElement("td");
-      tdTransp.textContent = nf.transportadora;
-      tr.appendChild(tdTransp);
-
-      const tdNFCanc = document.createElement("td");
-      tdNFCanc.textContent = nf.nf_cancelada;
-      tr.appendChild(tdNFCanc);
-
-      const tdNFSubst = document.createElement("td");
-      tdNFSubst.textContent = nf.nf_substituta;
-      tr.appendChild(tdNFSubst);
-
-      const tdMotivo = document.createElement("td");
-      tdMotivo.textContent = nf.motivo_cancelamento;
-      tr.appendChild(tdMotivo);
-
+      tr.innerHTML = `<td>${idx+1}</td><td>${formatarDataHora(new Date(nf.ts_iso || nf.tsISO || nf.created_at))}</td><td>${nf.placa}</td><td>${nf.transportadora}</td><td>${nf.nf_cancelada}</td><td>${nf.nf_substituta}</td><td>${nf.motivo_cancelamento}</td>`;
       tbodyNF24h.appendChild(tr);
     });
   }
 
+  btnAbrirRegistros.addEventListener("click", carregarRegistros24h);
+  btnAbrirNF24h.addEventListener("click", carregarNF24h);
+
   // ====== RELATÓRIOS ======
-  function toLocal(d) {
-    const offset = d.getTimezoneOffset() * 60000;
-    const local = new Date(d.getTime() - offset);
-    return local.toISOString().slice(0, 16);
-  }
+  const toLocal = (d) => { const off = d.getTimezoneOffset()*60000; return new Date(d.getTime()-off).toISOString().slice(0,16); };
+  const initRel = (i, f) => { const agora = new Date(); const ini = new Date(); ini.setDate(agora.getDate()-7); i.value = toLocal(ini); f.value = toLocal(agora); };
+  btnAbrirRelatorio.onclick = () => initRel(inicioRel, fimRel);
+  btnAbrirRelatorioNF.onclick = () => initRel(inicioRelNF, fimRelNF);
 
-  function inicializarPeriodoRelatorio() {
-    const agora = new Date();
-    const inicio = new Date(agora);
-    inicio.setDate(agora.getDate() - 7);
-    inicioRel.value = toLocal(inicio);
-    fimRel.value = toLocal(agora);
-  }
-
-  function inicializarPeriodoRelatorioNF() {
-    const agora = new Date();
-    const inicio = new Date(agora);
-    inicio.setDate(agora.getDate() - 7);
-    inicioRelNF.value = toLocal(inicio);
-    fimRelNF.value = toLocal(agora);
-  }
-
-  btnRelatorioPdf.addEventListener("click", () => {
-    msgRel.textContent = "";
-    if (!inicioRel.value || !fimRel.value) return alert("Preencha o início e o fim do período.");
-    
-    const di = new Date(inicioRel.value);
-    const df = new Date(fimRel.value);
-    if (isNaN(di.getTime()) || isNaN(df.getTime())) return alert("Datas/horas inválidas.");
-    if (di > df) return alert("O início do período é maior que o fim.");
-
-    const base = registrosCache.length ? registrosCache : registrosLocal;
-    const filtrados = base
-      .filter(reg => {
-        const d = new Date(reg.ts_iso || reg.tsISO || reg.created_at);
-        return d >= di && d <= df;
-      })
-      .sort((a, b) => new Date(a.ts_iso || a.tsISO || a.created_at) - new Date(b.ts_iso || b.tsISO || b.created_at));
-
-    if (!filtrados.length) {
-      msgRel.textContent = "Nenhum registro encontrado nesse período.";
-      return;
-    }
-
-    gerarPDFComImagens(di, df, filtrados);
-    msgRel.textContent = "Relatório aberto em nova aba. Use Imprimir → Salvar como PDF.";
-  });
-
-  function gerarPDFComImagens(di, df, filtrados) {
-    const inicioFmt = formatarDataHora(di);
-    const fimFmt = formatarDataHora(df);
-
-    const ddIni = pad2(di.getDate());
-    const mmIni = pad2(di.getMonth() + 1);
-    const ddFim = pad2(df.getDate());
-    const mmFim = pad2(df.getMonth() + 1);
-
-    const tituloCurto = `Relatorio_Basculas_${ddIni}_${mmIni}_a_${ddFim}_${mmFim}`;
-    const tituloVis = `Relatório Caminhões com Bascula Suja`;
-
-    let html = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8" />
-<title>${tituloCurto}</title>
-<style>
-  body { font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:#020617; color:#e5e7eb; margin:16px; }
-  .title { font-size:16pt; font-weight:bold; margin-bottom:4px; color:#e5e7eb; }
-  .subtitle { font-size:10pt; color:#94a3b8; margin-bottom:10px; }
-  .registro { 
-    background:#0f172a; 
-    border:1px solid #1f2937; 
-    border-radius:8px; 
-    padding:12px; 
-    margin-bottom:16px;
-    page-break-inside:avoid;
-  }
-  .registro-header { 
-    display:flex; 
-    justify-content:space-between; 
-    margin-bottom:8px;
-    font-size:11pt;
-  }
-  .registro-info { 
-    display:grid; 
-    grid-template-columns:1fr 1fr; 
-    gap:8px;
-    font-size:10pt;
-  }
-  .info-item { 
-    display:flex; 
-    gap:4px;
-  }
-  .info-label { 
-    font-weight:bold; 
-    color:#94a3b8;
-  }
-  .registro-imagem { 
-    margin-top:12px; 
-    text-align:center;
-  }
-  .registro-imagem img { 
-    max-width:100%; 
-    max-height:400px; 
-    border-radius:8px; 
-    border:1px solid #1f2937;
-  }
-  .pill-turno {
-    padding:2px 8px;
-    border-radius:999px;
-    font-size:10pt;
-    font-weight:600;
-    background:rgba(34,197,94,0.2);
-    color:#bbf7d0;
-  }
-  .pill-turno2 {
-    background:rgba(249,115,22,0.2);
-    color:#fed7aa;
-  }
-</style>
-</head>
-<body>
-<div class="title">${tituloVis}</div>
-<div class="subtitle">
-  Período: <strong>${inicioFmt}</strong> até <strong>${fimFmt}</strong>
-  &nbsp;|&nbsp; Registros: <strong>${filtrados.length}</strong>
-</div>
-`;
-
-    filtrados.forEach((reg, idx) => {
-      const d = new Date(reg.ts_iso || reg.tsISO || reg.created_at);
-      const info = classificarTurno(d);
-      const horario = formatarDataHora(d);
-
-      html += `
-<div class="registro">
-  <div class="registro-header">
-    <span><strong>#${idx + 1}</strong></span>
-    <span class="${info.turno === 1 ? 'pill-turno' : 'pill-turno pill-turno2'}">Turno ${info.turno}</span>
-  </div>
-  <div class="registro-info">
-    <div class="info-item">
-      <span class="info-label">Placa:</span>
-      <span>${reg.placa}</span>
-    </div>
-    <div class="info-item">
-      <span class="info-label">Transportadora:</span>
-      <span>${reg.transportadora}</span>
-    </div>
-    <div class="info-item">
-      <span class="info-label">Data/Hora:</span>
-      <span>${horario}</span>
-    </div>
-    <div class="info-item">
-      <span class="info-label">Dia do Turno:</span>
-      <span>${info.diaTurno}</span>
-    </div>
-  </div>`;
-
-      if (reg.imagem) {
-        html += `
-  <div class="registro-imagem">
-    <img src="${reg.imagem}" alt="Imagem da carreta ${reg.placa}">
-  </div>`;
-      }
-
-      html += `
-</div>`;
+  btnRelatorioPdf.onclick = () => {
+    const di = new Date(inicioRel.value), df = new Date(fimRel.value);
+    const filtrados = registrosCache.filter(r => { const d = new Date(r.ts_iso || r.tsISO || r.created_at); return d >= di && d <= df; }).sort((a,b) => new Date(a.ts_iso || a.tsISO || a.created_at) - new Date(b.ts_iso || b.tsISO || b.created_at));
+    if(!filtrados.length) return alert("Nada encontrado.");
+    let html = `<html><head><meta charset="utf-8"><style>body{font-family:sans-serif;background:#020617;color:#e5e7eb;padding:20px;}.card{background:#0f172a;border:1px solid #1f2937;padding:15px;margin-bottom:15px;border-radius:8px;page-break-inside:avoid;}.img{margin-top:10px;text-align:center;}.img img{max-width:100%;max-height:400px;border-radius:8px;}</style></head><body><h2>Relatório Carretas</h2><p>${formatarDataHora(di)} até ${formatarDataHora(df)}</p>`;
+    filtrados.forEach((r, i) => {
+      const d = new Date(r.ts_iso || r.tsISO || r.created_at); const info = classificarTurno(d);
+      html += `<div class="card"><b>#${i+1} - Placa: ${r.placa}</b><br>Transp: ${r.transportadora} | Turno: ${info.turno} | Data: ${formatarDataHora(d)}${r.imagem?`<div class="img"><img src="${r.imagem}"></div>`:''}</div>`;
     });
+    html += `</body></html>`;
+    const p = window.open("","_blank"); p.document.write(html); p.document.close(); setTimeout(()=>p.print(),500);
+  };
 
-    html += `
-</body>
-</html>`;
-
-    const popup = window.open("", "_blank");
-    if (!popup) return alert("O navegador bloqueou a abertura da janela de impressão. Libere pop-ups para este site.");
-    popup.document.open();
-    popup.document.write(html);
-    popup.document.close();
-    popup.focus();
-    setTimeout(() => popup.print(), 500);
-  }
-
-  btnRelatorioPdfNF.addEventListener("click", async () => {
-    msgRelNF.textContent = "";
-    if (!inicioRelNF.value || !fimRelNF.value) return alert("Preencha o início e o fim do período para o relatório de NF.");
-    
-    const di = new Date(inicioRelNF.value);
-    const df = new Date(fimRelNF.value);
-    if (isNaN(di.getTime()) || isNaN(df.getTime())) return alert("Datas/horas inválidas para o relatório de NF.");
-    if (di > df) return alert("O início do período é maior que o fim (NF).");
-
-    let dadosNF = [];
-    try {
-      await syncNFPendentes();
-      dadosNF = await supaListNF();
-      nfCache = dadosNF;
-      setDbStatus(true);
-    } catch (e) {
-      console.error("Erro ao buscar NF substitutas:", e);
-      setDbStatus(false);
-      alert("Banco de dados de NF inacessível. Gerando relatório apenas com os vínculos salvos neste computador.");
-      dadosNF = nfLocal;
-    }
-
-    const filtrados = dadosNF
-      .filter(reg => {
-        const ts = reg.ts_iso || reg.tsISO || reg.created_at;
-        if (!ts) return false;
-        const d = new Date(ts);
-        return d >= di && d <= df;
-      })
-      .sort((a, b) => new Date(a.ts_iso || a.tsISO || a.created_at) - new Date(b.ts_iso || b.tsISO || b.created_at));
-
-    if (!filtrados.length) {
-      msgRelNF.textContent = "Nenhum vínculo NF encontrado nesse período.";
-      return;
-    }
-
-    gerarPDFNF(di, df, filtrados);
-    msgRelNF.textContent = "Relatório NF aberto em nova aba. Use Imprimir → Salvar como PDF.";
-  });
-
-  function gerarPDFNF(di, df, filtrados) {
-    const inicioFmt = formatarDataHora(di);
-    const fimFmt = formatarDataHora(df);
-
-    const ddIni = pad2(di.getDate());
-    const mmIni = pad2(di.getMonth() + 1);
-    const ddFim = pad2(df.getDate());
-    const mmFim = pad2(df.getMonth() + 1);
-
-    const tituloCurto = `Relatorio_NF_Cancelada_Substituta_${ddIni}_${mmIni}_a_${ddFim}_${mmFim}`;
-    const tituloVis = `Relatório NF Cancelada x NF Substituta`;
-
-    let html = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8" />
-<title>${tituloCurto}</title>
-<style>
-  body { font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:#020617; color:#e5e7eb; margin:16px; }
-  .title { font-size:16pt; font-weight:bold; margin-bottom:4px; color:#e5e7eb; }
-  .subtitle { font-size:10pt; color:#94a3b8; margin-bottom:10px; }
-  table { border-collapse:collapse; width:100%; }
-  th, td { border:1px solid #1f2937; padding:6px 8px; font-size:10pt; }
-  thead tr { background:#020617; color:#e5e7eb; }
-  tbody tr:nth-child(odd) { background:#0f172a; }
-  tbody tr:nth-child(even){ background:#020617; }
-  th { text-transform:uppercase; letter-spacing:0.05em; }
-</style>
-</head>
-<body>
-<div class="title">${tituloVis}</div>
-<div class="subtitle">
-  Período: <strong>${inicioFmt}</strong> até <strong>${fimFmt}</strong>
-  &nbsp;|&nbsp; Registros: <strong>${filtrados.length}</strong>
-</div>
-<table>
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Data/Hora cadastro</th>
-      <th>Placa</th>
-      <th>Transportadora</th>
-      <th>NF Cancelada</th>
-      <th>NF Substituta</th>
-      <th>Motivo do cancelamento</th>
-    </tr>
-  </thead>
-  <tbody>
-`;
-
-    filtrados.forEach((nf, idx) => {
-      const d = new Date(nf.ts_iso || nf.tsISO || nf.created_at);
-      const horario = formatarDataHora(d);
-      
-      html += `
-    <tr>
-      <td>${idx + 1}</td>
-      <td>${horario}</td>
-      <td>${nf.placa}</td>
-      <td>${nf.transportadora}</td>
-      <td>${nf.nf_cancelada}</td>
-      <td>${nf.nf_substituta}</td>
-      <td>${nf.motivo_cancelamento}</td>
-    </tr>`;
-    });
-
-    html += `
-  </tbody>
-</table>
-</body>
-</html>`;
-
-    const popup = window.open("", "_blank");
-    if (!popup) return alert("O navegador bloqueou a abertura da janela de impressão. Libere pop-ups para este site.");
-    popup.document.open();
-    popup.document.write(html);
-    popup.document.close();
-    popup.focus();
-    setTimeout(() => popup.print(), 500);
-  }
+  btnRelatorioPdfNF.onclick = () => {
+    const di = new Date(inicioRelNF.value), df = new Date(fimRelNF.value);
+    const filtrados = nfCache.filter(r => { const d = new Date(r.ts_iso || r.tsISO || r.created_at); return d >= di && d <= df; }).sort((a,b) => new Date(a.ts_iso || a.tsISO || a.created_at) - new Date(b.ts_iso || b.tsISO || b.created_at));
+    if(!filtrados.length) return alert("Nada encontrado.");
+    let html = `<html><head><meta charset="utf-8"><style>body{font-family:sans-serif;background:#020617;color:#e5e7eb;padding:20px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #1f2937;padding:8px;text-align:left;}th{background:#0f172a;}</style></head><body><h2>Relatório NF</h2><table><thead><tr><th>Data</th><th>Placa</th><th>NF Canc</th><th>NF Subst</th><th>Motivo</th></tr></thead><tbody>`;
+    filtrados.forEach(r => { html += `<tr><td>${formatarDataHora(new Date(r.ts_iso || r.tsISO || r.created_at))}</td><td>${r.placa}</td><td>${r.nf_cancelada}</td><td>${r.nf_substituta}</td><td>${r.motivo_cancelamento}</td></tr>`; });
+    html += `</tbody></table></body></html>`;
+    const p = window.open("","_blank"); p.document.write(html); p.document.close(); setTimeout(()=>p.print(),500);
+  };
 
   // ====== GRÁFICOS ======
-  let chart7d = null;
-  btnGrafico7d.addEventListener("click", () => {
-    const base = registrosCache.length ? registrosCache : registrosLocal;
-    if (!base.length) return alert("Nenhum registro para gerar gráfico.");
+  let c1=null, c2=null;
+  btnGrafico7d.onclick = () => {
+    const base = registrosCache; if(!base.length) return;
+    const labels=[], data=[]; const hoje=new Date(); for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(hoje.getDate()-i); const k=`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; labels.push(`${pad2(d.getDate())}/${pad2(d.getMonth()+1)}`); data.push(base.filter(r=>(r.dia_turno||r.diaTurno)===k).length); }
+    if(c1) c1.destroy(); c1 = new Chart(canvasGrafico, { type:'bar', data:{ labels, datasets:[{label:'Carretas',data,backgroundColor:'#0ea5e9'}] }, options:{responsive:true} });
+    modalGrafico.style.display='flex';
+  };
+  btnGrafico7dNF.onclick = () => {
+    const base = nfCache; if(!base.length) return;
+    const labels=[], data=[]; const hoje=new Date(); for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(hoje.getDate()-i); const k=`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; labels.push(`${pad2(d.getDate())}/${pad2(d.getMonth()+1)}`); data.push(base.filter(r=>{const dt=new Date(r.ts_iso||r.tsISO||r.created_at); return `${dt.getFullYear()}-${pad2(dt.getMonth()+1)}-${pad2(dt.getDate())}`===k;}).length); }
+    if(c2) c2.destroy(); c2 = new Chart(canvasGraficoNF, { type:'bar', data:{ labels, datasets:[{label:'NF',data,backgroundColor:'#8C75C7'}] }, options:{responsive:true} });
+    modalGraficoNF.style.display='flex';
+  };
 
-    const hoje = new Date();
-    const hojeDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
-    const inicioDia = new Date(hojeDia);
-    inicioDia.setDate(hojeDia.getDate() - 6);
-
-    const contagemPorDia = {};
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(inicioDia);
-      d.setDate(inicioDia.getDate() + i);
-      const key = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
-      contagemPorDia[key] = 0;
-    }
-
-    base.forEach(reg => {
-      const diaStr = reg.dia_turno || reg.diaTurno || null;
-      if (!diaStr) return;
-      if (Object.prototype.hasOwnProperty.call(contagemPorDia, diaStr)) contagemPorDia[diaStr]++;
-    });
-
-    const keys = Object.keys(contagemPorDia).sort();
-    const labels = keys.map(k => {
-      const [y, m, d] = k.split("-");
-      return `${d}/${m}`;
-    });
-    const dataVals = keys.map(k => contagemPorDia[k]);
-
-    const ctx = canvasGrafico.getContext("2d");
-    if (chart7d) chart7d.destroy();
-    chart7d = new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels,
-        datasets: [{ label: "Carretas sujas por dia (dia do turno)", data: dataVals, backgroundColor: "#0ea5e9" }]
-      },
-      options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-    });
-
-    modalGrafico.style.display = "flex";
-  });
-
-  let chartNF7d = null;
-  btnGrafico7dNF.addEventListener("click", () => {
-    const base = nfCache.length ? nfCache : nfLocal;
-    if (!base.length) return alert("Nenhum vínculo NF para gerar gráfico.");
-
-    const hoje = new Date();
-    const hojeDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
-    const inicioDia = new Date(hojeDia);
-    inicioDia.setDate(hojeDia.getDate() - 6);
-
-    const contagemPorDia = {};
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(inicioDia);
-      d.setDate(inicioDia.getDate() + i);
-      const key = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
-      contagemPorDia[key] = 0;
-    }
-
-    base.forEach(nf => {
-      const d = new Date(nf.ts_iso || nf.tsISO || nf.created_at);
-      const key = `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
-      if (Object.prototype.hasOwnProperty.call(contagemPorDia, key)) contagemPorDia[key]++;
-    });
-
-    const keys = Object.keys(contagemPorDia).sort();
-    const labels = keys.map(k => {
-      const [y, m, d] = k.split("-");
-      return `${d}/${m}`;
-    });
-    const dataVals = keys.map(k => contagemPorDia[k]);
-
-    const ctx = canvasGraficoNF.getContext("2d");
-    if (chartNF7d) chartNF7d.destroy();
-    chartNF7d = new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels,
-        datasets: [{ label: "NF Canceladas por dia", data: dataVals, backgroundColor: "#8C75C7" }]
-      },
-      options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-    });
-
-    modalGraficoNF.style.display = "flex";
-  });
-
-  // ====== INICIALIZAÇÃO ======
-  carregarTransportadoras();
-  carregarRegistrosLocal();
-  carregarNFLocal();
-
-  (async () => {
-    try {
-      await syncPendentes();
-      await syncNFPendentes();
-      const dados = await supaList();
-      registrosCache = dados;
-      setDbStatus(true);
-    } catch (e) {
-      console.error("Erro ao conectar ao banco de dados:", e);
-      setDbStatus(false);
-    }
-  })();
+  // ====== INIT ======
+  carregarTransportadoras(); carregarRegistrosLocal(); carregarNFLocal();
+  (async () => { try { await syncPendentes(); await syncNFPendentes(); registrosCache = await supaList(); nfCache = await supaListNF(); setDbStatus(true); } catch (e) { setDbStatus(false); } })();
 </script>
-
 </body>
 </html>
