@@ -46,7 +46,6 @@
     background-color: #0f172a;
   }
 
-  /* IMAGEM DE FUNDO COM OPACIDADE */
   body::before {
     content: "";
     position: fixed;
@@ -55,11 +54,10 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: 0.35; /* Opacidade da imagem */
+    opacity: 0.35;
     z-index: -1;
   }
 
-  /* OVERLAY PARA PROFISSIONALISMO */
   body::after {
     content: "";
     position: fixed;
@@ -155,7 +153,6 @@
     transform: scale(1.05);
   }
 
-  /* SIDEBAR */
   .sidebar {
     position: fixed;
     top: 0;
@@ -185,7 +182,6 @@
 
   .sidebar-overlay.active { opacity: 1; visibility: visible; }
 
-  /* CARDS */
   .card {
     background: var(--bg-card);
     backdrop-filter: blur(12px);
@@ -220,7 +216,6 @@
     border-radius: 10px;
   }
 
-  /* BOTÕES */
   .btn {
     display: inline-flex;
     align-items: center;
@@ -254,7 +249,6 @@
 
   .btn-ghost:hover { background: rgba(255, 255, 255, 0.1); }
 
-  /* MODAIS - AJUSTE DE SIMETRIA */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -272,7 +266,7 @@
     border: 1px solid var(--border);
     border-radius: 32px;
     width: 100%;
-    max-width: 600px; /* Aumentado para melhor simetria no PC */
+    max-width: 600px;
     max-height: 90vh;
     overflow-y: auto;
     padding: 40px;
@@ -288,7 +282,6 @@
     margin-bottom: 32px;
   }
 
-  /* GRID SIMÉTRICO PARA PC */
   .modal-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -325,7 +318,6 @@
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
   }
 
-  /* TABELAS */
   .table-container {
     overflow-x: auto;
     border-radius: 20px;
@@ -346,7 +338,6 @@
   }
   td { padding: 18px 20px; border-top: 1px solid var(--border); }
 
-  /* UPLOAD */
   .upload-area {
     border: 2px dashed var(--border);
     border-radius: 20px;
@@ -358,7 +349,6 @@
   }
   .upload-area:hover { border-color: var(--primary); background: rgba(59, 130, 246, 0.05); }
 
-  /* RODAPÉ */
   footer {
     margin-top: auto;
     padding: 60px 24px 32px;
@@ -377,12 +367,20 @@
   }
   .support-link:hover { background: var(--accent); color: white; }
 
-  /* RESPONSIVIDADE */
+  /* AJUSTE DOS BOTÕES À DIREITA NO PC */
+  .right-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+  }
+
   @media (max-width: 768px) {
     .modal-grid { grid-template-columns: 1fr; }
     .card-header { flex-direction: column; align-items: stretch; }
     .btn { width: 100%; }
     .modal-content { padding: 24px; }
+    .right-actions { align-items: stretch; }
   }
 </style>
 </head>
@@ -444,13 +442,16 @@ if (!document.referrer.includes("login.html")) {
   <section class="card">
     <div class="card-header">
       <div class="card-title">NF-e Canceladas</div>
-      <button id="btnAbrirModalNF" class="btn btn-primary">
-        <span>+</span> Registrar NF-e
-      </button>
-    </div>
-    <div style="display:flex; gap:12px; flex-wrap:wrap;">
-      <button id="btnAbrirNF24h" class="btn btn-ghost">Vínculos 24h</button>
-      <button id="btnAbrirRelatorioNF" class="btn btn-ghost">Relatórios NF-e</button>
+      <!-- BOTÕES À DIREITA NO PC -->
+      <div class="right-actions">
+        <button id="btnAbrirModalNF" class="btn btn-primary">
+          <span>+</span> Registrar NF-e
+        </button>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <button id="btnAbrirNF24h" class="btn btn-ghost">Vínculos 24h</button>
+          <button id="btnAbrirRelatorioNF" class="btn btn-ghost">Relatórios NF-e</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -462,14 +463,13 @@ if (!document.referrer.includes("login.html")) {
   </footer>
 </div>
 
-<!-- MODAL CARRETA -->
+<!-- MODAIS (Mantidos da v4) -->
 <div id="modalCarreta" class="modal-overlay">
   <div class="modal-content">
     <div class="modal-header">
       <h3 style="font-size:1.4rem; font-weight:800;">Registrar Carreta</h3>
       <button id="btnFecharModalCarreta" class="menu-trigger">✕</button>
     </div>
-    <!-- GRID SIMÉTRICO -->
     <div class="modal-grid">
       <div class="form-group">
         <label class="form-label">Placa do Veículo</label>
@@ -495,7 +495,6 @@ if (!document.referrer.includes("login.html")) {
   </div>
 </div>
 
-<!-- MODAL NF-E -->
 <div id="modalNF" class="modal-overlay">
   <div class="modal-content">
     <div class="modal-header">
@@ -530,7 +529,6 @@ if (!document.referrer.includes("login.html")) {
   </div>
 </div>
 
-<!-- MODAL TABELA REGISTROS -->
 <div id="modalRegistros" class="modal-overlay">
   <div class="modal-content modal-large">
     <div class="modal-header">
@@ -555,7 +553,6 @@ if (!document.referrer.includes("login.html")) {
   </div>
 </div>
 
-<!-- MODAL RELATÓRIO -->
 <div id="modalRelatorio" class="modal-overlay">
   <div class="modal-content">
     <div class="modal-header">
@@ -580,7 +577,6 @@ if (!document.referrer.includes("login.html")) {
   </div>
 </div>
 
-<!-- MODAL VISUALIZAR IMAGEM -->
 <div id="modalVisualizarImagem" class="modal-overlay">
   <div class="modal-content" style="max-width:900px; padding:16px;">
     <div class="modal-header">
@@ -591,7 +587,6 @@ if (!document.referrer.includes("login.html")) {
   </div>
 </div>
 
-<!-- MODAL ADD TRANSP -->
 <div id="modalAddTransp" class="modal-overlay">
   <div class="modal-content" style="max-width:450px;">
     <div class="modal-header">
