@@ -6,7 +6,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 
-<!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -28,12 +27,7 @@
     --glass: rgba(15, 23, 42, 0.85);
   }
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
   body {
     min-height: 100vh;
@@ -89,11 +83,7 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   }
 
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
+  .header-left { display: flex; align-items: center; gap: 16px; }
 
   .title-group h1 {
     font-size: 1.25rem;
@@ -104,11 +94,7 @@
     -webkit-text-fill-color: transparent;
   }
 
-  .title-group p {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    font-weight: 500;
-  }
+  .title-group p { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
 
   .status-badge {
     display: flex;
@@ -122,18 +108,8 @@
     font-weight: 600;
   }
 
-  .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--success);
-    box-shadow: 0 0 12px var(--success);
-  }
-
-  .dot.offline {
-    background: var(--danger);
-    box-shadow: 0 0 12px var(--danger);
-  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--success); box-shadow: 0 0 12px var(--success); }
+  .dot.offline { background: var(--danger); box-shadow: 0 0 12px var(--danger); }
 
   .menu-trigger {
     background: rgba(255, 255, 255, 0.05);
@@ -147,11 +123,7 @@
     display: flex;
     align-items: center;
   }
-
-  .menu-trigger:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: scale(1.05);
-  }
+  .menu-trigger:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.05); }
 
   .sidebar {
     position: fixed;
@@ -166,7 +138,6 @@
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 32px 24px;
   }
-
   .sidebar.open { transform: translateX(300px); }
 
   .sidebar-overlay {
@@ -179,7 +150,6 @@
     visibility: hidden;
     transition: all 0.3s;
   }
-
   .sidebar-overlay.active { opacity: 1; visibility: visible; }
 
   .card {
@@ -207,14 +177,7 @@
     font-size: 1.2rem;
     font-weight: 700;
   }
-
-  .card-title::before {
-    content: "";
-    width: 5px;
-    height: 24px;
-    background: var(--primary);
-    border-radius: 10px;
-  }
+  .card-title::before { content: ""; width: 5px; height: 24px; background: var(--primary); border-radius: 10px; }
 
   .btn {
     display: inline-flex;
@@ -235,18 +198,9 @@
     color: white;
     box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
   }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(59, 130, 246, 0.4); }
 
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 25px rgba(59, 130, 246, 0.4);
-  }
-
-  .btn-ghost {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-main);
-    border: 1px solid var(--border);
-  }
-
+  .btn-ghost { background: rgba(255, 255, 255, 0.05); color: var(--text-main); border: 1px solid var(--border); }
   .btn-ghost:hover { background: rgba(255, 255, 255, 0.1); }
 
   .modal-overlay {
@@ -275,12 +229,7 @@
 
   .modal-large { max-width: 1100px; }
 
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 32px;
-  }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
 
   .modal-grid {
     display: grid;
@@ -310,7 +259,6 @@
     font-size: 1rem;
     transition: all 0.2s;
   }
-
   .form-control:focus {
     outline: none;
     border-color: var(--primary);
@@ -324,7 +272,6 @@
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid var(--border);
   }
-
   table { width: 100%; border-collapse: collapse; }
   th {
     text-align: left;
@@ -367,13 +314,7 @@
   }
   .support-link:hover { background: var(--accent); color: white; }
 
-  /* AJUSTE DOS BOTÕES À DIREITA NO PC */
-  .right-actions {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 12px;
-  }
+  .right-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
 
   @media (max-width: 768px) {
     .modal-grid { grid-template-columns: 1fr; }
@@ -442,7 +383,6 @@ if (!document.referrer.includes("login.html")) {
   <section class="card">
     <div class="card-header">
       <div class="card-title">NF-e Canceladas</div>
-      <!-- BOTÕES À DIREITA NO PC -->
       <div class="right-actions">
         <button id="btnAbrirModalNF" class="btn btn-primary">
           <span>+</span> Registrar NF-e
@@ -463,7 +403,7 @@ if (!document.referrer.includes("login.html")) {
   </footer>
 </div>
 
-<!-- MODAIS (Mantidos da v4) -->
+<!-- MODAL CARRETA -->
 <div id="modalCarreta" class="modal-overlay">
   <div class="modal-content">
     <div class="modal-header">
@@ -495,6 +435,7 @@ if (!document.referrer.includes("login.html")) {
   </div>
 </div>
 
+<!-- MODAL NF -->
 <div id="modalNF" class="modal-overlay">
   <div class="modal-content">
     <div class="modal-header">
@@ -529,6 +470,7 @@ if (!document.referrer.includes("login.html")) {
   </div>
 </div>
 
+<!-- MODAL REGISTROS 24h CARRETAS -->
 <div id="modalRegistros" class="modal-overlay">
   <div class="modal-content modal-large">
     <div class="modal-header">
@@ -553,10 +495,11 @@ if (!document.referrer.includes("login.html")) {
   </div>
 </div>
 
+<!-- MODAL RELATÓRIO CARRETAS -->
 <div id="modalRelatorio" class="modal-overlay">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 style="font-size:1.4rem; font-weight:800;">Relatórios e Gráficos</h3>
+      <h3 style="font-size:1.4rem; font-weight:800;">Relatórios e Gráficos (Carretas)</h3>
       <button id="btnFecharRelatorio" class="menu-trigger">✕</button>
     </div>
     <div class="modal-grid">
@@ -577,6 +520,58 @@ if (!document.referrer.includes("login.html")) {
   </div>
 </div>
 
+<!-- MODAL NF 24H -->
+<div id="modalNF24h" class="modal-overlay">
+  <div class="modal-content modal-large">
+    <div class="modal-header">
+      <h3 style="font-size:1.4rem; font-weight:800;">Vínculos NF-e (24h)</h3>
+      <button id="btnFecharNF24h" class="menu-trigger">✕</button>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Horário</th>
+            <th>Turno</th>
+            <th>Placa</th>
+            <th>Transportadora</th>
+            <th>NF Cancelada</th>
+            <th>NF Substituta</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyNF24h"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RELATÓRIO NF -->
+<div id="modalRelatorioNF" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 style="font-size:1.4rem; font-weight:800;">Relatórios NF-e</h3>
+      <button id="btnFecharRelatorioNF" class="menu-trigger">✕</button>
+    </div>
+    <div class="modal-grid">
+      <div class="form-group">
+        <label class="form-label">Início</label>
+        <input id="inicioRelNF" type="datetime-local" class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fim</label>
+        <input id="fimRelNF" type="datetime-local" class="form-control">
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+      <button id="btnRelatorioPdfNF" class="btn btn-primary">Gerar PDF</button>
+      <button id="btnVerTabelaNF" class="btn btn-ghost">Carregar</button>
+    </div>
+    <p id="msgRelNF" style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-top:20px; font-weight:500;"></p>
+  </div>
+</div>
+
+<!-- MODAL VISUALIZAR IMAGEM -->
 <div id="modalVisualizarImagem" class="modal-overlay">
   <div class="modal-content" style="max-width:900px; padding:16px;">
     <div class="modal-header">
@@ -587,6 +582,7 @@ if (!document.referrer.includes("login.html")) {
   </div>
 </div>
 
+<!-- MODAL ADD TRANSP -->
 <div id="modalAddTransp" class="modal-overlay">
   <div class="modal-content" style="max-width:450px;">
     <div class="modal-header">
@@ -601,24 +597,20 @@ if (!document.referrer.includes("login.html")) {
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
-
 <script type="module">
   import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
+  // ====== SUPABASE ======
   const SUPABASE_URL = "https://rficsflnaxayyrddxald.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const STORAGE_KEY_TRANSP = "msa_balanca_suja_transportadoras_v1";
-  const LS_KEY_REGISTROS = "msa_registros_bascula_local_v1";
-  const LS_KEY_NF_SUBSTITUTA = "msa_nf_substitutas_local_v1";
+  // Storage bucket (crie no Supabase)
+  const BUCKET_EVIDENCIAS = "bascula-evidencias";
 
-  let transportadoras = ["CAIO TRANSPORTES", "ECOMINING", "RODOMINAS"];
-  let registrosLocal = [];
+  let transportadoras = [];
   let registrosCache = [];
+  let nfeCache = [];
 
   const dbDot = document.getElementById("dbDot");
   const dbStatusText = document.getElementById("dbStatusText");
@@ -655,17 +647,22 @@ if (!document.referrer.includes("login.html")) {
     const turno = (totalMin >= inicioT1 && totalMin < fimT1) ? 1 : 2;
     const diaTurno = new Date(d);
     if (totalMin < inicioT1) diaTurno.setDate(diaTurno.getDate() - 1);
-    return { turno, diaTurno: diaTurno.toISOString().split('T')[0] };
+    return { turno, diaTurno: diaTurno.toISOString().split("T")[0] };
   }
 
   const openModal = (id) => document.getElementById(id).style.display = "flex";
   const closeModal = (id) => document.getElementById(id).style.display = "none";
 
+  // ====== MODAIS ======
   document.getElementById("btnAbrirModalCarreta").onclick = () => openModal("modalCarreta");
   document.getElementById("btnAbrirModalNF").onclick = () => openModal("modalNF");
   document.getElementById("btnAddTranspModal").onclick = () => openModal("modalAddTransp");
-  document.getElementById("btnAbrirRegistros").onclick = () => { carregarRegistros24h(); openModal("modalRegistros"); };
+
+  document.getElementById("btnAbrirRegistros").onclick = async () => { await carregarRegistros24h(); openModal("modalRegistros"); };
   document.getElementById("btnAbrirRelatorio").onclick = () => { initRelDates("inicioRel", "fimRel"); openModal("modalRelatorio"); };
+
+  document.getElementById("btnAbrirNF24h").onclick = async () => { await carregarNF24h(); openModal("modalNF24h"); };
+  document.getElementById("btnAbrirRelatorioNF").onclick = () => { initRelDates("inicioRelNF", "fimRelNF"); openModal("modalRelatorioNF"); };
 
   document.getElementById("btnFecharModalCarreta").onclick = () => closeModal("modalCarreta");
   document.getElementById("btnFecharModalNF").onclick = () => closeModal("modalNF");
@@ -674,7 +671,10 @@ if (!document.referrer.includes("login.html")) {
   document.getElementById("btnFecharRelatorio").onclick = () => closeModal("modalRelatorio");
   document.getElementById("btnFecharModalImagem").onclick = () => closeModal("modalVisualizarImagem");
 
-  window.onclick = (e) => { if (e.target.classList.contains('modal-overlay')) e.target.style.display = "none"; };
+  document.getElementById("btnFecharNF24h").onclick = () => closeModal("modalNF24h");
+  document.getElementById("btnFecharRelatorioNF").onclick = () => closeModal("modalRelatorioNF");
+
+  window.onclick = (e) => { if (e.target.classList.contains("modal-overlay")) e.target.style.display = "none"; };
 
   function renderSelects() {
     const selects = [document.getElementById("transportadoraModal"), document.getElementById("transportadoraNFModal")];
@@ -682,36 +682,86 @@ if (!document.referrer.includes("login.html")) {
       s.innerHTML = '<option value="">Selecione...</option>';
       transportadoras.forEach(t => {
         const opt = document.createElement("option");
-        opt.value = t; opt.textContent = t; s.appendChild(opt);
+        opt.value = t;
+        opt.textContent = t;
+        s.appendChild(opt);
       });
     });
   }
 
-  document.getElementById("btnSalvarTransp").onclick = () => {
-    const nome = document.getElementById("nomeNovaTransp").value.trim().toUpperCase();
-    if (!nome) return;
-    if (!transportadoras.includes(nome)) {
-      transportadoras.push(nome);
-      transportadoras.sort();
-      localStorage.setItem(STORAGE_KEY_TRANSP, JSON.stringify(transportadoras));
+  async function carregarTransportadoras() {
+    try {
+      const { data, error } = await supabase
+        .from("transportadoras")
+        .select("nome")
+        .order("nome", { ascending: true });
+
+      if (error) throw error;
+      transportadoras = (data || []).map(x => x.nome);
+      renderSelects();
+      setDbStatus(true);
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+      transportadoras = ["CAIO TRANSPORTES", "ECOMINING", "RODOMINAS"]; // fallback visual
       renderSelects();
     }
-    closeModal("modalAddTransp");
-  };
+  }
 
-  document.getElementById("imagemCarreta").onchange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const img = document.getElementById("imgPreviewCarreta");
-        img.src = ev.target.result;
-        img.style.display = "block";
-      };
-      reader.readAsDataURL(file);
+  // ====== ADD TRANSPORTADORA (SUPABASE) ======
+  document.getElementById("btnSalvarTransp").onclick = async () => {
+    const nome = document.getElementById("nomeNovaTransp").value.trim().toUpperCase();
+    if (!nome) return;
+
+    try {
+      const { error } = await supabase.from("transportadoras").insert([{ nome }]);
+      if (error) throw error;
+
+      document.getElementById("nomeNovaTransp").value = "";
+      await carregarTransportadoras();
+      closeModal("modalAddTransp");
+    } catch (e) {
+      console.error(e);
+      alert("Falha ao salvar transportadora (talvez já exista).");
+      setDbStatus(false);
     }
   };
 
+  // ====== PREVIEW IMAGEM ======
+  document.getElementById("imagemCarreta").onchange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = document.getElementById("imgPreviewCarreta");
+      img.src = ev.target.result;
+      img.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // ====== UPLOAD STORAGE ======
+  async function uploadImagem(file) {
+    if (!file) return { path: null, url: null };
+
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const safeName = `${crypto.randomUUID()}.${ext}`;
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const path = `${y}/${m}/${safeName}`;
+
+    const { error: upErr } = await supabase.storage.from(BUCKET_EVIDENCIAS).upload(path, file, {
+      cacheControl: "3600",
+      upsert: false
+    });
+    if (upErr) throw upErr;
+
+    const { data } = supabase.storage.from(BUCKET_EVIDENCIAS).getPublicUrl(path);
+    return { path, url: data?.publicUrl || null };
+  }
+
+  // ====== SALVAR CARRETA (SUPABASE) ======
   document.getElementById("btnSalvarCarreta").onclick = async () => {
     const placa = document.getElementById("placaModal").value.trim().toUpperCase();
     const transp = document.getElementById("transportadoraModal").value;
@@ -719,52 +769,114 @@ if (!document.referrer.includes("login.html")) {
 
     const agora = new Date();
     const info = classificarTurno(agora);
-    const imgInput = document.getElementById("imagemCarreta");
-    
-    const salvar = async (base64) => {
-      const reg = { placa, transportadora: transp, tsISO: agora.toISOString(), turno: info.turno, diaTurno: info.diaTurno, imagem: base64, synced: false };
-      registrosLocal.push(reg);
-      localStorage.setItem(LS_KEY_REGISTROS, JSON.stringify(registrosLocal));
-      try {
-        await supabase.from("registros_bascula").insert([{ placa, transportadora: transp, tsISO: agora.toISOString(), turno: info.turno, diaTurno: info.diaTurno, imagem: base64 }]);
-        setDbStatus(true);
-      } catch (e) { setDbStatus(false); }
-      alert("Registro salvo!");
-      closeModal("modalCarreta");
-      document.getElementById("placaModal").value = "";
-      document.getElementById("imgPreviewCarreta").style.display = "none";
-    };
+    const file = document.getElementById("imagemCarreta")?.files?.[0] || null;
 
-    if (imgInput.files[0]) {
-      const reader = new FileReader();
-      reader.onload = (ev) => salvar(ev.target.result);
-      reader.readAsDataURL(imgInput.files[0]);
-    } else { await salvar(null); }
+    try {
+      const { path, url } = await uploadImagem(file);
+
+      const { error } = await supabase.from("registros_bascula").insert([{
+        placa,
+        transportadora_nome: transp,
+        ts: agora.toISOString(),
+        turno: info.turno,
+        dia_turno: info.diaTurno,
+        imagem_path: path,
+        imagem_url: url
+      }]);
+
+      if (error) throw error;
+
+      setDbStatus(true);
+      alert("Registro salvo no Supabase!");
+      closeModal("modalCarreta");
+
+      document.getElementById("placaModal").value = "";
+      document.getElementById("imagemCarreta").value = "";
+      const prev = document.getElementById("imgPreviewCarreta");
+      prev.style.display = "none";
+      prev.src = "";
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+      alert("Falha ao salvar no Supabase. Verifique internet/policies.");
+    }
   };
 
+  // ====== LISTAR REGISTROS 24h (SUPABASE) ======
   async function carregarRegistros24h() {
+    const now = new Date();
+    const since = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+
     try {
-      const { data } = await supabase.from("registros_bascula").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("registros_bascula")
+        .select("*")
+        .gte("ts", since)
+        .order("ts", { ascending: false })
+        .limit(200);
+
+      if (error) throw error;
       registrosCache = data || [];
       setDbStatus(true);
-    } catch (e) { setDbStatus(false); registrosCache = registrosLocal; }
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+      registrosCache = [];
+    }
 
     const tbody = document.getElementById("tbodyRegistros");
     tbody.innerHTML = "";
-    registrosCache.slice(0, 20).forEach(r => {
-      const d = new Date(r.tsISO || r.created_at);
+
+    registrosCache.slice(0, 50).forEach(r => {
+      const d = new Date(r.ts);
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${formatarDataHora(d)}</td>
         <td><span class="status-badge" style="background:rgba(59,130,246,0.1); color:var(--primary); border:none;">T${r.turno}</span></td>
         <td style="font-weight:800;">${r.placa}</td>
-        <td>${r.transportadora}</td>
-        <td>${r.imagem ? `<img src="${r.imagem}" style="width:45px; height:35px; object-fit:cover; border-radius:8px; cursor:pointer;" onclick="viewImg('${r.imagem}')">` : '-'}</td>
-        <td><button class="btn btn-danger" style="padding:6px 12px; font-size:0.75rem;" onclick="deletarReg('${r.id}')">Excluir</button></td>
+        <td>${r.transportadora_nome}</td>
+        <td>${r.imagem_url ? `<img src="${r.imagem_url}" style="width:45px; height:35px; object-fit:cover; border-radius:8px; cursor:pointer;" onclick="viewImg('${r.imagem_url}')">` : '-'}</td>
+        <td>
+          <button class="btn" style="padding:6px 12px; font-size:0.75rem; background:rgba(239,68,68,.15); color:#fecaca; border:1px solid rgba(239,68,68,.25);" onclick="deletarReg('${r.id}')">Excluir</button>
+        </td>
       `;
       tbody.appendChild(tr);
     });
   }
+
+  // ====== EXCLUIR REGISTRO + IMAGEM ======
+  window.deletarReg = async (id) => {
+    const ok = confirm("Deseja excluir este registro?");
+    if (!ok) return;
+
+    try {
+      const { data: row, error: e1 } = await supabase
+        .from("registros_bascula")
+        .select("imagem_path")
+        .eq("id", id)
+        .single();
+
+      if (e1) throw e1;
+
+      const { error: e2 } = await supabase
+        .from("registros_bascula")
+        .delete()
+        .eq("id", id);
+
+      if (e2) throw e2;
+
+      if (row?.imagem_path) {
+        await supabase.storage.from(BUCKET_EVIDENCIAS).remove([row.imagem_path]);
+      }
+
+      setDbStatus(true);
+      await carregarRegistros24h();
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+      alert("Falha ao excluir no Supabase.");
+    }
+  };
 
   window.viewImg = (src) => {
     document.getElementById("imagemGrande").src = src;
@@ -778,35 +890,242 @@ if (!document.referrer.includes("login.html")) {
     document.getElementById(fId).value = new Date(agora.getTime() - agora.getTimezoneOffset()*60000).toISOString().slice(0,16);
   }
 
-  document.getElementById("btnRelatorioPdf").onclick = () => {
+  // ====== RELATÓRIO CARRETAS (consulta SUPABASE no período) ======
+  document.getElementById("btnRelatorioPdf").onclick = async () => {
     const di = new Date(document.getElementById("inicioRel").value);
     const df = new Date(document.getElementById("fimRel").value);
-    const filtrados = registrosCache.filter(r => {
-      const d = new Date(r.tsISO || r.created_at);
-      return d >= di && d <= df;
-    });
-    if (!filtrados.length) return alert("Sem dados.");
-    let html = `<html><head><style>body{font-family:sans-serif; padding:40px; background:#f8fafc;} .card{background:white; border:1px solid #e2e8f0; padding:25px; margin-bottom:25px; border-radius:16px; page-break-inside:avoid;} img{max-width:100%; border-radius:12px; margin-top:15px;}</style></head><body>`;
-    html += `<h1>Relatório de Carretas</h1><p>Período: ${formatarDataHora(di)} a ${formatarDataHora(df)}</p>`;
-    filtrados.forEach((r, i) => {
-      html += `<div class="card"><h3>#${i+1} - Placa: ${r.placa}</h3><p>Transportadora: ${r.transportadora} | Turno: ${r.turno}</p><p>Data: ${formatarDataHora(new Date(r.tsISO || r.created_at))}</p>${r.imagem ? `<img src="${r.imagem}">` : ''}</div>`;
-    });
-    html += `</body></html>`;
-    const win = window.open("", "_blank");
-    win.document.write(html);
-    win.document.close();
-    setTimeout(() => win.print(), 500);
+    if (isNaN(di.getTime()) || isNaN(df.getTime())) return alert("Selecione início e fim.");
+
+    try {
+      const { data, error } = await supabase
+        .from("registros_bascula")
+        .select("*")
+        .gte("ts", di.toISOString())
+        .lte("ts", df.toISOString())
+        .order("ts", { ascending: false })
+        .limit(2000);
+
+      if (error) throw error;
+
+      const filtrados = data || [];
+      if (!filtrados.length) return alert("Sem dados no período.");
+
+      let html = `<html><head><meta charset="utf-8"><style>
+        body{font-family:sans-serif; padding:40px; background:#f8fafc;}
+        .card{background:white; border:1px solid #e2e8f0; padding:25px; margin-bottom:25px; border-radius:16px; page-break-inside:avoid;}
+        img{max-width:100%; border-radius:12px; margin-top:15px;}
+      </style></head><body>`;
+      html += `<h1>Relatório de Carretas</h1><p>Período: ${formatarDataHora(di)} a ${formatarDataHora(df)}</p>`;
+
+      filtrados.forEach((r, i) => {
+        html += `<div class="card">
+          <h3>#${i+1} - Placa: ${r.placa}</h3>
+          <p>Transportadora: ${r.transportadora_nome} | Turno: ${r.turno}</p>
+          <p>Data: ${formatarDataHora(new Date(r.ts))}</p>
+          ${r.imagem_url ? `<img src="${r.imagem_url}">` : ''}
+        </div>`;
+      });
+
+      html += `</body></html>`;
+      const win = window.open("", "_blank");
+      win.document.write(html);
+      win.document.close();
+      setTimeout(() => win.print(), 500);
+    } catch (e) {
+      console.error(e);
+      alert("Falha ao gerar relatório (verifique conexão/policies).");
+    }
   };
 
-  const storedTransp = localStorage.getItem(STORAGE_KEY_TRANSP);
-  if (storedTransp) transportadoras = JSON.parse(storedTransp);
-  renderSelects();
-  
+  // ====== SALVAR NF (SUPABASE) ======
+  document.getElementById("btnSalvarNF").onclick = async () => {
+    const placa = document.getElementById("placaNFModal").value.trim().toUpperCase();
+    const transp = document.getElementById("transportadoraNFModal").value;
+    const nfCanc = document.getElementById("nfCanceladaModal").value.trim();
+    const nfSub = document.getElementById("nfSubstitutaModal").value.trim();
+    const motivo = document.getElementById("motivoCancelamentoModal").value.trim();
+
+    if (!placa || !transp || !nfCanc || !nfSub) return alert("Preencha os campos obrigatórios.");
+
+    const agora = new Date();
+    const info = classificarTurno(agora);
+
+    try {
+      const { error } = await supabase.from("nfe_canceladas").insert([{
+        placa,
+        transportadora_nome: transp,
+        nf_cancelada: nfCanc,
+        nf_substituta: nfSub,
+        motivo: motivo || null,
+        ts: agora.toISOString(),
+        turno: info.turno,
+        dia_turno: info.diaTurno
+      }]);
+
+      if (error) throw error;
+
+      setDbStatus(true);
+      alert("Vínculo salvo no Supabase!");
+      closeModal("modalNF");
+
+      document.getElementById("placaNFModal").value = "";
+      document.getElementById("nfCanceladaModal").value = "";
+      document.getElementById("nfSubstitutaModal").value = "";
+      document.getElementById("motivoCancelamentoModal").value = "";
+      document.getElementById("transportadoraNFModal").value = "";
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+      alert("Falha ao salvar NF no Supabase.");
+    }
+  };
+
+  // ====== LISTAR NF 24h ======
+  async function carregarNF24h() {
+    const now = new Date();
+    const since = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+
+    try {
+      const { data, error } = await supabase
+        .from("nfe_canceladas")
+        .select("*")
+        .gte("ts", since)
+        .order("ts", { ascending: false })
+        .limit(300);
+
+      if (error) throw error;
+      nfeCache = data || [];
+      setDbStatus(true);
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+      nfeCache = [];
+    }
+
+    const tbody = document.getElementById("tbodyNF24h");
+    tbody.innerHTML = "";
+
+    nfeCache.slice(0, 80).forEach(r => {
+      const d = new Date(r.ts);
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${formatarDataHora(d)}</td>
+        <td><span class="status-badge" style="background:rgba(59,130,246,0.1); color:var(--primary); border:none;">T${r.turno}</span></td>
+        <td style="font-weight:800;">${r.placa}</td>
+        <td>${r.transportadora_nome}</td>
+        <td>${r.nf_cancelada}</td>
+        <td>${r.nf_substituta}</td>
+        <td>
+          <button class="btn" style="padding:6px 12px; font-size:0.75rem; background:rgba(239,68,68,.15); color:#fecaca; border:1px solid rgba(239,68,68,.25);" onclick="deletarNF('${r.id}')">Excluir</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ====== EXCLUIR NF ======
+  window.deletarNF = async (id) => {
+    const ok = confirm("Deseja excluir este vínculo de NF-e?");
+    if (!ok) return;
+
+    try {
+      const { error } = await supabase.from("nfe_canceladas").delete().eq("id", id);
+      if (error) throw error;
+      setDbStatus(true);
+      await carregarNF24h();
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+      alert("Falha ao excluir NF-e no Supabase.");
+    }
+  };
+
+  // ====== RELATÓRIO NF (consulta SUPABASE) ======
+  document.getElementById("btnRelatorioPdfNF").onclick = async () => {
+    const di = new Date(document.getElementById("inicioRelNF").value);
+    const df = new Date(document.getElementById("fimRelNF").value);
+    if (isNaN(di.getTime()) || isNaN(df.getTime())) return alert("Selecione início e fim.");
+
+    try {
+      const { data, error } = await supabase
+        .from("nfe_canceladas")
+        .select("*")
+        .gte("ts", di.toISOString())
+        .lte("ts", df.toISOString())
+        .order("ts", { ascending: false })
+        .limit(3000);
+
+      if (error) throw error;
+
+      const filtrados = data || [];
+      if (!filtrados.length) return alert("Sem dados no período.");
+
+      let html = `<html><head><meta charset="utf-8"><style>
+        body{font-family:sans-serif; padding:40px; background:#f8fafc;}
+        .card{background:white; border:1px solid #e2e8f0; padding:25px; margin-bottom:25px; border-radius:16px; page-break-inside:avoid;}
+        .row{margin-top:6px;}
+      </style></head><body>`;
+      html += `<h1>Relatório NF-e Canceladas</h1><p>Período: ${formatarDataHora(di)} a ${formatarDataHora(df)}</p>`;
+
+      filtrados.forEach((r, i) => {
+        html += `<div class="card">
+          <h3>#${i+1} - Placa: ${r.placa}</h3>
+          <div class="row">Transportadora: ${r.transportadora_nome} | Turno: ${r.turno}</div>
+          <div class="row">Data: ${formatarDataHora(new Date(r.ts))}</div>
+          <div class="row"><b>NF Cancelada:</b> ${r.nf_cancelada}</div>
+          <div class="row"><b>NF Substituta:</b> ${r.nf_substituta}</div>
+          ${r.motivo ? `<div class="row"><b>Motivo:</b> ${String(r.motivo).replaceAll("<","&lt;").replaceAll(">","&gt;")}</div>` : ""}
+        </div>`;
+      });
+
+      html += `</body></html>`;
+      const win = window.open("", "_blank");
+      win.document.write(html);
+      win.document.close();
+      setTimeout(() => win.print(), 500);
+    } catch (e) {
+      console.error(e);
+      alert("Falha ao gerar relatório NF (verifique conexão/policies).");
+    }
+  };
+
+  document.getElementById("btnVerTabelaNF").onclick = async () => {
+    // Só carrega no período e mostra um alert com quantidade (pra não mudar layout)
+    const di = new Date(document.getElementById("inicioRelNF").value);
+    const df = new Date(document.getElementById("fimRelNF").value);
+    if (isNaN(di.getTime()) || isNaN(df.getTime())) return alert("Selecione início e fim.");
+
+    try {
+      const { data, error } = await supabase
+        .from("nfe_canceladas")
+        .select("id")
+        .gte("ts", di.toISOString())
+        .lte("ts", df.toISOString())
+        .limit(1);
+
+      if (error) throw error;
+      alert("Período válido. Use 'Gerar PDF' para imprimir o relatório.");
+      setDbStatus(true);
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+      alert("Falha ao consultar NF no Supabase.");
+    }
+  };
+
+  // ====== BOOT ======
   (async () => {
     try {
-      const { data } = await supabase.from("registros_bascula").select("id").limit(1);
-      if (data) setDbStatus(true);
-    } catch (e) { setDbStatus(false); }
+      await carregarTransportadoras();
+
+      // ping simples
+      const { data, error } = await supabase.from("transportadoras").select("id").limit(1);
+      if (error) throw error;
+      setDbStatus(true);
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+    }
   })();
 </script>
 </body>
