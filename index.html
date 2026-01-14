@@ -2,372 +2,444 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<title>S-systems</title>
+<title>S-Systems | Painel Operacional</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
   :root {
-    --vio1:#171236;
-    --vio2:#433E7C;
-    --vio3:#8C75C7;
-    --vio4:#B68AD9;
-    --vio5:#E4B0D0;
-
-    --accent:#0ea5e9;
-    --accent-soft:#082f49;
-    --muted:#94a3b8;
-
-    --bg-main:#111827;
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --secondary: #6366f1;
+    --accent: #0ea5e9;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --bg-dark: #0f172a;
+    --bg-card: rgba(30, 41, 59, 0.7);
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border: rgba(148, 163, 184, 0.2);
+    --glass: rgba(15, 23, 42, 0.8);
   }
 
-  *{
-    box-sizing:border-box;
-    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
   }
 
-  body{
-    margin:0;
-    min-height:100vh;
-    background:radial-gradient(circle at top,#1f2937 0,var(--bg-main) 60%,#020617 100%);
-    color:#e5e7eb;
-    padding:16px;
-    display:flex;
-    flex-direction:column;
+  body {
+    min-height: 100vh;
+    background: radial-gradient(circle at top left, #1e293b, #0f172a);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
     overflow-x: hidden;
+    line-height: 1.5;
   }
 
-  .page{
-    max-width:1100px;
-    margin:0 auto;
-    width:100%;
-    display:flex;
-    flex-direction:column;
-    gap:16px;
-    transition: transform 0.3s ease;
+  /* Layout Principal */
+  .app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex: 1;
   }
 
-  header{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:12px 16px;
-    border-radius:16px;
-    background:linear-gradient(135deg,rgba(15,23,42,0.9),rgba(67,62,124,0.75));
-    border:1px solid rgba(148,163,184,0.45);
-    box-shadow:0 18px 40px rgba(0,0,0,0.55);
-    backdrop-filter:blur(20px);
-  }
-
-  /* MENU HAMBURGER */
-  .menu-btn {
-    background: none;
-    border: none;
-    color: #e5e7eb;
-    font-size: 24px;
-    cursor: pointer;
-    padding: 8px;
+  /* Header Estilizado */
+  header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    transition: background 0.2s;
-  }
-  .menu-btn:hover {
-    background: rgba(255,255,255,0.1);
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
   }
 
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .title-group h1 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    background: linear-gradient(to right, #fff, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .title-group p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* Status do Banco */
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 10px var(--success);
+  }
+
+  .dot.offline {
+    background: var(--danger);
+    box-shadow: 0 0 10px var(--danger);
+  }
+
+  /* Menu Hamburger */
+  .menu-trigger {
+    background: none;
+    border: none;
+    color: var(--text-main);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 10px;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+  }
+
+  .menu-trigger:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Sidebar Moderna */
   .sidebar {
     position: fixed;
     top: 0;
-    left: -280px;
-    width: 280px;
+    left: -300px;
+    width: 300px;
     height: 100%;
-    background: rgba(15, 23, 42, 0.98);
-    backdrop-filter: blur(20px);
-    border-right: 1px solid rgba(148, 163, 184, 0.3);
-    z-index: 100;
-    transition: left 0.3s ease;
-    padding: 20px;
-    box-shadow: 10px 0 30px rgba(0,0,0,0.5);
-  }
-  .sidebar.open {
-    left: 0;
-  }
-  .sidebar-header {
+    background: #0f172a;
+    border-right: 1px solid var(--border);
+    z-index: 1000;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 32px 24px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-    padding-bottom: 15px;
+    flex-direction: column;
   }
+
+  .sidebar.open {
+    transform: translateX(300px);
+  }
+
   .sidebar-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+  }
+
+  .sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Cards de Conteúdo */
+  .card {
+    background: var(--bg-card);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .card-title::before {
+    content: "";
+    width: 4px;
+    height: 20px;
+    background: var(--primary);
+    border-radius: 4px;
+  }
+
+  /* Botões Profissionais */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+  }
+
+  .btn-ghost {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .btn-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+
+  .btn-danger:hover {
+    background: var(--danger);
+    color: white;
+  }
+
+  /* Grid de Ações Rápidas */
+  .actions-grid {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* Modais Modernos */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(8px);
     display: none;
-    z-index: 99;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 20px;
   }
-  .sidebar-overlay.show {
+
+  .modal-content {
+    background: #1e293b;
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    width: 100%;
+    max-width: 550px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 32px;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-large {
+    max-width: 1000px;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  /* Formulários */
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
     display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
-  .logo-img{
-    height:56px;
-  }
-  .title-area h1{margin:0;font-size:22px;}
-  .title-area p{margin:4px 0 0;font-size:13px;color:var(--muted);}
-
-  .db-status{
-    margin-left:auto;
-    display:flex;
-    align-items:center;
-    gap:6px;
-    font-size:12px;
-    color:var(--muted);
-    padding:4px 10px;
-    border-radius:999px;
-    background:rgba(15,23,42,0.7);
-    border:1px solid rgba(148,163,184,0.35);
-  }
-  .db-dot{
-    width:10px;
-    height:10px;
-    border-radius:999px;
-    background:#22c55e;
-    box-shadow:0 0 8px rgba(34,197,94,0.7);
-  }
-  .db-dot.offline{
-    background:#ef4444;
-    box-shadow:0 0 8px rgba(239,68,68,0.7);
+  .form-control {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 16px;
+    color: white;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
   }
 
-  .card{
-    border-radius:18px;
-    padding:16px 18px;
-    box-shadow:0 18px 40px rgba(0,0,0,0.45);
-    background:rgba(15,23,42,0.75);
-    border:1px solid rgba(148,163,184,0.35);
-    backdrop-filter:blur(16px);
-  }
-  .card h2{
-    margin:0 0 8px;
-    font-size:18px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  .card h2::before{
-    content:"";
-    width:4px;
-    height:18px;
-    border-radius:999px;
-    background:linear-gradient(to bottom,var(--accent),var(--vio3));
+  .form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(15, 23, 42, 0.8);
   }
 
-  .card-registro{
-    background:linear-gradient(135deg,rgba(67,62,124,0.55),rgba(182,138,217,0.22));
-    border:1px solid rgba(182,138,217,0.85);
+  /* Tabelas */
+  .table-container {
+    overflow-x: auto;
+    border-radius: 16px;
+    background: rgba(0, 0, 0, 0.2);
   }
 
-  label{font-size:13px;color:var(--muted);display:block;margin-bottom:4px;}
-  input,select,textarea{
-    width:100%;
-    padding:9px 11px;
-    border-radius:10px;
-    border:1px solid rgba(148,163,184,0.4);
-    background:rgba(15,23,42,0.85);
-    color:#e5e7eb;
-    font-size:14px;
-    backdrop-filter:blur(10px);
-  }
-  textarea{
-    min-height:80px;
-    resize:vertical;
-    font-family:inherit;
-  }
-  input::placeholder,textarea::placeholder{ color:rgba(148,163,184,0.7); }
-  input:focus,select:focus,textarea:focus{
-    outline:none;
-    border-color:var(--accent);
-    box-shadow:0 0 0 1px rgba(14,165,233,0.5);
-  }
-  .row{display:flex;flex-wrap:wrap;gap:12px;}
-  .col{flex:1 1 200px;}
-
-  .btn{
-    border:none;
-    border-radius:999px;
-    padding:9px 16px;
-    font-size:14px;
-    font-weight:600;
-    cursor:pointer;
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    transition:transform .08s ease, box-shadow .08s ease, background .15s ease;
-  }
-  .btn:active{ transform:scale(0.97); box-shadow:none; }
-  .btn-primary{
-    background:var(--accent);
-    color:#020617;
-    box-shadow:0 10px 25px rgba(14,165,233,0.35);
-  }
-  .btn-primary:hover{background:#0284c7;}
-  .btn-ghost{
-    background:rgba(15,23,42,0.6);
-    color:var(--accent);
-    border:1px solid rgba(148,163,184,0.5);
-    backdrop-filter:blur(12px);
-  }
-  .btn-ghost:hover{background:var(--accent-soft);}
-  .btn-danger,.btn-delete{
-    background:rgba(15,23,42,0.8);
-    color:#f97316;
-    border:1px solid rgba(248,113,113,0.55);
-    border-radius:999px;
-    padding:4px 10px;
-    font-size:11px;
-    cursor:pointer;
-  }
-  .btn-delete{ padding:4px 8px; }
-  .btn-danger:hover,.btn-delete:hover{ background:rgba(248,113,113,0.16); }
-
-  .tag{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    padding:4px 10px;
-    border-radius:999px;
-    font-size:11px;
-    background:rgba(15,23,42,0.8);
-    border:1px solid rgba(148,163,184,0.4);
-    color:var(--muted);
-    backdrop-filter:blur(12px);
-  }
-  table{ width:100%; border-collapse:collapse; margin-top:8px; font-size:13px; }
-  th,td{ padding:6px 8px; text-align:left; }
-  thead{ background:rgba(15,23,42,0.95); }
-  tbody tr:nth-child(odd){background:rgba(15,23,42,0.9);}
-  tbody tr:nth-child(even){background:rgba(15,23,42,0.75);}
-  th{
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:0.05em;
-    color:var(--muted);
-    border-bottom:1px solid rgba(148,163,184,0.4);
-  }
-  td{ border-bottom:1px dashed rgba(30,64,175,0.4); }
-  .pill-turno{
-    padding:2px 8px;
-    border-radius:999px;
-    font-size:11px;
-    font-weight:600;
-    background:rgba(34,197,94,0.1);
-    color:#bbf7d0;
-  }
-  .pill-turno2{
-    background:rgba(249,115,22,0.12);
-    color:#fed7aa;
-  }
-  footer{
-    margin-top:auto;
-    font-size:10px;
-    color:var(--muted);
-    text-align:right;
-    padding:4px 2px 0;
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
   }
 
-  .modal-backdrop{
-    position:fixed;
-    inset:0;
-    background:rgba(15,23,42,0.85);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    z-index:150;
-    backdrop-filter:blur(4px);
-  }
-  .modal-content{
-    background:rgba(15,23,42,0.95);
-    border-radius:16px;
-    padding:20px;
-    border:1px solid rgba(148,163,184,0.4);
-    width:100%;
-    max-width:520px;
-    box-shadow:0 18px 40px rgba(0,0,0,0.7);
-    backdrop-filter:blur(20px);
-    max-height:90vh;
-    overflow-y:auto;
-  }
-  .modal-large{ max-width:900px; }
-
-  .image-preview{
-    margin-top:8px;
-    max-width:100%;
-    border-radius:8px;
-    border:1px solid rgba(148,163,184,0.4);
-  }
-  .image-preview img{
-    max-width:100%;
-    height:auto;
-    display:block;
-    border-radius:8px;
+  th {
+    text-align: left;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
   }
 
-  .image-thumbnail{
-    width:60px;
-    height:60px;
-    object-fit:cover;
-    border-radius:6px;
-    border:1px solid rgba(148,163,184,0.4);
-    cursor:pointer;
+  td {
+    padding: 16px;
+    border-top: 1px solid var(--border);
   }
 
-  .file-input-wrapper{
-    position:relative;
-    display:inline-block;
-    width:100%;
-  }
-  .file-input-wrapper input[type="file"]{
-    position:absolute;
-    opacity:0;
-    width:100%;
-    height:100%;
-    cursor:pointer;
-  }
-  .file-input-label{
-    display:block;
-    padding:9px 11px;
-    border-radius:10px;
-    border:1px solid rgba(148,163,184,0.4);
-    background:rgba(15,23,42,0.85);
-    color:var(--muted);
-    font-size:14px;
-    cursor:pointer;
-    text-align:center;
-  }
-  .file-input-label:hover{
-    border-color:var(--accent);
+  tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
   }
 
-  @media(max-width:768px){
-    body{padding:10px;}
-    .page{gap:12px;}
-    header{flex-direction:row;align-items:center;}
-    .db-status{display:none;}
-    .card{padding:12px 13px;}
+  /* Badges */
+  .badge {
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+
+  .badge-t1 { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+  .badge-t2 { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+
+  /* Upload de Imagem */
+  .upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .upload-area:hover {
+    border-color: var(--primary);
+    background: rgba(59, 130, 246, 0.05);
+  }
+
+  .preview-img {
+    margin-top: 12px;
+    width: 100%;
+    border-radius: 12px;
+    display: none;
+  }
+
+  /* Rodapé */
+  footer {
+    margin-top: auto;
+    padding: 40px 20px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .support-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: opacity 0.2s;
+  }
+
+  .support-link:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+  }
+
+  .copyright {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .app-container { padding: 12px; gap: 16px; }
+    header { padding: 12px 16px; border-radius: 16px; }
+    .status-badge span:last-child { display: none; }
+    .card { padding: 16px; border-radius: 20px; }
+    .card-header { flex-direction: column; align-items: flex-start; }
+    .btn { width: 100%; }
+    .actions-grid { width: 100%; }
+    .modal-content { padding: 24px; border-radius: 24px; }
   }
 </style>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 </head>
 
 <body>
 <script>
-// Se NÃO veio do login.html, volta para login
 if (!document.referrer.includes("login.html")) {
   window.location.href = "login.html";
 }
@@ -375,189 +447,160 @@ if (!document.referrer.includes("login.html")) {
 
 <!-- SIDEBAR -->
 <div id="sidebarOverlay" class="sidebar-overlay"></div>
-<div id="sidebar" class="sidebar">
-  <div class="sidebar-header">
-    <h3 style="margin:0; color:var(--accent);">Menu</h3>
-    <button id="btnCloseSidebar" class="menu-btn">✕</button>
+<aside id="sidebar" class="sidebar">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
+    <h2 style="font-size:1.5rem; font-weight:800; color:var(--primary);">S-Systems</h2>
+    <button id="btnCloseSidebar" class="menu-trigger">✕</button>
   </div>
-  <div style="color:var(--muted); font-size:14px; text-align:center; margin-top:50px;">
-    Menu em desenvolvimento...
-  </div>
-</div>
+  <nav style="display:flex; flex-direction:column; gap:8px;">
+    <div style="padding:12px; color:var(--text-muted); font-size:0.9rem;">Menu Principal</div>
+    <a href="#" style="padding:12px 16px; border-radius:12px; color:white; text-decoration:none; background:rgba(255,255,255,0.05);">Dashboard</a>
+    <a href="#" style="padding:12px 16px; border-radius:12px; color:var(--text-muted); text-decoration:none;">Configurações</a>
+    <a href="#" style="padding:12px 16px; border-radius:12px; color:var(--text-muted); text-decoration:none;">Ajuda</a>
+  </nav>
+</aside>
 
-<div class="page">
-<header>
-  <button id="btnOpenSidebar" class="menu-btn">☰</button>
-  <div class="title-area">
-    <h1>PAINEL DE APOIO OPERACIONAL</h1>
-    <p>Sistema para registrar carretas contaminadas e controlar notas fiscais canceladas</p>
-  </div>
-  <div class="db-status">
-    <span class="db-dot offline" id="dbDot"></span>
-    <span id="dbStatusText">Banco de dados: verificando...</span>
-  </div>
-</header>
-
-<section class="card card-registro">
-  <h2>REGISTRO CARRETAS CONTAMINADAS</h2>
-  <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-    <div class="tag">
-      <span>TURNOS:</span>
-      <span><strong>Turno 1</strong> 07:00 → 19:00 </span> ·
-      <span><strong>Turno 2</strong> 19:00 → 07:00 </span>
+<div class="app-container">
+  <header>
+    <div class="header-left">
+      <button id="btnOpenSidebar" class="menu-trigger">☰</button>
+      <div class="title-group">
+        <h1>PAINEL OPERACIONAL</h1>
+        <p>Gestão de Carretas e NF-e</p>
+      </div>
     </div>
-    <!-- BOTÃO NA DIREITA -->
-    <button id="btnAbrirModalCarreta" class="btn btn-primary" type="button" style="margin-left:auto;">
-      + Registrar caminhão sujo
-    </button>
-  </div>
+    <div class="status-badge">
+      <div id="dbDot" class="dot offline"></div>
+      <span id="dbStatusText">Banco: Offline</span>
+    </div>
+  </header>
 
-  <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
-    <button id="btnAbrirRegistros" class="btn btn-ghost" type="button">
-      Últimos registros (24h)
-    </button>
-    <button id="btnAbrirRelatorio" class="btn btn-ghost" type="button">
-      Relatórios Báscula / PDF + Gráfico
-    </button>
-  </div>
-</section>
-
-<section class="card card-registro">
-  <h2>REGISTRO NF-E CANCELADAS</h2>
-
-  <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-      <button id="btnAbrirNF24h" class="btn btn-ghost" type="button">
-        Últimas NF (24h)
-      </button>
-      <button id="btnAbrirRelatorioNF" class="btn btn-ghost" type="button">
-        Relatórios NF / PDF + Gráfico
+  <!-- SEÇÃO CARRETAS -->
+  <section class="card">
+    <div class="card-header">
+      <div class="card-title">Carretas Contaminadas</div>
+      <button id="btnAbrirModalCarreta" class="btn btn-primary">
+        <span style="font-size:1.2rem">+</span> Registrar Caminhão
       </button>
     </div>
-    <!-- BOTÃO NA DIREITA -->
-    <button id="btnAbrirModalNF" class="btn btn-primary" type="button" style="margin-left:auto;">
-      + Registrar NF cancelada
-    </button>
-  </div>
-</section>
+    
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+      <div style="display:flex; gap:12px; font-size:0.75rem; color:var(--text-muted);">
+        <span style="background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:6px;">T1: 07h - 19h</span>
+        <span style="background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:6px;">T2: 19h - 07h</span>
+      </div>
+      <div class="actions-grid">
+        <button id="btnAbrirRegistros" class="btn btn-ghost">Últimos Registros</button>
+        <button id="btnAbrirRelatorio" class="btn btn-ghost">Relatórios & Gráficos</button>
+      </div>
+    </div>
+  </section>
 
-<footer>
-  <span>Samuel Nascimento de Jesus</span>
-</footer>
+  <!-- SEÇÃO NF-E -->
+  <section class="card">
+    <div class="card-header">
+      <div class="card-title">NF-e Canceladas</div>
+      <button id="btnAbrirModalNF" class="btn btn-primary">
+        <span style="font-size:1.2rem">+</span> Registrar NF-e
+      </button>
+    </div>
+    <div class="actions-grid">
+      <button id="btnAbrirNF24h" class="btn btn-ghost">Vínculos 24h</button>
+      <button id="btnAbrirRelatorioNF" class="btn btn-ghost">Relatórios NF-e</button>
+    </div>
+  </section>
+
+  <footer>
+    <a href="https://seulinkdesuporte.com" target="_blank" class="support-link">Central de Suporte e Ajuda</a>
+    <div class="copyright">
+      &copy; 2026 S-Systems. Desenvolvido por Samuel Nascimento de Jesus.
+    </div>
+  </footer>
 </div>
 
 <!-- MODAIS -->
-<!-- MODAL: ADICIONAR TRANSPORTADORA -->
-<div id="modalAddTransp" class="modal-backdrop">
+<!-- MODAL CARRETA -->
+<div id="modalCarreta" class="modal-overlay">
   <div class="modal-content">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <h3 style="margin:0;font-size:16px;">Nova transportadora</h3>
-      <button id="btnFecharAddTransp" class="btn-danger btn-close" type="button">Fechar</button>
+    <div class="modal-header">
+      <h3 style="font-size:1.25rem; font-weight:700;">Registrar Carreta</h3>
+      <button id="btnFecharModalCarreta" class="menu-trigger">✕</button>
     </div>
-    <label for="nomeNovaTransp">Nome da transportadora</label>
-    <input id="nomeNovaTransp" maxlength="60" placeholder="Digite o nome">
-    <div style="margin-top:12px;display:flex;gap:8px;">
-      <button id="btnSalvarTransp" class="btn btn-primary" type="button">Salvar</button>
+    <div class="form-group">
+      <label class="form-label">Placa do Veículo</label>
+      <input id="placaModal" class="form-control" placeholder="Ex: ABC1D23" maxlength="10">
     </div>
+    <div class="form-group">
+      <label class="form-label">Transportadora</label>
+      <div style="display:flex; gap:8px;">
+        <select id="transportadoraModal" class="form-control"></select>
+        <button id="btnAddTranspModal" class="btn btn-ghost" style="padding:10px;">+</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Evidência Fotográfica</label>
+      <div class="upload-area" onclick="document.getElementById('imagemCarreta').click()">
+        <span style="font-size:0.8rem; color:var(--text-muted);">Clique para selecionar ou tirar foto</span>
+        <input type="file" id="imagemCarreta" accept="image/*" style="display:none">
+        <img id="imgPreviewCarreta" class="preview-img">
+      </div>
+    </div>
+    <button id="btnSalvarCarreta" class="btn btn-primary" style="width:100%; padding:14px;">Salvar Registro</button>
   </div>
 </div>
 
-<!-- MODAL: REGISTRAR CARRETA CONTAMINADA -->
-<div id="modalCarreta" class="modal-backdrop">
+<!-- MODAL NF-E -->
+<div id="modalNF" class="modal-overlay">
   <div class="modal-content">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <h3 style="margin:0;font-size:16px;">Registrar Carreta Contaminada</h3>
-      <button id="btnFecharModalCarreta" class="btn-danger btn-close" type="button">Fechar</button>
+    <div class="modal-header">
+      <h3 style="font-size:1.25rem; font-weight:700;">Registrar NF-e</h3>
+      <button id="btnFecharModalNF" class="menu-trigger">✕</button>
     </div>
-    
-    <div class="row">
-      <div class="col">
-        <label for="placaModal">Placa do veículo</label>
-        <input id="placaModal" maxlength="10" placeholder="Ex: RST1A23" autocomplete="off">
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+      <div class="form-group">
+        <label class="form-label">Placa</label>
+        <input id="placaNFModal" class="form-control" placeholder="ABC1D23">
       </div>
-      <div class="col">
-        <label for="transportadoraModal">Transportadora</label>
-        <select id="transportadoraModal"></select>
-      </div>
-    </div>
-
-    <div style="margin-top:12px;">
-      <label for="imagemCarreta">Imagem da carreta (opcional)</label>
-      <div class="file-input-wrapper">
-        <input type="file" id="imagemCarreta" accept="image/*">
-        <label class="file-input-label" for="imagemCarreta">Clique para selecionar imagem</label>
-      </div>
-      <div id="previewImagemCarreta" class="image-preview" style="display:none;">
-        <img id="imgPreviewCarreta" src="" alt="Preview">
+      <div class="form-group">
+        <label class="form-label">Transportadora</label>
+        <select id="transportadoraNFModal" class="form-control"></select>
       </div>
     </div>
-
-    <div style="margin-top:16px;display:flex;gap:8px;justify-content:space-between;align-items:center;">
-      <button id="btnAddTranspModal" class="btn btn-ghost" type="button">+ Nova transportadora</button>
-      <button id="btnSalvarCarreta" class="btn btn-primary" type="button">Salvar registro</button>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+      <div class="form-group">
+        <label class="form-label">NF Cancelada</label>
+        <input id="nfCanceladaModal" class="form-control" placeholder="000000">
+      </div>
+      <div class="form-group">
+        <label class="form-label">NF Substituta</label>
+        <input id="nfSubstitutaModal" class="form-control" placeholder="000000">
+      </div>
     </div>
+    <div class="form-group">
+      <label class="form-label">Motivo do Cancelamento</label>
+      <textarea id="motivoCancelamentoModal" class="form-control" placeholder="Descreva o motivo..."></textarea>
+    </div>
+    <button id="btnSalvarNF" class="btn btn-primary" style="width:100%; padding:14px;">Salvar Vínculo</button>
   </div>
 </div>
 
-<!-- MODAL: REGISTRAR NF CANCELADA -->
-<div id="modalNF" class="modal-backdrop">
-  <div class="modal-content">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <h3 style="margin:0;font-size:16px;">Registrar NF Cancelada</h3>
-      <button id="btnFecharModalNF" class="btn-danger btn-close" type="button">Fechar</button>
-    </div>
-    
-    <div class="row">
-      <div class="col">
-        <label for="placaNFModal">Placa do veículo</label>
-        <input id="placaNFModal" maxlength="10" placeholder="Ex: RST1A23" autocomplete="off">
-      </div>
-      <div class="col">
-        <label for="transportadoraNFModal">Transportadora</label>
-        <select id="transportadoraNFModal"></select>
-      </div>
-    </div>
-
-    <div class="row" style="margin-top:10px;">
-      <div class="col">
-        <label for="nfCanceladaModal">NF Cancelada</label>
-        <input id="nfCanceladaModal" maxlength="20" placeholder="Número da NF cancelada">
-      </div>
-      <div class="col">
-        <label for="nfSubstitutaModal">NF Substituta</label>
-        <input id="nfSubstitutaModal" maxlength="20" placeholder="Número da NF substituta">
-      </div>
-    </div>
-
-    <div style="margin-top:10px;">
-      <label for="motivoCancelamentoModal">Motivo do cancelamento</label>
-      <textarea id="motivoCancelamentoModal" maxlength="200" placeholder="EX: ERRO DE LANÇAMENTO, ERRO DE MATERIAL, ETC..."></textarea>
-    </div>
-
-    <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end;">
-      <button id="btnSalvarNF" class="btn btn-primary" type="button">Salvar vínculo NF</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: ÚLTIMOS REGISTROS BÁSCULA -->
-<div id="modalRegistros" class="modal-backdrop">
+<!-- MODAL TABELA REGISTROS -->
+<div id="modalRegistros" class="modal-overlay">
   <div class="modal-content modal-large">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <h3 style="margin:0;font-size:16px;">Últimos registros (apenas últimas 24h)</h3>
-      <button id="btnFecharRegistros" class="btn-danger btn-close" type="button">Fechar</button>
+    <div class="modal-header">
+      <h3 style="font-size:1.25rem; font-weight:700;">Últimos Registros (24h)</h3>
+      <button id="btnFecharRegistros" class="menu-trigger">✕</button>
     </div>
-    <div style="overflow-x:auto;">
+    <div class="table-container">
       <table>
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Data/Hora real</th>
+            <th>Horário</th>
             <th>Turno</th>
             <th>Placa</th>
             <th>Transportadora</th>
-            <th>Imagem</th>
-            <th style="width:70px;">Ações</th>
+            <th>Foto</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody id="tbodyRegistros"></tbody>
@@ -566,113 +609,67 @@ if (!document.referrer.includes("login.html")) {
   </div>
 </div>
 
-<!-- MODAL: ÚLTIMAS NF (24h) -->
-<div id="modalNF24h" class="modal-backdrop">
-  <div class="modal-content modal-large">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <h3 style="margin:0;font-size:16px;">Últimas NF Canceladas x Substitutas (24h)</h3>
-      <button id="btnFecharNF24h" class="btn-danger btn-close" type="button">Fechar</button>
-    </div>
-    <div style="overflow-x:auto;">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Data/Hora</th>
-            <th>Placa</th>
-            <th>Transportadora</th>
-            <th>NF Cancelada</th>
-            <th>NF Substituta</th>
-            <th>Motivo do cancelamento</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyNF24h"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: RELATÓRIO BÁSCULA -->
-<div id="modalRelatorio" class="modal-backdrop">
+<!-- MODAL RELATÓRIO -->
+<div id="modalRelatorio" class="modal-overlay">
   <div class="modal-content">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <h3 style="margin:0;font-size:16px;">Relatórios Báscula / PDF + Gráfico</h3>
-      <button id="btnFecharRelatorio" class="btn-danger btn-close" type="button">Fechar</button>
+    <div class="modal-header">
+      <h3 style="font-size:1.25rem; font-weight:700;">Relatórios e Gráficos</h3>
+      <button id="btnFecharRelatorio" class="menu-trigger">✕</button>
     </div>
-    <div class="row">
-      <div class="col">
-        <label for="inicioRel">Início do período</label>
-        <input id="inicioRel" type="datetime-local">
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:24px;">
+      <div class="form-group">
+        <label class="form-label">Início</label>
+        <input id="inicioRel" type="datetime-local" class="form-control">
       </div>
-      <div class="col">
-        <label for="fimRel">Fim do período</label>
-        <input id="fimRel" type="datetime-local">
+      <div class="form-group">
+        <label class="form-label">Fim</label>
+        <input id="fimRel" type="datetime-local" class="form-control">
       </div>
     </div>
-    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-      <button id="btnRelatorioPdf" class="btn btn-primary" type="button">Gerar PDF</button>
-      <button id="btnGrafico7d" class="btn btn-ghost" type="button">Gráfico 7 dias</button>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <button id="btnRelatorioPdf" class="btn btn-primary" style="width:100%;">Gerar Relatório PDF</button>
+      <button id="btnGrafico7d" class="btn btn-ghost" style="width:100%;">Ver Gráfico 7 Dias</button>
     </div>
-    <p id="msgRel" style="font-size:12px;color:var(--muted);margin-top:6px;"></p>
+    <p id="msgRel" style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-top:16px;"></p>
   </div>
 </div>
 
-<!-- MODAL: RELATÓRIO NF -->
-<div id="modalRelatorioNF" class="modal-backdrop">
-  <div class="modal-content">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <h3 style="margin:0;font-size:16px;">Relatórios NF</h3>
-      <button id="btnFecharRelatorioNF" class="btn-danger btn-close" type="button">Fechar</button>
-    </div>
-    <div class="row">
-      <div class="col">
-        <label for="inicioRelNF">Início do período</label>
-        <input id="inicioRelNF" type="datetime-local">
-      </div>
-      <div class="col">
-        <label for="fimRelNF">Fim do período</label>
-        <input id="fimRelNF" type="datetime-local">
-      </div>
-    </div>
-    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-      <button id="btnRelatorioPdfNF" class="btn btn-primary" type="button">Gerar PDF NF</button>
-      <button id="btnGrafico7dNF" class="btn btn-ghost" type="button">Gráfico NF</button>
-    </div>
-    <p id="msgRelNF" style="font-size:12px;color:var(--muted);margin-top:6px;"></p>
-  </div>
-</div>
-
-<!-- MODAIS GRÁFICOS -->
-<div id="modalGrafico" class="modal-backdrop">
+<!-- MODAL GRÁFICO -->
+<div id="modalGrafico" class="modal-overlay">
   <div class="modal-content modal-large">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <h3 style="margin:0;font-size:16px;">Gráfico Carretas</h3>
-      <button id="btnFecharModalGrafico" class="btn-danger btn-close" type="button">Fechar</button>
+    <div class="modal-header">
+      <h3 style="font-size:1.25rem; font-weight:700;">Análise de Dados</h3>
+      <button id="btnFecharModalGrafico" class="menu-trigger">✕</button>
     </div>
-    <canvas id="grafico7d" style="width:100%;max-height:320px;"></canvas>
+    <div style="background:rgba(0,0,0,0.2); padding:20px; border-radius:20px;">
+      <canvas id="grafico7d" style="width:100%; max-height:350px;"></canvas>
+    </div>
   </div>
 </div>
 
-<div id="modalGraficoNF" class="modal-backdrop">
-  <div class="modal-content modal-large">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <h3 style="margin:0;font-size:16px;">Gráfico NF</h3>
-      <button id="btnFecharModalGraficoNF" class="btn-danger btn-close" type="button">Fechar</button>
+<!-- MODAL VISUALIZAR IMAGEM -->
+<div id="modalVisualizarImagem" class="modal-overlay">
+  <div class="modal-content" style="max-width:800px; padding:16px;">
+    <div class="modal-header">
+      <span></span>
+      <button id="btnFecharModalImagem" class="menu-trigger">✕</button>
     </div>
-    <canvas id="grafico7dNFCanvas" style="width:100%;max-height:320px;"></canvas>
+    <img id="imagemGrande" src="" style="width:100%; border-radius:16px; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
   </div>
 </div>
 
-<!-- MODAL: VISUALIZAR IMAGEM -->
-<div id="modalVisualizarImagem" class="modal-backdrop">
-  <div class="modal-content modal-large">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <h3 style="margin:0;font-size:16px;">Imagem da Carreta</h3>
-      <button id="btnFecharModalImagem" class="btn-danger btn-close" type="button">Fechar</button>
+<!-- MODAL ADD TRANSP -->
+<div id="modalAddTransp" class="modal-overlay">
+  <div class="modal-content" style="max-width:400px;">
+    <div class="modal-header">
+      <h3 style="font-size:1.1rem; font-weight:700;">Nova Transportadora</h3>
+      <button id="btnFecharAddTransp" class="menu-trigger">✕</button>
     </div>
-    <div style="text-align:center;">
-      <img id="imagemGrande" src="" alt="Imagem" style="max-width:100%;height:auto;border-radius:8px;">
+    <div class="form-group">
+      <label class="form-label">Nome</label>
+      <input id="nomeNovaTransp" class="form-control" placeholder="Digite o nome...">
     </div>
+    <button id="btnSalvarTransp" class="btn btn-primary" style="width:100%;">Salvar</button>
   </div>
 </div>
 
@@ -683,478 +680,236 @@ if (!document.referrer.includes("login.html")) {
 <script type="module">
   import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
+  // CONFIGURAÇÃO SUPABASE (Substitua pelos seus dados se necessário)
   const SUPABASE_URL = "https://rficsflnaxayyrddxald.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
-
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // ====== KEYS LOCAL ======
-  const STORAGE_KEY_TRANSP   = "msa_balanca_suja_transportadoras_v1";
-  const LS_KEY_REGISTROS     = "msa_registros_bascula_local_v1";
+  // KEYS LOCAL STORAGE
+  const STORAGE_KEY_TRANSP = "msa_balanca_suja_transportadoras_v1";
+  const LS_KEY_REGISTROS = "msa_registros_bascula_local_v1";
   const LS_KEY_NF_SUBSTITUTA = "msa_nf_substitutas_local_v1";
 
   let transportadoras = ["CAIO TRANSPORTES", "ECOMINING", "RODOMINAS"];
-  let registrosCache  = [];
-  let registrosLocal  = [];
-  let nfLocal         = [];
-  let nfCache         = [];
+  let registrosLocal = [];
+  let nfLocal = [];
+  let registrosCache = [];
+  let nfCache = [];
 
-  // ====== ELEMENTOS ======
-  const dbDot        = document.getElementById("dbDot");
+  // ELEMENTOS UI
+  const dbDot = document.getElementById("dbDot");
   const dbStatusText = document.getElementById("dbStatusText");
-
-  // Sidebar
   const sidebar = document.getElementById("sidebar");
   const sidebarOverlay = document.getElementById("sidebarOverlay");
-  const btnOpenSidebar = document.getElementById("btnOpenSidebar");
-  const btnCloseSidebar = document.getElementById("btnCloseSidebar");
 
-  // Modais e Botões
-  const modalCarreta = document.getElementById("modalCarreta");
-  const btnAbrirModalCarreta = document.getElementById("btnAbrirModalCarreta");
-  const btnFecharModalCarreta = document.getElementById("btnFecharModalCarreta");
-  const placaModal = document.getElementById("placaModal");
-  const transportadoraModal = document.getElementById("transportadoraModal");
-  const imagemCarreta = document.getElementById("imagemCarreta");
-  const previewImagemCarreta = document.getElementById("previewImagemCarreta");
-  const imgPreviewCarreta = document.getElementById("imgPreviewCarreta");
-  const btnSalvarCarreta = document.getElementById("btnSalvarCarreta");
-  const btnAddTranspModal = document.getElementById("btnAddTranspModal");
-
-  const modalNF = document.getElementById("modalNF");
-  const btnAbrirModalNF = document.getElementById("btnAbrirModalNF");
-  const btnFecharModalNF = document.getElementById("btnFecharModalNF");
-  const placaNFModal = document.getElementById("placaNFModal");
-  const transportadoraNFModal = document.getElementById("transportadoraNFModal");
-  const nfCanceladaModal = document.getElementById("nfCanceladaModal");
-  const nfSubstitutaModal = document.getElementById("nfSubstitutaModal");
-  const motivoCancelamentoModal = document.getElementById("motivoCancelamentoModal");
-  const btnSalvarNF = document.getElementById("btnSalvarNF");
-
-  const modalAddTransp = document.getElementById("modalAddTransp");
-  const btnFecharAddTransp = document.getElementById("btnFecharAddTransp");
-  const nomeNovaTransp = document.getElementById("nomeNovaTransp");
-  const btnSalvarTransp = document.getElementById("btnSalvarTransp");
-
-  const modalRegistros = document.getElementById("modalRegistros");
-  const btnAbrirRegistros = document.getElementById("btnAbrirRegistros");
-  const btnFecharRegistros = document.getElementById("btnFecharRegistros");
-  const tbodyRegistros = document.getElementById("tbodyRegistros");
-
-  const modalNF24h = document.getElementById("modalNF24h");
-  const btnAbrirNF24h = document.getElementById("btnAbrirNF24h");
-  const btnFecharNF24h = document.getElementById("btnFecharNF24h");
-  const tbodyNF24h = document.getElementById("tbodyNF24h");
-
-  const modalRelatorio = document.getElementById("modalRelatorio");
-  const btnAbrirRelatorio = document.getElementById("btnAbrirRelatorio");
-  const btnFecharRelatorio = document.getElementById("btnFecharRelatorio");
-  const inicioRel = document.getElementById("inicioRel");
-  const fimRel = document.getElementById("fimRel");
-  const btnRelatorioPdf = document.getElementById("btnRelatorioPdf");
-  const msgRel = document.getElementById("msgRel");
-  const btnGrafico7d = document.getElementById("btnGrafico7d");
-
-  const modalRelatorioNF = document.getElementById("modalRelatorioNF");
-  const btnAbrirRelatorioNF = document.getElementById("btnAbrirRelatorioNF");
-  const btnFecharRelatorioNF = document.getElementById("btnFecharRelatorioNF");
-  const inicioRelNF = document.getElementById("inicioRelNF");
-  const fimRelNF = document.getElementById("fimRelNF");
-  const btnRelatorioPdfNF = document.getElementById("btnRelatorioPdfNF");
-  const msgRelNF = document.getElementById("msgRelNF");
-  const btnGrafico7dNF = document.getElementById("btnGrafico7dNF");
-
-  const modalGrafico = document.getElementById("modalGrafico");
-  const btnFecharModalGrafico = document.getElementById("btnFecharModalGrafico");
-  const canvasGrafico = document.getElementById("grafico7d");
-
-  const modalGraficoNF = document.getElementById("modalGraficoNF");
-  const btnFecharModalGraficoNF = document.getElementById("btnFecharModalGraficoNF");
-  const canvasGraficoNF = document.getElementById("grafico7dNFCanvas");
-
-  const modalVisualizarImagem = document.getElementById("modalVisualizarImagem");
-  const btnFecharModalImagem = document.getElementById("btnFecharModalImagem");
-  const imagemGrande = document.getElementById("imagemGrande");
-
-  // ====== UTIL ======
-  function setDbStatus(isOnline){
-    if(isOnline){
+  // FUNÇÕES DE STATUS
+  function setDbStatus(isOnline) {
+    if (isOnline) {
       dbDot.classList.remove("offline");
-      dbStatusText.textContent = "Banco de dados: ONLINE";
-    }else{
+      dbStatusText.textContent = "Banco: Online";
+    } else {
       dbDot.classList.add("offline");
-      dbStatusText.textContent = "Banco de dados: OFFLINE";
+      dbStatusText.textContent = "Banco: Offline";
     }
   }
 
-  const fpOpts = {
-    enableTime: true,
-    dateFormat: "Y-m-d\\TH:i",
-    altInput: true,
-    altFormat: "d/m/Y H:i",
-    time_24hr: true,
-    locale: flatpickr.l10ns.pt
+  // SIDEBAR CONTROLS
+  const toggleSidebar = () => {
+    sidebar.classList.toggle("open");
+    sidebarOverlay.classList.toggle("active");
   };
-  flatpickr("#inicioRel", fpOpts);
-  flatpickr("#fimRel", fpOpts);
-  flatpickr("#inicioRelNF", fpOpts);
-  flatpickr("#fimRelNF", fpOpts);
+  document.getElementById("btnOpenSidebar").onclick = toggleSidebar;
+  document.getElementById("btnCloseSidebar").onclick = toggleSidebar;
+  sidebarOverlay.onclick = toggleSidebar;
 
-  function pad2(x){ return String(x).padStart(2,"0"); }
+  // UTILITÁRIOS
+  const pad2 = (x) => String(x).padStart(2, "0");
+  const formatarDataHora = (d) => `${pad2(d.getDate())}/${pad2(d.getMonth()+1)} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 
   function classificarTurno(d) {
-    const ano = d.getFullYear();
-    const mes = d.getMonth();
-    const dia = d.getDate();
-    function fmt(y, m, d2) {
-      const mm = pad2(m + 1);
-      const dd = pad2(d2);
-      return `${y}-${mm}-${dd}`;
-    }
-    const inicioT1 = new Date(ano, mes, dia, 7, 0, 0);
-    const fimT1 = new Date(ano, mes, dia, 18, 59, 59);
-    const inicioT2 = new Date(ano, mes, dia, 19, 0, 0);
-    const fimDia   = new Date(ano, mes, dia, 23, 59, 59);
-    const inicioDia  = new Date(ano, mes, dia, 0, 0, 0);
-    const fimAntes7  = new Date(ano, mes, dia, 6, 59, 59);
-    if (d >= inicioT1 && d <= fimT1) return { turno: 1, diaTurno: fmt(ano, mes, dia) };
-    if (d >= inicioT2 && d <= fimDia) return { turno: 2, diaTurno: fmt(ano, mes, dia) };
-    if (d >= inicioDia && d <= fimAntes7) {
-      const dAnt = new Date(d);
-      dAnt.setDate(dAnt.getDate() - 1);
-      return { turno: 2, diaTurno: fmt(dAnt.getFullYear(), dAnt.getMonth(), dAnt.getDate()) };
-    }
-    return { turno: 1, diaTurno: fmt(ano, mes, dia) };
+    const h = d.getHours();
+    const m = d.getMinutes();
+    const totalMin = h * 60 + m;
+    const inicioT1 = 7 * 60;
+    const fimT1 = 19 * 60;
+    const turno = (totalMin >= inicioT1 && totalMin < fimT1) ? 1 : 2;
+    const diaTurno = new Date(d);
+    if (totalMin < inicioT1) diaTurno.setDate(diaTurno.getDate() - 1);
+    return { turno, diaTurno: diaTurno.toISOString().split('T')[0] };
   }
 
-  function formatarDataHora(d) {
-    const dd = pad2(d.getDate());
-    const mm = pad2(d.getMonth()+1);
-    const yyyy = d.getFullYear();
-    const hh = pad2(d.getHours());
-    const mi = pad2(d.getMinutes());
-    const ss = pad2(d.getSeconds());
-    return `${dd}/${mm}/${yyyy} ${hh}:${mi}:${ss}`;
-  }
+  // MODAL CONTROLS
+  const openModal = (id) => document.getElementById(id).style.display = "flex";
+  const closeModal = (id) => document.getElementById(id).style.display = "none";
 
-  // ====== SIDEBAR ======
-  function toggleSidebar() {
-    sidebar.classList.toggle("open");
-    sidebarOverlay.classList.toggle("show");
-  }
-  btnOpenSidebar.addEventListener("click", toggleSidebar);
-  btnCloseSidebar.addEventListener("click", toggleSidebar);
-  sidebarOverlay.addEventListener("click", toggleSidebar);
+  // Eventos de abertura
+  document.getElementById("btnAbrirModalCarreta").onclick = () => openModal("modalCarreta");
+  document.getElementById("btnAbrirModalNF").onclick = () => openModal("modalNF");
+  document.getElementById("btnAddTranspModal").onclick = () => openModal("modalAddTransp");
+  document.getElementById("btnAbrirRegistros").onclick = () => { carregarRegistros24h(); openModal("modalRegistros"); };
+  document.getElementById("btnAbrirRelatorio").onclick = () => { initRelDates("inicioRel", "fimRel"); openModal("modalRelatorio"); };
 
-  // ====== TRANSPORTADORAS ======
-  function carregarTransportadoras() {
-    const stored = localStorage.getItem(STORAGE_KEY_TRANSP);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) transportadoras = parsed;
-      } catch (e) { console.error(e); }
-    }
-    renderizarSelects();
-  }
-  function salvarTransportadoras() {
-    localStorage.setItem(STORAGE_KEY_TRANSP, JSON.stringify(transportadoras));
-  }
-  function renderizarSelects() {
-    [transportadoraModal, transportadoraNFModal].forEach(sel => {
-      sel.innerHTML = '<option value="">-- Selecione --</option>';
+  // Eventos de fechamento
+  document.getElementById("btnFecharModalCarreta").onclick = () => closeModal("modalCarreta");
+  document.getElementById("btnFecharModalNF").onclick = () => closeModal("modalNF");
+  document.getElementById("btnFecharAddTransp").onclick = () => closeModal("modalAddTransp");
+  document.getElementById("btnFecharRegistros").onclick = () => closeModal("modalRegistros");
+  document.getElementById("btnFecharRelatorio").onclick = () => closeModal("modalRelatorio");
+  document.getElementById("btnFecharModalGrafico").onclick = () => closeModal("modalGrafico");
+  document.getElementById("btnFecharModalImagem").onclick = () => closeModal("modalVisualizarImagem");
+
+  // Fechar ao clicar fora
+  window.onclick = (e) => {
+    if (e.target.classList.contains('modal-overlay')) e.target.style.display = "none";
+  };
+
+  // TRANSPORTADORAS
+  function renderSelects() {
+    const selects = [document.getElementById("transportadoraModal"), document.getElementById("transportadoraNFModal")];
+    selects.forEach(s => {
+      s.innerHTML = '<option value="">Selecione...</option>';
       transportadoras.forEach(t => {
         const opt = document.createElement("option");
-        opt.value = t;
-        opt.textContent = t;
-        sel.appendChild(opt);
+        opt.value = t; opt.textContent = t; s.appendChild(opt);
       });
     });
   }
-  function adicionarTransportadora() {
-    const nome = (nomeNovaTransp.value || "").trim().toUpperCase();
-    if (!nome) return alert("Digite o nome.");
-    if (transportadoras.includes(nome)) return alert("Já existe.");
-    transportadoras.push(nome);
-    transportadoras.sort();
-    salvarTransportadoras();
-    renderizarSelects();
-    nomeNovaTransp.value = "";
-    modalAddTransp.style.display = "none";
-  }
 
-  // ====== LOCAL STORAGE ======
-  function carregarRegistrosLocal() {
-    const stored = localStorage.getItem(LS_KEY_REGISTROS);
-    if (stored) { try { registrosLocal = JSON.parse(stored); } catch (e) { console.error(e); } }
-  }
-  function salvarRegistrosLocal() {
-    localStorage.setItem(LS_KEY_REGISTROS, JSON.stringify(registrosLocal));
-  }
-  function carregarNFLocal() {
-    const stored = localStorage.getItem(LS_KEY_NF_SUBSTITUTA);
-    if (stored) { try { nfLocal = JSON.parse(stored); } catch (e) { console.error(e); } }
-  }
-  function salvarNFLocal() {
-    localStorage.setItem(LS_KEY_NF_SUBSTITUTA, JSON.stringify(nfLocal));
-  }
-
-  // ====== SUPABASE ======
-  async function supaInsert(payload) {
-    const { data, error } = await supabase.from("registros_bascula").insert([payload]);
-    if (error) throw error;
-    return data;
-  }
-  async function supaList() {
-    const { data, error } = await supabase.from("registros_bascula").select("*").order("created_at", { ascending: false });
-    if (error) throw error;
-    return data || [];
-  }
-  async function supaDelete(id) {
-    const { error } = await supabase.from("registros_bascula").delete().eq("id", id);
-    if (error) throw error;
-  }
-  async function supaInsertNF(payload) {
-    const { data, error } = await supabase.from("nf_substitutas").insert([payload]);
-    if (error) throw error;
-    return data;
-  }
-  async function supaListNF() {
-    const { data, error } = await supabase.from("nf_substitutas").select("*").order("created_at", { ascending: false });
-    if (error) throw error;
-    return data || [];
-  }
-
-  async function syncPendentes() {
-    const pendentes = registrosLocal.filter(r => !r.synced);
-    for (const reg of pendentes) {
-      try {
-        await supaInsert({
-          placa: reg.placa,
-          transportadora: reg.transportadora,
-          tsISO: reg.ts_iso || reg.tsISO,
-          turno: reg.turno,
-          diaTurno: reg.dia_turno || reg.diaTurno,
-          imagem: reg.imagem || null
-        });
-        reg.synced = true;
-      } catch (e) { console.error(e); }
+  document.getElementById("btnSalvarTransp").onclick = () => {
+    const nome = document.getElementById("nomeNovaTransp").value.trim().toUpperCase();
+    if (!nome) return;
+    if (!transportadoras.includes(nome)) {
+      transportadoras.push(nome);
+      transportadoras.sort();
+      localStorage.setItem(STORAGE_KEY_TRANSP, JSON.stringify(transportadoras));
+      renderSelects();
     }
-    salvarRegistrosLocal();
-  }
+    closeModal("modalAddTransp");
+  };
 
-  async function syncNFPendentes() {
-    const pendentes = nfLocal.filter(nf => !nf.synced);
-    for (const nf of pendentes) {
-      try {
-        await supaInsertNF({
-          placa: nf.placa,
-          transportadora: nf.transportadora,
-          nf_cancelada: nf.nf_cancelada,
-          nf_substituta: nf.nf_substituta,
-          motivo_cancelamento: nf.motivo_cancelamento,
-          tsISO: nf.ts_iso
-        });
-        nf.synced = true;
-      } catch (e) { console.error(e); }
-    }
-    salvarNFLocal();
-  }
-
-  // ====== PREVIEW IMAGEM ======
-  imagemCarreta.addEventListener("change", (e) => {
+  // UPLOAD IMAGEM
+  document.getElementById("imagemCarreta").onchange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (ev) => {
-        imgPreviewCarreta.src = ev.target.result;
-        previewImagemCarreta.style.display = "block";
+        const img = document.getElementById("imgPreviewCarreta");
+        img.src = ev.target.result;
+        img.style.display = "block";
       };
       reader.readAsDataURL(file);
-    } else { previewImagemCarreta.style.display = "none"; }
-  });
+    }
+  };
 
-  // ====== SALVAR CARRETA ======
-  btnSalvarCarreta.addEventListener("click", async () => {
-    const placa = (placaModal.value || "").replace(/\s+/g, "").toUpperCase();
-    if (!placa) return alert("Informe a placa.");
-    const transp = transportadoraModal.value;
-    if (!transp) return alert("Selecione a transportadora.");
+  // SALVAR CARRETA
+  document.getElementById("btnSalvarCarreta").onclick = async () => {
+    const placa = document.getElementById("placaModal").value.trim().toUpperCase();
+    const transp = document.getElementById("transportadoraModal").value;
+    if (!placa || !transp) return alert("Preencha os campos obrigatórios.");
 
     const agora = new Date();
-    const tsISO = agora.toISOString();
     const info = classificarTurno(agora);
-
-    const salvar = async (img) => {
-      const payloadLocal = { placa, transportadora: transp, ts_iso: tsISO, turno: info.turno, dia_turno: info.diaTurno, imagem: img, synced: false };
-      registrosLocal.push(payloadLocal);
-      salvarRegistrosLocal();
+    const imgInput = document.getElementById("imagemCarreta");
+    
+    const salvar = async (base64) => {
+      const reg = { placa, transportadora: transp, tsISO: agora.toISOString(), turno: info.turno, diaTurno: info.diaTurno, imagem: base64, synced: false };
+      registrosLocal.push(reg);
+      localStorage.setItem(LS_KEY_REGISTROS, JSON.stringify(registrosLocal));
+      
       try {
-        await supaInsert({ placa, transportadora: transp, tsISO, turno: info.turno, diaTurno: info.diaTurno, imagem: img });
+        await supabase.from("registros_bascula").insert([{ placa, transportadora: transp, tsISO: agora.toISOString(), turno: info.turno, diaTurno: info.diaTurno, imagem: base64 }]);
         setDbStatus(true);
-        await syncPendentes();
-        alert("Salvo!");
-      } catch (e) {
-        console.error(e);
-        setDbStatus(false);
-        alert("Salvo apenas localmente (offline).");
-      }
-      placaModal.value = ""; transportadoraModal.value = ""; imagemCarreta.value = ""; previewImagemCarreta.style.display = "none"; modalCarreta.style.display = "none";
+      } catch (e) { setDbStatus(false); }
+      
+      alert("Registro salvo com sucesso!");
+      closeModal("modalCarreta");
+      document.getElementById("placaModal").value = "";
+      document.getElementById("imgPreviewCarreta").style.display = "none";
     };
 
-    if (imagemCarreta.files[0]) {
+    if (imgInput.files[0]) {
       const reader = new FileReader();
       reader.onload = (ev) => salvar(ev.target.result);
-      reader.readAsDataURL(imagemCarreta.files[0]);
+      reader.readAsDataURL(imgInput.files[0]);
     } else { await salvar(null); }
-  });
-
-  // ====== SALVAR NF ======
-  btnSalvarNF.addEventListener("click", async () => {
-    const placa = (placaNFModal.value || "").replace(/\s+/g, "").toUpperCase();
-    if (!placa) return alert("Informe a placa.");
-    const transp = transportadoraNFModal.value;
-    if (!transp) return alert("Selecione a transportadora.");
-    const nfCanc = (nfCanceladaModal.value || "").trim();
-    const nfSub = (nfSubstitutaModal.value || "").trim();
-    const motivo = (motivoCancelamentoModal.value || "").trim();
-    if (!nfCanc || !nfSub || !motivo) return alert("Preencha todos os campos.");
-
-    const agora = new Date();
-    const tsISO = agora.toISOString();
-    const payloadLocal = { placa, transportadora: transp, nf_cancelada: nfCanc, nf_substituta: nfSub, motivo_cancelamento: motivo, ts_iso: tsISO, synced: false };
-    nfLocal.push(payloadLocal);
-    salvarNFLocal();
-
-    try {
-      await supaInsertNF({ placa, transportadora: transp, nf_cancelada: nfCanc, nf_substituta: nfSub, motivo_cancelamento: motivo, tsISO });
-      setDbStatus(true);
-      await syncNFPendentes();
-      alert("Salvo!");
-    } catch (e) {
-      console.error(e);
-      setDbStatus(false);
-      alert("Salvo apenas localmente.");
-    }
-    placaNFModal.value = ""; transportadoraNFModal.value = ""; nfCanceladaModal.value = ""; nfSubstitutaModal.value = ""; motivoCancelamentoModal.value = ""; modalNF.style.display = "none";
-  });
-
-  // ====== MODAL HANDLERS ======
-  const setupModal = (btn, modal, close) => {
-    if(btn) btn.addEventListener("click", () => modal.style.display = "flex");
-    if(close) close.addEventListener("click", () => modal.style.display = "none");
-    modal.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
   };
-  setupModal(btnAbrirModalCarreta, modalCarreta, btnFecharModalCarreta);
-  setupModal(btnAbrirModalNF, modalNF, btnFecharModalNF);
-  setupModal(btnAddTranspModal, modalAddTransp, btnFecharAddTransp);
-  setupModal(btnAbrirRegistros, modalRegistros, btnFecharRegistros);
-  setupModal(btnAbrirNF24h, modalNF24h, btnFecharNF24h);
-  setupModal(btnAbrirRelatorio, modalRelatorio, btnFecharRelatorio);
-  setupModal(btnAbrirRelatorioNF, modalRelatorioNF, btnFecharRelatorioNF);
-  setupModal(null, modalGrafico, btnFecharModalGrafico);
-  setupModal(null, modalGraficoNF, btnFecharModalGraficoNF);
-  setupModal(null, modalVisualizarImagem, btnFecharModalImagem);
 
-  btnSalvarTransp.addEventListener("click", adicionarTransportadora);
-
-  // ====== CARREGAR DADOS ======
+  // CARREGAR DADOS
   async function carregarRegistros24h() {
     try {
-      await syncPendentes();
-      registrosCache = await supaList();
+      const { data } = await supabase.from("registros_bascula").select("*").order("created_at", { ascending: false });
+      registrosCache = data || [];
       setDbStatus(true);
     } catch (e) { setDbStatus(false); registrosCache = registrosLocal; }
 
-    const agora = new Date();
-    const limite = new Date(agora.getTime() - 24 * 60 * 60 * 1000);
-    const filtrados = registrosCache.filter(reg => new Date(reg.ts_iso || reg.tsISO || reg.created_at) >= limite)
-      .sort((a, b) => new Date(b.ts_iso || b.tsISO || b.created_at) - new Date(a.ts_iso || a.tsISO || a.created_at));
-
-    tbodyRegistros.innerHTML = filtrados.length ? "" : '<tr><td colspan="7" style="text-align:center;">Nenhum registro.</td></tr>';
-    filtrados.forEach((reg, idx) => {
-      const d = new Date(reg.ts_iso || reg.tsISO || reg.created_at);
-      const info = classificarTurno(d);
+    const tbody = document.getElementById("tbodyRegistros");
+    tbody.innerHTML = "";
+    registrosCache.slice(0, 20).forEach(r => {
+      const d = new Date(r.tsISO || r.created_at);
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${reg.id || (idx+1)}</td><td>${formatarDataHora(d)}</td><td><span class="pill-turno ${info.turno===2?'pill-turno2':''}">T${info.turno}</span></td><td>${reg.placa}</td><td>${reg.transportadora}</td><td class="td-img"></td><td class="td-acoes"></td>`;
-      if(reg.imagem) {
-        const img = document.createElement("img"); img.src = reg.imagem; img.className = "image-thumbnail";
-        img.onclick = () => { imagemGrande.src = reg.imagem; modalVisualizarImagem.style.display = "flex"; };
-        tr.querySelector(".td-img").appendChild(img);
-      } else { tr.querySelector(".td-img").textContent = "-"; }
-      if(reg.id) {
-        const btn = document.createElement("button"); btn.className = "btn-delete"; btn.textContent = "Excluir";
-        btn.onclick = async () => { if(confirm("Excluir?")) { try { await supaDelete(reg.id); carregarRegistros24h(); } catch(e) { alert("Erro"); } } };
-        tr.querySelector(".td-acoes").appendChild(btn);
-      }
-      tbodyRegistros.appendChild(tr);
+      tr.innerHTML = `
+        <td>${formatarDataHora(d)}</td>
+        <td><span class="badge badge-t${r.turno}">T${r.turno}</span></td>
+        <td style="font-weight:700;">${r.placa}</td>
+        <td>${r.transportadora}</td>
+        <td>${r.imagem ? `<img src="${r.imagem}" style="width:40px; height:30px; object-fit:cover; border-radius:4px; cursor:pointer;" onclick="viewImg('${r.imagem}')">` : '-'}</td>
+        <td><button class="btn btn-danger" style="padding:4px 8px; font-size:0.7rem;" onclick="deletarReg('${r.id}')">Excluir</button></td>
+      `;
+      tbody.appendChild(tr);
     });
   }
 
-  async function carregarNF24h() {
-    try { await syncNFPendentes(); nfCache = await supaListNF(); setDbStatus(true); } catch (e) { setDbStatus(false); nfCache = nfLocal; }
+  window.viewImg = (src) => {
+    document.getElementById("imagemGrande").src = src;
+    openModal("modalVisualizarImagem");
+  };
+
+  // RELATÓRIOS
+  function initRelDates(iId, fId) {
     const agora = new Date();
-    const limite = new Date(agora.getTime() - 24 * 60 * 60 * 1000);
-    const filtrados = nfCache.filter(nf => new Date(nf.ts_iso || nf.tsISO || nf.created_at) >= limite)
-      .sort((a, b) => new Date(b.ts_iso || b.tsISO || b.created_at) - new Date(a.ts_iso || a.tsISO || a.created_at));
-    tbodyNF24h.innerHTML = filtrados.length ? "" : '<tr><td colspan="7" style="text-align:center;">Nenhum registro.</td></tr>';
-    filtrados.forEach((nf, idx) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${idx+1}</td><td>${formatarDataHora(new Date(nf.ts_iso || nf.tsISO || nf.created_at))}</td><td>${nf.placa}</td><td>${nf.transportadora}</td><td>${nf.nf_cancelada}</td><td>${nf.nf_substituta}</td><td>${nf.motivo_cancelamento}</td>`;
-      tbodyNF24h.appendChild(tr);
-    });
+    const ini = new Date(); ini.setDate(agora.getDate() - 7);
+    document.getElementById(iId).value = new Date(ini.getTime() - ini.getTimezoneOffset()*60000).toISOString().slice(0,16);
+    document.getElementById(fId).value = new Date(agora.getTime() - agora.getTimezoneOffset()*60000).toISOString().slice(0,16);
   }
 
-  btnAbrirRegistros.addEventListener("click", carregarRegistros24h);
-  btnAbrirNF24h.addEventListener("click", carregarNF24h);
+  document.getElementById("btnRelatorioPdf").onclick = () => {
+    const di = new Date(document.getElementById("inicioRel").value);
+    const df = new Date(document.getElementById("fimRel").value);
+    const filtrados = registrosCache.filter(r => {
+      const d = new Date(r.tsISO || r.created_at);
+      return d >= di && d <= df;
+    });
 
-  // ====== RELATÓRIOS ======
-  const toLocal = (d) => { const off = d.getTimezoneOffset()*60000; return new Date(d.getTime()-off).toISOString().slice(0,16); };
-  const initRel = (i, f) => { const agora = new Date(); const ini = new Date(); ini.setDate(agora.getDate()-7); i.value = toLocal(ini); f.value = toLocal(agora); };
-  btnAbrirRelatorio.onclick = () => initRel(inicioRel, fimRel);
-  btnAbrirRelatorioNF.onclick = () => initRel(inicioRelNF, fimRelNF);
+    if (!filtrados.length) return alert("Nenhum dado no período.");
 
-  btnRelatorioPdf.onclick = () => {
-    const di = new Date(inicioRel.value), df = new Date(fimRel.value);
-    const filtrados = registrosCache.filter(r => { const d = new Date(r.ts_iso || r.tsISO || r.created_at); return d >= di && d <= df; }).sort((a,b) => new Date(a.ts_iso || a.tsISO || a.created_at) - new Date(b.ts_iso || b.tsISO || b.created_at));
-    if(!filtrados.length) return alert("Nada encontrado.");
-    let html = `<html><head><meta charset="utf-8"><style>body{font-family:sans-serif;background:#020617;color:#e5e7eb;padding:20px;}.card{background:#0f172a;border:1px solid #1f2937;padding:15px;margin-bottom:15px;border-radius:8px;page-break-inside:avoid;}.img{margin-top:10px;text-align:center;}.img img{max-width:100%;max-height:400px;border-radius:8px;}</style></head><body><h2>Relatório Carretas</h2><p>${formatarDataHora(di)} até ${formatarDataHora(df)}</p>`;
+    let html = `<html><head><style>body{font-family:sans-serif; padding:40px; background:#f8fafc;} .card{background:white; border:1px solid #e2e8f0; padding:20px; margin-bottom:20px; border-radius:12px; page-break-inside:avoid;} img{max-width:100%; border-radius:8px; margin-top:10px;}</style></head><body>`;
+    html += `<h1>Relatório de Carretas Contaminadas</h1><p>Período: ${formatarDataHora(di)} a ${formatarDataHora(df)}</p>`;
     filtrados.forEach((r, i) => {
-      const d = new Date(r.ts_iso || r.tsISO || r.created_at); const info = classificarTurno(d);
-      html += `<div class="card"><b>#${i+1} - Placa: ${r.placa}</b><br>Transp: ${r.transportadora} | Turno: ${info.turno} | Data: ${formatarDataHora(d)}${r.imagem?`<div class="img"><img src="${r.imagem}"></div>`:''}</div>`;
+      html += `<div class="card"><h3>#${i+1} - Placa: ${r.placa}</h3><p>Transportadora: ${r.transportadora} | Turno: ${r.turno}</p><p>Data: ${formatarDataHora(new Date(r.tsISO || r.created_at))}</p>${r.imagem ? `<img src="${r.imagem}">` : ''}</div>`;
     });
     html += `</body></html>`;
-    const p = window.open("","_blank"); p.document.write(html); p.document.close(); setTimeout(()=>p.print(),500);
+    const win = window.open("", "_blank");
+    win.document.write(html);
+    win.document.close();
+    setTimeout(() => win.print(), 500);
   };
 
-  btnRelatorioPdfNF.onclick = () => {
-    const di = new Date(inicioRelNF.value), df = new Date(fimRelNF.value);
-    const filtrados = nfCache.filter(r => { const d = new Date(r.ts_iso || r.tsISO || r.created_at); return d >= di && d <= df; }).sort((a,b) => new Date(a.ts_iso || a.tsISO || a.created_at) - new Date(b.ts_iso || b.tsISO || b.created_at));
-    if(!filtrados.length) return alert("Nada encontrado.");
-    let html = `<html><head><meta charset="utf-8"><style>body{font-family:sans-serif;background:#020617;color:#e5e7eb;padding:20px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #1f2937;padding:8px;text-align:left;}th{background:#0f172a;}</style></head><body><h2>Relatório NF</h2><table><thead><tr><th>Data</th><th>Placa</th><th>NF Canc</th><th>NF Subst</th><th>Motivo</th></tr></thead><tbody>`;
-    filtrados.forEach(r => { html += `<tr><td>${formatarDataHora(new Date(r.ts_iso || r.tsISO || r.created_at))}</td><td>${r.placa}</td><td>${r.nf_cancelada}</td><td>${r.nf_substituta}</td><td>${r.motivo_cancelamento}</td></tr>`; });
-    html += `</tbody></table></body></html>`;
-    const p = window.open("","_blank"); p.document.write(html); p.document.close(); setTimeout(()=>p.print(),500);
-  };
-
-  // ====== GRÁFICOS ======
-  let c1=null, c2=null;
-  btnGrafico7d.onclick = () => {
-    const base = registrosCache; if(!base.length) return;
-    const labels=[], data=[]; const hoje=new Date(); for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(hoje.getDate()-i); const k=`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; labels.push(`${pad2(d.getDate())}/${pad2(d.getMonth()+1)}`); data.push(base.filter(r=>(r.dia_turno||r.diaTurno)===k).length); }
-    if(c1) c1.destroy(); c1 = new Chart(canvasGrafico, { type:'bar', data:{ labels, datasets:[{label:'Carretas',data,backgroundColor:'#0ea5e9'}] }, options:{responsive:true} });
-    modalGrafico.style.display='flex';
-  };
-  btnGrafico7dNF.onclick = () => {
-    const base = nfCache; if(!base.length) return;
-    const labels=[], data=[]; const hoje=new Date(); for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(hoje.getDate()-i); const k=`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; labels.push(`${pad2(d.getDate())}/${pad2(d.getMonth()+1)}`); data.push(base.filter(r=>{const dt=new Date(r.ts_iso||r.tsISO||r.created_at); return `${dt.getFullYear()}-${pad2(dt.getMonth()+1)}-${pad2(dt.getDate())}`===k;}).length); }
-    if(c2) c2.destroy(); c2 = new Chart(canvasGraficoNF, { type:'bar', data:{ labels, datasets:[{label:'NF',data,backgroundColor:'#8C75C7'}] }, options:{responsive:true} });
-    modalGraficoNF.style.display='flex';
-  };
-
-  // ====== INIT ======
-  carregarTransportadoras(); carregarRegistrosLocal(); carregarNFLocal();
-  (async () => { try { await syncPendentes(); await syncNFPendentes(); registrosCache = await supaList(); nfCache = await supaListNF(); setDbStatus(true); } catch (e) { setDbStatus(false); } })();
+  // INIT
+  const storedTransp = localStorage.getItem(STORAGE_KEY_TRANSP);
+  if (storedTransp) transportadoras = JSON.parse(storedTransp);
+  const storedReg = localStorage.getItem(LS_KEY_REGISTROS);
+  if (storedReg) registrosLocal = JSON.parse(storedReg);
+  
+  renderSelects();
+  setDbStatus(false);
+  
+  // Teste de conexão inicial
+  (async () => {
+    try {
+      const { data } = await supabase.from("registros_bascula").select("id").limit(1);
+      if (data) setDbStatus(true);
+    } catch (e) { setDbStatus(false); }
+  })();
 </script>
 </body>
 </html>
