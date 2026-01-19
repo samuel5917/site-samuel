@@ -146,6 +146,7 @@
   }
   .sidebar.open { transform: translateX(300px); }
 
+  /* ✅ CORRIGIDO: aqui era onde você colou HTML dentro do CSS */
   .sidebar-overlay {
     position: fixed;
     inset: 0;
@@ -155,17 +156,7 @@
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s;
-      <a id="linkSefazDisponModal" href="#"
-   style="padding:16px 20px; border-radius:16px; color:var(--text-muted); text-decoration:none; font-weight:600;">
-  Disponibilidade SEFAZ
-</a>
-
-<a id="linkSefazConsultaNfeModal" href="#"
-   style="padding:16px 20px; border-radius:16px; color:var(--text-muted); text-decoration:none; font-weight:600;">
-  Consulta NF-e SEFAZ
-</a>
   }
-
 
   .sidebar-overlay.active { opacity: 1; visibility: visible; }
 
@@ -443,6 +434,8 @@
 
 <body>
 <script>
+  // ⚠️ Mantive como você tinha, mas isso costuma dar problema (referrer pode vir vazio).
+  // Se quiser, depois trocamos por validação via token no localStorage.
   if (!document.referrer.includes("login.html")) {
     window.location.href = "login.html";
   }
@@ -459,6 +452,10 @@
     <a class="nav-link active" data-view="viewDashboard">Dashboard</a>
     <a class="nav-link" data-view="viewOperacoes">Operações</a>
     <a class="nav-link" data-view="viewParadas">Paradas da Balança</a>
+
+    <a id="linkSefazDisponModal" class="nav-link">Disponibilidade SEFAZ</a>
+    <a id="linkSefazConsultaNfeModal" class="nav-link">Consulta NF-e SEFAZ</a>
+
     <a id="linkRegistroRemanejo" class="nav-link">Registro Remanejo</a>
   </nav>
 
@@ -902,6 +899,7 @@
     <button id="btnSalvarTransp" class="btn btn-primary" style="width:100%;">Salvar Transportadora</button>
   </div>
 </div>
+
 <!-- MODAL SEFAZ (IFRAME) -->
 <div id="modalSefaz" class="modal-overlay">
   <div class="modal-content modal-large" style="padding:16px; max-width:1200px;">
@@ -939,6 +937,10 @@
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const BUCKET_EVIDENCIAS = "bascula-evidencias";
+
+  // ====== SEFAZ URLs ======
+  const SEFAZ_DISP_URL = "https://www.nfe.fazenda.gov.br/portal/disponibilidade.aspx?versao=0.00&tipoConteudo=P2c98tUpxrI=";
+  const SEFAZ_CONSULTA_NFE_URL = "https://www.nfe.fazenda.gov.br/portal/consultaRecaptcha.aspx?tipoConsulta=resumo&tipoConteudo=7PhJ+gAVw2g=";
 
   // ====== STATE ======
   let transportadoras = [];
@@ -980,7 +982,6 @@
     document.querySelectorAll(".nav-link[data-view]").forEach(a => a.classList.remove("active"));
     document.querySelectorAll(`.nav-link[data-view="${viewId}"]`).forEach(a => a.classList.add("active"));
 
-    // fecha sidebar no mobile
     if (sidebar.classList.contains("open")) toggleSidebar();
   }
 
@@ -1006,6 +1007,60 @@
       window.open(REMANEJO_URL, "_blank", "noopener,noreferrer");
     };
   }
+
+  // ====== SEFAZ MODAL (IFRAME) ======
+  const modalSefaz = document.getElementById("modalSefaz");
+  const sefazIframe = document.getElementById("sefazIframe");
+  const sefazModalTitle = document.getElementById("sefazModalTitle");
+  const btnSefazOpenNewTab = document.getElementById("btnSefazOpenNewTab");
+  const btnFecharModalSefaz = document.getElementById("btnFecharModalSefaz");
+
+  let sefazCurrentUrl = "";
+
+  function openSefazModal(title, url) {
+    sefazCurrentUrl = url;
+
+    if (sidebar.classList.contains("open")) toggleSidebar();
+
+    sefazModalTitle.textContent = title;
+    modalSefaz.style.display = "flex";
+
+    sefazIframe.src = "about:blank";
+    setTimeout(() => { sefazIframe.src = url; }, 40);
+  }
+
+  function closeSefazModal() {
+    modalSefaz.style.display = "none";
+    sefazIframe.src = "about:blank";
+    sefazCurrentUrl = "";
+  }
+
+  btnFecharModalSefaz.onclick = closeSefazModal;
+
+  btnSefazOpenNewTab.onclick = () => {
+    if (!sefazCurrentUrl) return;
+    window.open(sefazCurrentUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const linkSefazDisponModal = document.getElementById("linkSefazDisponModal");
+  if (linkSefazDisponModal) {
+    linkSefazDisponModal.onclick = (e) => {
+      e.preventDefault();
+      openSefazModal("Disponibilidade SEFAZ", SEFAZ_DISP_URL);
+    };
+  }
+
+  const linkSefazConsultaNfeModal = document.getElementById("linkSefazConsultaNfeModal");
+  if (linkSefazConsultaNfeModal) {
+    linkSefazConsultaNfeModal.onclick = (e) => {
+      e.preventDefault();
+      openSefazModal("Consulta NF-e SEFAZ", SEFAZ_CONSULTA_NFE_URL);
+    };
+  }
+
+  modalSefaz.addEventListener("click", (e) => {
+    if (e.target === modalSefaz) closeSefazModal();
+  });
 
   // ====== HELPERS ======
   const pad2 = (x) => String(x).padStart(2, "0");
@@ -1037,7 +1092,17 @@
   const openModal = (id) => document.getElementById(id).style.display = "flex";
   const closeModal = (id) => document.getElementById(id).style.display = "none";
 
-  window.onclick = (e) => { if (e.target.classList.contains("modal-overlay")) e.target.style.display = "none"; };
+  // ✅ CORRIGIDO: fecha overlay e limpa iframe do SEFAZ quando fechar clicando fora
+  window.onclick = (e) => {
+    if (e.target && e.target.classList && e.target.classList.contains("modal-overlay")) {
+      e.target.style.display = "none";
+      if (e.target.id === "modalSefaz") {
+        const fr = document.getElementById("sefazIframe");
+        if (fr) fr.src = "about:blank";
+        sefazCurrentUrl = "";
+      }
+    }
+  };
 
   // ====== DASHBOARD: RENDER BARS ======
   function renderBars(containerId, items, { showValueTop = true } = {}) {
@@ -1070,7 +1135,6 @@
   }
 
   function renderExpedidasDemo() {
-    // Representativo (sem dados)
     const demo = [
       { label: "Seg", value: 14 },
       { label: "Ter", value: 22 },
@@ -1138,7 +1202,6 @@
       console.error(e);
       setDbStatus(false);
 
-      // fallback visual (se offline)
       const items = lastNDaysList(7).map(d => ({ label: `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}`, value: 0 }));
       renderBars("chartCanceladas7d", items);
       document.getElementById("kpiCanceladas7d").textContent = "0";
@@ -1187,7 +1250,6 @@
   }
 
   function renderParadas() {
-    // tabela geral (viewParadas)
     const tbodyAll = document.getElementById("tbodyParadasAll");
     tbodyAll.innerHTML = "";
 
@@ -1206,7 +1268,6 @@
         tbodyAll.appendChild(tr);
       });
 
-    // dashboard resumo + tabela de hoje
     const hoje = paradasHojeList();
     const total = hoje.length;
     const totalMin = hoje.reduce((acc,p)=> acc + diffMinutes(p.iniISO, p.fimISO), 0);
@@ -1273,14 +1334,13 @@
       return;
     }
 
-    // Salva local (por enquanto)
     paradasLocal.push({
       iniISO: ini.toISOString(),
       fimISO: fim.toISOString(),
       motivo
     });
 
-    // ✅ FUTURO: salvar no Supabase (deixado pronto)
+    // FUTURO (pronto pra integrar):
     // await supabase.from("paradas_balanca").insert([{ ini: ini.toISOString(), fim: fim.toISOString(), motivo }]);
 
     document.getElementById("paradaMotivo").value = "";
@@ -1316,7 +1376,7 @@
   document.getElementById("btnFecharNF24h").onclick = () => closeModal("modalNF24h");
   document.getElementById("btnFecharRelatorioNF").onclick = () => closeModal("modalRelatorioNF");
 
-  // Atalhos do Dashboard (abrir modais diretos)
+  // Atalhos do Dashboard
   document.getElementById("btnDashAbrirRegistros24h").onclick = async () => { await carregarRegistros24h(); openModal("modalRegistros"); };
   document.getElementById("btnDashAbrirNF24h").onclick = async () => { await carregarNF24h(); openModal("modalNF24h"); };
   document.getElementById("btnDashAbrirRegistrarCarreta").onclick = () => openModal("modalCarreta");
@@ -1392,7 +1452,9 @@
     if (!file) return { path: null, url: null };
 
     const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-    const safeName = `${crypto.randomUUID()}.${ext}`;
+    const uuid = (crypto?.randomUUID?.() ?? (String(Date.now()) + Math.random()));
+    const safeName = `${uuid}.${ext}`;
+
     const now = new Date();
     const y = now.getFullYear();
     const m = String(now.getMonth() + 1).padStart(2, "0");
@@ -1443,7 +1505,6 @@
       prev.style.display = "none";
       prev.src = "";
 
-      // refresh dashboard
       await refreshDashboard();
     } catch (e) {
       console.error(e);
@@ -1783,8 +1844,6 @@
   (async () => {
     try {
       await carregarTransportadoras();
-
-      // ping simples
       const { data, error } = await supabase.from("transportadoras").select("id").limit(1);
       if (error) throw error;
       setDbStatus(true);
@@ -1793,10 +1852,7 @@
       setDbStatus(false);
     }
 
-    // defaults paradas
     initParadasDefaults();
-
-    // render dash
     await refreshDashboard();
   })();
 </script>
