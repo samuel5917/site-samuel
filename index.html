@@ -433,13 +433,6 @@
 </head>
 
 <body>
-<script>
-  // ⚠️ Mantive como você tinha, mas isso costuma dar problema (referrer pode vir vazio).
-  // Se quiser, depois trocamos por validação via token no localStorage.
-  if (!document.referrer.includes("login.html")) {
-    window.location.href = "login.html";
-  }
-</script>
 
 <div id="sidebarOverlay" class="sidebar-overlay"></div>
 <aside id="sidebar" class="sidebar">
