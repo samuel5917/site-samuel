@@ -457,6 +457,10 @@
     <a id="linkSefazConsultaNfeModal" class="nav-link">Consulta NF-e SEFAZ</a>
 
     <a id="linkRegistroRemanejo" class="nav-link">Registro Remanejo</a>
+    <a id="linkPage1" class="nav-link">#1</a>
+    <a id="linkPage2" class="nav-link">#2</a>
+    <a id="linkPage3" class="nav-link">#3</a>
+
   </nav>
 
   <div style="margin-top:22px; padding-top:18px; border-top:1px solid var(--border);">
@@ -1005,7 +1009,25 @@
       e.preventDefault();
       if (sidebar.classList.contains("open")) toggleSidebar();
       window.open(REMANEJO_URL, "_blank", "noopener,noreferrer");
-    };
+    };// ====== LINKS #1 #2 #3 (edite depois) ======
+const PAGE1_URL = "https://example.com";
+const PAGE2_URL = "https://example.com";
+const PAGE3_URL = "https://example.com";
+
+function goTo(url) {
+  if (sidebar.classList.contains("open")) toggleSidebar();
+  window.location.href = url;
+}
+
+const linkPage1 = document.getElementById("linkPage1");
+if (linkPage1) linkPage1.onclick = (e) => { e.preventDefault(); goTo(PAGE1_URL); };
+
+const linkPage2 = document.getElementById("linkPage2");
+if (linkPage2) linkPage2.onclick = (e) => { e.preventDefault(); goTo(PAGE2_URL); };
+
+const linkPage3 = document.getElementById("linkPage3");
+if (linkPage3) linkPage3.onclick = (e) => { e.preventDefault(); goTo(PAGE3_URL); };
+
   }
 
   // ====== SEFAZ MODAL (IFRAME) ======
