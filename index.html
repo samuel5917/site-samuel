@@ -81,9 +81,10 @@
     border: 1px solid var(--border);
     border-radius: 24px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    gap: 16px;
   }
 
-  .header-left { display: flex; align-items: center; gap: 16px; }
+  .header-left { display: flex; align-items: center; gap: 16px; min-width: 0; }
 
   .title-group h1 {
     font-size: 1.25rem;
@@ -92,6 +93,9 @@
     background: linear-gradient(to right, #fff, var(--accent));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .title-group p { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
@@ -106,6 +110,7 @@
     border-radius: 100px;
     font-size: 0.75rem;
     font-weight: 600;
+    white-space: nowrap;
   }
 
   .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--success); box-shadow: 0 0 12px var(--success); }
@@ -137,6 +142,7 @@
     z-index: 1000;
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 32px 24px;
+    overflow-y: auto;
   }
   .sidebar.open { transform: translateX(300px); }
 
@@ -151,6 +157,28 @@
     transition: all 0.3s;
   }
   .sidebar-overlay.active { opacity: 1; visibility: visible; }
+
+  .nav-link {
+    padding: 16px 20px;
+    border-radius: 16px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 700;
+    border: 1px solid transparent;
+    background: transparent;
+    display: block;
+    transition: all .18s ease;
+    cursor: pointer;
+  }
+  .nav-link:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+  }
+  .nav-link.active {
+    background: rgba(59, 130, 246, 0.15);
+    color: white;
+    border-color: rgba(59,130,246,.25);
+  }
 
   .card {
     background: var(--bg-card);
@@ -191,6 +219,7 @@
     cursor: pointer;
     transition: all 0.2s;
     border: none;
+    user-select: none;
   }
 
   .btn-primary {
@@ -283,7 +312,7 @@
     text-transform: uppercase;
     letter-spacing: 0.1em;
   }
-  td { padding: 18px 20px; border-top: 1px solid var(--border); }
+  td { padding: 18px 20px; border-top: 1px solid var(--border); vertical-align: top; }
 
   .upload-area {
     border: 2px dashed var(--border);
@@ -316,39 +345,117 @@
 
   .right-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
 
+  /* ===== DASHBOARD GRID ===== */
+  .dash-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 24px;
+  }
+  .dash-col { display: flex; flex-direction: column; gap: 24px; }
+
+  .mini-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px;
+    border-radius: 22px;
+    background: rgba(0,0,0,0.18);
+    border: 1px solid var(--border);
+  }
+  .kpi .label { font-size: .75rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: .1em; }
+  .kpi .value { font-size: 1.6rem; font-weight: 900; }
+  .kpi .sub { font-size: .85rem; color: var(--text-muted); font-weight: 600; }
+
+  .chart-wrap {
+    margin-top: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    height: 160px;
+    padding: 14px;
+    border-radius: 22px;
+    background: rgba(0,0,0,0.18);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .bar {
+    flex: 1;
+    min-width: 18px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(59,130,246,0.95), rgba(99,102,241,0.75));
+    box-shadow: 0 10px 24px rgba(59,130,246,.25);
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .bar small{
+    position: absolute;
+    bottom: -22px;
+    font-size: .72rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .bar .tip{
+    position: absolute;
+    top: 8px;
+    font-size: .75rem;
+    font-weight: 800;
+    color: rgba(255,255,255,.92);
+    text-shadow: 0 2px 10px rgba(0,0,0,.35);
+  }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  @media (max-width: 980px) {
+    .dash-grid { grid-template-columns: 1fr; }
+  }
+
   @media (max-width: 768px) {
     .modal-grid { grid-template-columns: 1fr; }
     .card-header { flex-direction: column; align-items: stretch; }
     .btn { width: 100%; }
     .modal-content { padding: 24px; }
     .right-actions { align-items: stretch; }
+    .mini-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 
 <body>
 <script>
-if (!document.referrer.includes("login.html")) {
-  window.location.href = "login.html";
-}
+  if (!document.referrer.includes("login.html")) {
+    window.location.href = "login.html";
+  }
 </script>
 
 <div id="sidebarOverlay" class="sidebar-overlay"></div>
 <aside id="sidebar" class="sidebar">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:48px;">
-    <h2 style="font-size:1.6rem; font-weight:900; color:var(--primary);"></h2>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px;">
+    <h2 style="font-size:1.4rem; font-weight:900; color:var(--primary);">Menu</h2>
     <button id="btnCloseSidebar" class="menu-trigger">✕</button>
   </div>
-  <nav style="display:flex; flex-direction:column; gap:12px;">
-    <a href="#" style="padding:16px 20px; border-radius:16px; color:white; text-decoration:none; background:rgba(59, 130, 246, 0.15); font-weight:700;">Dashboard</a>
-    <a href="#" style="padding:16px 20px; border-radius:16px; color:var(--text-muted); text-decoration:none; font-weight:600;">Configurações</a>
-    <a href="#" style="padding:16px 20px; border-radius:16px; color:var(--text-muted); text-decoration:none; font-weight:600;">Relatórios Avançados</a>
-  </nav>
-  <a id="linkRegistroRemanejo" href="#"
-   style="padding:16px 20px; border-radius:16px; color:var(--text-muted); text-decoration:none; font-weight:600;">
-  Registro Remanejo
-</a>
 
+  <nav style="display:flex; flex-direction:column; gap:10px;">
+    <a class="nav-link active" data-view="viewDashboard">Dashboard</a>
+    <a class="nav-link" data-view="viewOperacoes">Operações</a>
+    <a class="nav-link" data-view="viewParadas">Paradas da Balança</a>
+    <a id="linkRegistroRemanejo" class="nav-link">Registro Remanejo</a>
+  </nav>
+
+  <div style="margin-top:22px; padding-top:18px; border-top:1px solid var(--border);">
+    <div style="font-size:.8rem; color:var(--text-muted); font-weight:700;">
+      Dica: o Dashboard puxa <b>Canceladas 7d</b> e <b>Carretas Hoje</b> do Supabase.
+    </div>
+  </div>
 </aside>
 
 <div class="app-container">
@@ -366,38 +473,219 @@ if (!document.referrer.includes("login.html")) {
     </div>
   </header>
 
-  <section class="card">
-    <div class="card-header">
-      <div class="card-title">Carretas Contaminadas</div>
-      <button id="btnAbrirModalCarreta" class="btn btn-primary">
-        <span>+</span> Registrar Caminhão
-      </button>
-    </div>
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
-      <div style="display:flex; gap:12px;">
-        <span class="status-badge" style="background:rgba(16, 185, 129, 0.1); color:var(--success); border:none;">T1: 07h - 19h</span>
-        <span class="status-badge" style="background:rgba(245, 158, 11, 0.1); color:var(--warning); border:none;">T2: 19h - 07h</span>
-      </div>
-      <div style="display:flex; gap:12px; flex-wrap:wrap;">
-        <button id="btnAbrirRegistros" class="btn btn-ghost">Últimos Registros</button>
-        <button id="btnAbrirRelatorio" class="btn btn-ghost">Relatórios</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="card">
-    <div class="card-header">
-      <div class="card-title">NF-e Canceladas</div>
-      <div class="right-actions">
-        <button id="btnAbrirModalNF" class="btn btn-primary">
-          <span>+</span> Registrar NF-e
-        </button>
-        <div style="display:flex; gap:12px; flex-wrap:wrap;">
-          <button id="btnAbrirNF24h" class="btn btn-ghost">Últimos Registros</button>
-          <button id="btnAbrirRelatorioNF" class="btn btn-ghost">Relatórios</button>
+  <!-- ===================== VIEW: DASHBOARD ===================== -->
+  <section id="viewDashboard" class="view active">
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">Dashboard</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button id="btnRefreshDash" class="btn btn-ghost">Atualizar</button>
+          <button id="btnIrOperacoes" class="btn btn-primary">Abrir Operações</button>
         </div>
       </div>
-    </div>
+
+      <div class="dash-grid">
+        <!-- COL ESQUERDA -->
+        <div class="dash-col">
+          <!-- GRÁFICO NF EXPEDIDAS (representativo) -->
+          <div class="card" style="padding:22px; border-radius:26px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
+              <div>
+                <div style="font-size:1.05rem; font-weight:900;">NF-e Expedidas (Representativo)</div>
+                <div style="color:var(--text-muted); font-weight:600; font-size:.85rem;">Por enquanto é só visual (sem dados).</div>
+              </div>
+              <div class="status-badge" style="background:rgba(59,130,246,0.12); border:none; color:#bfdbfe;">
+                Demo
+              </div>
+            </div>
+
+            <div id="chartExpedidas" class="chart-wrap"></div>
+          </div>
+
+          <!-- PARADAS BALANÇA (HOJE) + TABELA -->
+          <div class="card" style="padding:22px; border-radius:26px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
+              <div>
+                <div style="font-size:1.05rem; font-weight:900;">Paradas da Balança (Hoje)</div>
+                <div style="color:var(--text-muted); font-weight:600; font-size:.85rem;">Considera o dia a partir de <b>00:00</b>.</div>
+              </div>
+              <button id="btnIrParadas" class="btn btn-primary" style="padding:10px 16px; border-radius:14px;">
+                + Registrar Parada
+              </button>
+            </div>
+
+            <div class="mini-grid" style="margin-top:14px;">
+              <div class="kpi">
+                <div class="label">Total de Paradas</div>
+                <div id="kpiParadasTotal" class="value">0</div>
+                <div class="sub" id="kpiParadasSub">Hoje</div>
+              </div>
+              <div class="kpi">
+                <div class="label">Tempo Parado</div>
+                <div id="kpiParadasTempo" class="value">00:00</div>
+                <div class="sub">Soma do dia</div>
+              </div>
+            </div>
+
+            <div class="table-container" style="margin-top:16px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Data/Hora Inicial</th>
+                    <th>Data/Hora Final</th>
+                    <th>Motivo</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyParadasHoje"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- COL DIREITA -->
+        <div class="dash-col">
+          <!-- KPI: CARRETAS HOJE -->
+          <div class="card" style="padding:22px; border-radius:26px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+              <div>
+                <div style="font-size:1.05rem; font-weight:900;">Carretas Contaminadas (Hoje)</div>
+                <div style="color:var(--text-muted); font-weight:600; font-size:.85rem;">Puxado do Supabase (registros_bascula)</div>
+              </div>
+            </div>
+
+            <div class="kpi" style="margin-top:14px;">
+              <div class="label">Total Hoje</div>
+              <div id="kpiCarretasHoje" class="value">0</div>
+              <div class="sub" id="kpiCarretasHojeSub">00:00 → agora</div>
+            </div>
+          </div>
+
+          <!-- GRÁFICO: NF CANCELADAS 7 DIAS -->
+          <div class="card" style="padding:22px; border-radius:26px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
+              <div>
+                <div style="font-size:1.05rem; font-weight:900;">NF-e Canceladas (Últimos 7 dias)</div>
+                <div style="color:var(--text-muted); font-weight:600; font-size:.85rem;">Puxado do Supabase (nfe_canceladas)</div>
+              </div>
+              <div class="status-badge" style="background:rgba(245,158,11,0.12); border:none; color:#fde68a;">
+                7D
+              </div>
+            </div>
+
+            <div id="chartCanceladas7d" class="chart-wrap"></div>
+
+            <div style="margin-top:10px; color:var(--text-muted); font-weight:700; font-size:.85rem;">
+              Total 7d: <span id="kpiCanceladas7d" style="color:#fff; font-weight:900;">0</span>
+            </div>
+          </div>
+
+          <!-- Atalhos -->
+          <div class="card" style="padding:22px; border-radius:26px;">
+            <div style="font-size:1.05rem; font-weight:900;">Atalhos</div>
+            <div style="margin-top:14px; display:grid; grid-template-columns: 1fr; gap:10px;">
+              <button id="btnDashAbrirRegistros24h" class="btn btn-ghost">Ver Carretas (24h)</button>
+              <button id="btnDashAbrirNF24h" class="btn btn-ghost">Ver NF-e (24h)</button>
+              <button id="btnDashAbrirRegistrarCarreta" class="btn btn-primary">+ Registrar Caminhão</button>
+              <button id="btnDashAbrirRegistrarNF" class="btn btn-primary">+ Registrar NF-e</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- ===================== VIEW: OPERACOES (cards antigos) ===================== -->
+  <section id="viewOperacoes" class="view">
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">Operações</div>
+        <button class="btn btn-ghost" data-view="viewDashboard">Voltar ao Dashboard</button>
+      </div>
+
+      <section class="card" style="padding:24px; border-radius:26px; margin-bottom:18px;">
+        <div class="card-header">
+          <div class="card-title">Carretas Contaminadas</div>
+          <button id="btnAbrirModalCarreta" class="btn btn-primary">
+            <span>+</span> Registrar Caminhão
+          </button>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
+          <div style="display:flex; gap:12px;">
+            <span class="status-badge" style="background:rgba(16, 185, 129, 0.1); color:var(--success); border:none;">T1: 07h - 19h</span>
+            <span class="status-badge" style="background:rgba(245, 158, 11, 0.1); color:var(--warning); border:none;">T2: 19h - 07h</span>
+          </div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button id="btnAbrirRegistros" class="btn btn-ghost">Últimos Registros</button>
+            <button id="btnAbrirRelatorio" class="btn btn-ghost">Relatórios</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" style="padding:24px; border-radius:26px;">
+        <div class="card-header">
+          <div class="card-title">NF-e Canceladas</div>
+          <div class="right-actions">
+            <button id="btnAbrirModalNF" class="btn btn-primary">
+              <span>+</span> Registrar NF-e
+            </button>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <button id="btnAbrirNF24h" class="btn btn-ghost">Últimos Registros</button>
+              <button id="btnAbrirRelatorioNF" class="btn btn-ghost">Relatórios</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </section>
+
+  <!-- ===================== VIEW: PARADAS ===================== -->
+  <section id="viewParadas" class="view">
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">Registro de Paradas da Balança</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-ghost" data-view="viewDashboard">Voltar ao Dashboard</button>
+          <button id="btnLimparParadasHoje" class="btn btn-ghost">Limpar Paradas (hoje)</button>
+        </div>
+      </div>
+
+      <div class="modal-grid" style="margin-top:6px;">
+        <div class="form-group">
+          <label class="form-label">Data/Horário Inicial</label>
+          <input id="paradaIni" type="datetime-local" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data/Horário Final</label>
+          <input id="paradaFim" type="datetime-local" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Motivo</label>
+        <input id="paradaMotivo" class="form-control" placeholder="Ex.: Manutenção / Falha no sistema / Sem internet / etc.">
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+        <button id="btnSalvarParadaLocal" class="btn btn-primary">Salvar Parada</button>
+        <button id="btnPreencherAgora" class="btn btn-ghost">Preencher com Agora</button>
+      </div>
+
+      <p id="msgParada" style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-top:16px; font-weight:600;"></p>
+
+      <div style="margin-top:18px;" class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Data/Hora Inicial</th>
+              <th>Data/Hora Final</th>
+              <th>Motivo</th>
+              <th>Duração</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyParadasAll"></tbody>
+        </table>
+      </div>
+    </section>
   </section>
 
   <footer>
@@ -407,6 +695,8 @@ if (!document.referrer.includes("login.html")) {
     </div>
   </footer>
 </div>
+
+<!-- ===================== MODAIS EXISTENTES (mantidos) ===================== -->
 
 <!-- MODAL CARRETA -->
 <div id="modalCarreta" class="modal-overlay">
@@ -610,12 +900,15 @@ if (!document.referrer.includes("login.html")) {
   const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // Storage bucket (crie no Supabase)
   const BUCKET_EVIDENCIAS = "bascula-evidencias";
 
+  // ====== STATE ======
   let transportadoras = [];
   let registrosCache = [];
   let nfeCache = [];
+
+  // Paradas (por enquanto local/memória - pronto pra trocar para Supabase depois)
+  let paradasLocal = []; // { iniISO, fimISO, motivo }
 
   const dbDot = document.getElementById("dbDot");
   const dbStatusText = document.getElementById("dbStatusText");
@@ -632,6 +925,7 @@ if (!document.referrer.includes("login.html")) {
     }
   }
 
+  // ====== SIDEBAR + NAVEGAÇÃO VIEWS ======
   const toggleSidebar = () => {
     sidebar.classList.toggle("open");
     sidebarOverlay.classList.toggle("active");
@@ -639,25 +933,56 @@ if (!document.referrer.includes("login.html")) {
   document.getElementById("btnOpenSidebar").onclick = toggleSidebar;
   document.getElementById("btnCloseSidebar").onclick = toggleSidebar;
   sidebarOverlay.onclick = toggleSidebar;
-  // ====== LINK: REGISTRO REMANEJO ======
-const REMANEJO_URL = "https://docs.google.com/spreadsheets/d/1WLfkZES26YbGPpg83bzoZJk5Rnn6_FH0d6qdW5QsC9k/edit?usp=sharing";
 
-const linkRegistroRemanejo = document.getElementById("linkRegistroRemanejo");
-if (linkRegistroRemanejo) {
-  linkRegistroRemanejo.onclick = (e) => {
-    e.preventDefault();
+  function showView(viewId) {
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+    const el = document.getElementById(viewId);
+    if (el) el.classList.add("active");
 
-    // fecha o menu antes de abrir
+    document.querySelectorAll(".nav-link[data-view]").forEach(a => a.classList.remove("active"));
+    document.querySelectorAll(`.nav-link[data-view="${viewId}"]`).forEach(a => a.classList.add("active"));
+
+    // fecha sidebar no mobile
     if (sidebar.classList.contains("open")) toggleSidebar();
+  }
 
-    // abre em nova aba (recomendado)
-    window.open(REMANEJO_URL, "_blank", "noopener,noreferrer");
-  };
-}
+  document.querySelectorAll(".nav-link[data-view]").forEach(a => {
+    a.onclick = () => showView(a.getAttribute("data-view"));
+  });
 
+  document.querySelectorAll('[data-view]').forEach(btn => {
+    if (btn.classList.contains("nav-link")) return;
+    btn.addEventListener("click", () => showView(btn.getAttribute("data-view")));
+  });
 
+  document.getElementById("btnIrOperacoes").onclick = () => showView("viewOperacoes");
+  document.getElementById("btnIrParadas").onclick = () => showView("viewParadas");
+
+  // ====== LINK: REGISTRO REMANEJO ======
+  const REMANEJO_URL = "https://docs.google.com/spreadsheets/d/1WLfkZES26YbGPpg83bzoZJk5Rnn6_FH0d6qdW5QsC9k/edit?usp=sharing";
+  const linkRegistroRemanejo = document.getElementById("linkRegistroRemanejo");
+  if (linkRegistroRemanejo) {
+    linkRegistroRemanejo.onclick = (e) => {
+      e.preventDefault();
+      if (sidebar.classList.contains("open")) toggleSidebar();
+      window.open(REMANEJO_URL, "_blank", "noopener,noreferrer");
+    };
+  }
+
+  // ====== HELPERS ======
   const pad2 = (x) => String(x).padStart(2, "0");
   const formatarDataHora = (d) => `${pad2(d.getDate())}/${pad2(d.getMonth()+1)} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+
+  function startOfTodayLocal() {
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    return d;
+  }
+
+  function toLocalInputValue(dt) {
+    const d = new Date(dt);
+    return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  }
 
   function classificarTurno(d) {
     const h = d.getHours();
@@ -674,7 +999,266 @@ if (linkRegistroRemanejo) {
   const openModal = (id) => document.getElementById(id).style.display = "flex";
   const closeModal = (id) => document.getElementById(id).style.display = "none";
 
-  // ====== MODAIS ======
+  window.onclick = (e) => { if (e.target.classList.contains("modal-overlay")) e.target.style.display = "none"; };
+
+  // ====== DASHBOARD: RENDER BARS ======
+  function renderBars(containerId, items, { showValueTop = true } = {}) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = "";
+
+    const values = items.map(x => x.value);
+    const max = Math.max(1, ...values);
+
+    items.forEach((it) => {
+      const bar = document.createElement("div");
+      bar.className = "bar";
+      const h = Math.max(10, Math.round((it.value / max) * 150));
+      bar.style.height = `${h}px`;
+
+      if (showValueTop) {
+        const tip = document.createElement("div");
+        tip.className = "tip";
+        tip.textContent = String(it.value);
+        bar.appendChild(tip);
+      }
+
+      const lab = document.createElement("small");
+      lab.textContent = it.label;
+      bar.appendChild(lab);
+
+      el.appendChild(bar);
+    });
+  }
+
+  function renderExpedidasDemo() {
+    // Representativo (sem dados)
+    const demo = [
+      { label: "Seg", value: 14 },
+      { label: "Ter", value: 22 },
+      { label: "Qua", value: 18 },
+      { label: "Qui", value: 30 },
+      { label: "Sex", value: 26 },
+      { label: "Sáb", value: 10 },
+      { label: "Dom", value: 8 },
+    ];
+    renderBars("chartExpedidas", demo);
+  }
+
+  // ====== DASHBOARD: SUPABASE QUERIES ======
+  function isoDateOnly(d) {
+    return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+  }
+
+  function lastNDaysList(n) {
+    const out = [];
+    const today = startOfTodayLocal();
+    for (let i = n-1; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      out.push(d);
+    }
+    return out;
+  }
+
+  async function loadCanceladasLast7d() {
+    const days = lastNDaysList(7);
+    const start = new Date(days[0]);
+    const end = new Date(days[6]);
+    end.setHours(23,59,59,999);
+
+    try {
+      const { data, error } = await supabase
+        .from("nfe_canceladas")
+        .select("ts")
+        .gte("ts", start.toISOString())
+        .lte("ts", end.toISOString())
+        .limit(5000);
+
+      if (error) throw error;
+
+      const counts = {};
+      days.forEach(d => counts[isoDateOnly(d)] = 0);
+
+      (data || []).forEach(r => {
+        const dt = new Date(r.ts);
+        const key = isoDateOnly(dt);
+        if (counts[key] !== undefined) counts[key] += 1;
+      });
+
+      const items = days.map(d => {
+        const key = isoDateOnly(d);
+        const label = `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}`;
+        return { label, value: counts[key] || 0 };
+      });
+
+      renderBars("chartCanceladas7d", items);
+      document.getElementById("kpiCanceladas7d").textContent = items.reduce((a,b)=>a+b.value,0);
+
+      setDbStatus(true);
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+
+      // fallback visual (se offline)
+      const items = lastNDaysList(7).map(d => ({ label: `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}`, value: 0 }));
+      renderBars("chartCanceladas7d", items);
+      document.getElementById("kpiCanceladas7d").textContent = "0";
+    }
+  }
+
+  async function loadCarretasHoje() {
+    const start = startOfTodayLocal();
+    const sub = `${pad2(start.getHours())}:${pad2(start.getMinutes())} → agora`;
+    document.getElementById("kpiCarretasHojeSub").textContent = sub;
+
+    try {
+      const { data, error } = await supabase
+        .from("registros_bascula")
+        .select("id, ts")
+        .gte("ts", start.toISOString())
+        .limit(5000);
+
+      if (error) throw error;
+
+      document.getElementById("kpiCarretasHoje").textContent = String((data || []).length);
+      setDbStatus(true);
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+      document.getElementById("kpiCarretasHoje").textContent = "0";
+    }
+  }
+
+  // ====== PARADAS (LOCAL POR ENQUANTO) ======
+  function diffMinutes(ini, fim) {
+    const a = new Date(ini).getTime();
+    const b = new Date(fim).getTime();
+    return Math.max(0, Math.round((b - a) / 60000));
+  }
+
+  function fmtHHMM(totalMinutes) {
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    return `${pad2(h)}:${pad2(m)}`;
+  }
+
+  function paradasHojeList() {
+    const start = startOfTodayLocal().getTime();
+    return paradasLocal.filter(p => new Date(p.iniISO).getTime() >= start);
+  }
+
+  function renderParadas() {
+    // tabela geral (viewParadas)
+    const tbodyAll = document.getElementById("tbodyParadasAll");
+    tbodyAll.innerHTML = "";
+
+    paradasLocal
+      .slice()
+      .sort((a,b)=> new Date(b.iniISO) - new Date(a.iniISO))
+      .forEach(p => {
+        const tr = document.createElement("tr");
+        const mins = diffMinutes(p.iniISO, p.fimISO);
+        tr.innerHTML = `
+          <td>${formatarDataHora(new Date(p.iniISO))}</td>
+          <td>${formatarDataHora(new Date(p.fimISO))}</td>
+          <td style="font-weight:800;">${String(p.motivo || "").replaceAll("<","&lt;").replaceAll(">","&gt;")}</td>
+          <td>${fmtHHMM(mins)}</td>
+        `;
+        tbodyAll.appendChild(tr);
+      });
+
+    // dashboard resumo + tabela de hoje
+    const hoje = paradasHojeList();
+    const total = hoje.length;
+    const totalMin = hoje.reduce((acc,p)=> acc + diffMinutes(p.iniISO, p.fimISO), 0);
+
+    document.getElementById("kpiParadasTotal").textContent = String(total);
+    document.getElementById("kpiParadasTempo").textContent = fmtHHMM(totalMin);
+
+    const tbodyHoje = document.getElementById("tbodyParadasHoje");
+    tbodyHoje.innerHTML = "";
+
+    if (!hoje.length) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td colspan="3" style="color:var(--text-muted); font-weight:700;">Sem paradas registradas hoje.</td>`;
+      tbodyHoje.appendChild(tr);
+      return;
+    }
+
+    hoje
+      .slice()
+      .sort((a,b)=> new Date(b.iniISO) - new Date(a.iniISO))
+      .forEach(p => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${formatarDataHora(new Date(p.iniISO))}</td>
+          <td>${formatarDataHora(new Date(p.fimISO))}</td>
+          <td style="font-weight:800;">${String(p.motivo || "").replaceAll("<","&lt;").replaceAll(">","&gt;")}</td>
+        `;
+        tbodyHoje.appendChild(tr);
+      });
+  }
+
+  function initParadasDefaults() {
+    const now = new Date();
+    const ini = new Date(now);
+    ini.setMinutes(now.getMinutes() - 10);
+
+    document.getElementById("paradaIni").value = toLocalInputValue(ini);
+    document.getElementById("paradaFim").value = toLocalInputValue(now);
+  }
+
+  document.getElementById("btnPreencherAgora").onclick = () => initParadasDefaults();
+
+  document.getElementById("btnSalvarParadaLocal").onclick = async () => {
+    const iniVal = document.getElementById("paradaIni").value;
+    const fimVal = document.getElementById("paradaFim").value;
+    const motivo = document.getElementById("paradaMotivo").value.trim();
+
+    const msg = document.getElementById("msgParada");
+    msg.textContent = "";
+
+    if (!iniVal || !fimVal || !motivo) {
+      msg.textContent = "Preencha início, fim e motivo.";
+      return;
+    }
+
+    const ini = new Date(iniVal);
+    const fim = new Date(fimVal);
+    if (isNaN(ini.getTime()) || isNaN(fim.getTime())) {
+      msg.textContent = "Datas inválidas.";
+      return;
+    }
+    if (fim <= ini) {
+      msg.textContent = "O horário final deve ser maior que o inicial.";
+      return;
+    }
+
+    // Salva local (por enquanto)
+    paradasLocal.push({
+      iniISO: ini.toISOString(),
+      fimISO: fim.toISOString(),
+      motivo
+    });
+
+    // ✅ FUTURO: salvar no Supabase (deixado pronto)
+    // await supabase.from("paradas_balanca").insert([{ ini: ini.toISOString(), fim: fim.toISOString(), motivo }]);
+
+    document.getElementById("paradaMotivo").value = "";
+    initParadasDefaults();
+    msg.textContent = "Parada salva (local). Pronto para integrar no Supabase depois.";
+    renderParadas();
+  };
+
+  document.getElementById("btnLimparParadasHoje").onclick = () => {
+    const start = startOfTodayLocal().getTime();
+    paradasLocal = paradasLocal.filter(p => new Date(p.iniISO).getTime() < start);
+    renderParadas();
+    document.getElementById("msgParada").textContent = "Paradas de hoje removidas (local).";
+  };
+
+  // ====== MODAIS / BOTOES EXISTENTES ======
   document.getElementById("btnAbrirModalCarreta").onclick = () => openModal("modalCarreta");
   document.getElementById("btnAbrirModalNF").onclick = () => openModal("modalNF");
   document.getElementById("btnAddTranspModal").onclick = () => openModal("modalAddTransp");
@@ -691,12 +1275,16 @@ if (linkRegistroRemanejo) {
   document.getElementById("btnFecharRegistros").onclick = () => closeModal("modalRegistros");
   document.getElementById("btnFecharRelatorio").onclick = () => closeModal("modalRelatorio");
   document.getElementById("btnFecharModalImagem").onclick = () => closeModal("modalVisualizarImagem");
-
   document.getElementById("btnFecharNF24h").onclick = () => closeModal("modalNF24h");
   document.getElementById("btnFecharRelatorioNF").onclick = () => closeModal("modalRelatorioNF");
 
-  window.onclick = (e) => { if (e.target.classList.contains("modal-overlay")) e.target.style.display = "none"; };
+  // Atalhos do Dashboard (abrir modais diretos)
+  document.getElementById("btnDashAbrirRegistros24h").onclick = async () => { await carregarRegistros24h(); openModal("modalRegistros"); };
+  document.getElementById("btnDashAbrirNF24h").onclick = async () => { await carregarNF24h(); openModal("modalNF24h"); };
+  document.getElementById("btnDashAbrirRegistrarCarreta").onclick = () => openModal("modalCarreta");
+  document.getElementById("btnDashAbrirRegistrarNF").onclick = () => openModal("modalNF");
 
+  // ====== SELECTS TRANSPORTADORAS ======
   function renderSelects() {
     const selects = [document.getElementById("transportadoraModal"), document.getElementById("transportadoraNFModal")];
     selects.forEach(s => {
@@ -724,12 +1312,12 @@ if (linkRegistroRemanejo) {
     } catch (e) {
       console.error(e);
       setDbStatus(false);
-      transportadoras = ["CAIO TRANSPORTES", "ECOMINING", "RODOMINAS"]; // fallback visual
+      transportadoras = ["CAIO TRANSPORTES", "ECOMINING", "RODOMINAS"];
       renderSelects();
     }
   }
 
-  // ====== ADD TRANSPORTADORA (SUPABASE) ======
+  // ====== ADD TRANSPORTADORA ======
   document.getElementById("btnSalvarTransp").onclick = async () => {
     const nome = document.getElementById("nomeNovaTransp").value.trim().toUpperCase();
     if (!nome) return;
@@ -782,7 +1370,7 @@ if (linkRegistroRemanejo) {
     return { path, url: data?.publicUrl || null };
   }
 
-  // ====== SALVAR CARRETA (SUPABASE) ======
+  // ====== SALVAR CARRETA ======
   document.getElementById("btnSalvarCarreta").onclick = async () => {
     const placa = document.getElementById("placaModal").value.trim().toUpperCase();
     const transp = document.getElementById("transportadoraModal").value;
@@ -816,6 +1404,9 @@ if (linkRegistroRemanejo) {
       const prev = document.getElementById("imgPreviewCarreta");
       prev.style.display = "none";
       prev.src = "";
+
+      // refresh dashboard
+      await refreshDashboard();
     } catch (e) {
       console.error(e);
       setDbStatus(false);
@@ -823,7 +1414,7 @@ if (linkRegistroRemanejo) {
     }
   };
 
-  // ====== LISTAR REGISTROS 24h (SUPABASE) ======
+  // ====== LISTAR REGISTROS 24h ======
   async function carregarRegistros24h() {
     const now = new Date();
     const since = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
@@ -892,6 +1483,7 @@ if (linkRegistroRemanejo) {
 
       setDbStatus(true);
       await carregarRegistros24h();
+      await refreshDashboard();
     } catch (e) {
       console.error(e);
       setDbStatus(false);
@@ -911,7 +1503,7 @@ if (linkRegistroRemanejo) {
     document.getElementById(fId).value = new Date(agora.getTime() - agora.getTimezoneOffset()*60000).toISOString().slice(0,16);
   }
 
-  // ====== RELATÓRIO CARRETAS (consulta SUPABASE no período) ======
+  // ====== RELATÓRIO CARRETAS ======
   document.getElementById("btnRelatorioPdf").onclick = async () => {
     const di = new Date(document.getElementById("inicioRel").value);
     const df = new Date(document.getElementById("fimRel").value);
@@ -958,7 +1550,7 @@ if (linkRegistroRemanejo) {
     }
   };
 
-  // ====== SALVAR NF (SUPABASE) ======
+  // ====== SALVAR NF ======
   document.getElementById("btnSalvarNF").onclick = async () => {
     const placa = document.getElementById("placaNFModal").value.trim().toUpperCase();
     const transp = document.getElementById("transportadoraNFModal").value;
@@ -994,6 +1586,8 @@ if (linkRegistroRemanejo) {
       document.getElementById("nfSubstitutaModal").value = "";
       document.getElementById("motivoCancelamentoModal").value = "";
       document.getElementById("transportadoraNFModal").value = "";
+
+      await refreshDashboard();
     } catch (e) {
       console.error(e);
       setDbStatus(false);
@@ -1054,6 +1648,7 @@ if (linkRegistroRemanejo) {
       if (error) throw error;
       setDbStatus(true);
       await carregarNF24h();
+      await refreshDashboard();
     } catch (e) {
       console.error(e);
       setDbStatus(false);
@@ -1061,7 +1656,7 @@ if (linkRegistroRemanejo) {
     }
   };
 
-  // ====== RELATÓRIO NF (consulta SUPABASE) ======
+  // ====== RELATÓRIO NF ======
   document.getElementById("btnRelatorioPdfNF").onclick = async () => {
     const di = new Date(document.getElementById("inicioRelNF").value);
     const df = new Date(document.getElementById("fimRelNF").value);
@@ -1111,7 +1706,6 @@ if (linkRegistroRemanejo) {
   };
 
   document.getElementById("btnVerTabelaNF").onclick = async () => {
-    // Só carrega no período e mostra um alert com quantidade (pra não mudar layout)
     const di = new Date(document.getElementById("inicioRelNF").value);
     const df = new Date(document.getElementById("fimRelNF").value);
     if (isNaN(di.getTime()) || isNaN(df.getTime())) return alert("Selecione início e fim.");
@@ -1134,6 +1728,19 @@ if (linkRegistroRemanejo) {
     }
   };
 
+  // ====== DASHBOARD REFRESH ======
+  async function refreshDashboard() {
+    renderExpedidasDemo();
+    renderParadas();
+    await loadCanceladasLast7d();
+    await loadCarretasHoje();
+  }
+
+  document.getElementById("btnRefreshDash").onclick = async () => {
+    await refreshDashboard();
+    alert("Dashboard atualizado.");
+  };
+
   // ====== BOOT ======
   (async () => {
     try {
@@ -1147,6 +1754,12 @@ if (linkRegistroRemanejo) {
       console.error(e);
       setDbStatus(false);
     }
+
+    // defaults paradas
+    initParadasDefaults();
+
+    // render dash
+    await refreshDashboard();
   })();
 </script>
 </body>
