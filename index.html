@@ -344,6 +344,11 @@ if (!document.referrer.includes("login.html")) {
     <a href="#" style="padding:16px 20px; border-radius:16px; color:var(--text-muted); text-decoration:none; font-weight:600;">Configurações</a>
     <a href="#" style="padding:16px 20px; border-radius:16px; color:var(--text-muted); text-decoration:none; font-weight:600;">Relatórios Avançados</a>
   </nav>
+  <a id="linkRegistroRemanejo" href="#"
+   style="padding:16px 20px; border-radius:16px; color:var(--text-muted); text-decoration:none; font-weight:600;">
+  Registro Remanejo
+</a>
+
 </aside>
 
 <div class="app-container">
@@ -634,6 +639,22 @@ if (!document.referrer.includes("login.html")) {
   document.getElementById("btnOpenSidebar").onclick = toggleSidebar;
   document.getElementById("btnCloseSidebar").onclick = toggleSidebar;
   sidebarOverlay.onclick = toggleSidebar;
+  // ====== LINK: REGISTRO REMANEJO ======
+const REMANEJO_URL = "https://docs.google.com/spreadsheets/d/1WLfkZES26YbGPpg83bzoZJk5Rnn6_FH0d6qdW5QsC9k/edit?usp=sharing";
+
+const linkRegistroRemanejo = document.getElementById("linkRegistroRemanejo");
+if (linkRegistroRemanejo) {
+  linkRegistroRemanejo.onclick = (e) => {
+    e.preventDefault();
+
+    // fecha o menu antes de abrir
+    if (sidebar.classList.contains("open")) toggleSidebar();
+
+    // abre em nova aba (recomendado)
+    window.open(REMANEJO_URL, "_blank", "noopener,noreferrer");
+  };
+}
+
 
   const pad2 = (x) => String(x).padStart(2, "0");
   const formatarDataHora = (d) => `${pad2(d.getDate())}/${pad2(d.getMonth()+1)} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
