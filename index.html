@@ -433,6 +433,13 @@
 </head>
 
 <body>
+<script>
+  // ⚠️ Mantive como você tinha, mas isso costuma dar problema (referrer pode vir vazio).
+  // Se quiser, depois trocamos por validação via token no localStorage.
+  if (!document.referrer.includes("login.html")) {
+    window.location.href = "login.html";
+  }
+</script>
 
 <div id="sidebarOverlay" class="sidebar-overlay"></div>
 <aside id="sidebar" class="sidebar">
@@ -924,23 +931,6 @@
 <script type="module">
   import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-  // ====== AUTH (corrige bug do referrer) ======
-  // Ajuste o nome da chave quando seu login estiver gerando token.
-  const AUTH_KEY = "auth_token";
-
-  function requireAuth() {
-    const token = localStorage.getItem(AUTH_KEY);
-    // Se não existir token, manda pro login
-    if (!token) {
-      window.location.href = "login.html";
-      return false;
-    }
-    return true;
-  }
-
-  // Se você ainda não implementou token no login, comente a linha abaixo temporariamente.
-  requireAuth();
-
   // ====== SUPABASE ======
   const SUPABASE_URL = "https://rficsflnaxayyrddxald.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
@@ -948,87 +938,34 @@
 
   const BUCKET_EVIDENCIAS = "bascula-evidencias";
 
-  // ====== LINKS EXTERNOS ======
-  const REMANEJO_URL = "https://docs.google.com/spreadsheets/d/1WLfkZES26YbGPpg83bzoZJk5Rnn6_FH0d6qdW5QsC9k/edit?usp=sharing";
+  // ====== SEFAZ URLs ======
   const SEFAZ_DISP_URL = "https://www.nfe.fazenda.gov.br/portal/disponibilidade.aspx?versao=0.00&tipoConteudo=P2c98tUpxrI=";
   const SEFAZ_CONSULTA_NFE_URL = "https://www.nfe.fazenda.gov.br/portal/consultaRecaptcha.aspx?tipoConsulta=resumo&tipoConteudo=7PhJ+gAVw2g=";
-
-  // ✅ PDF: renomeie seu arquivo para não dar problema no deploy
-  // Coloque o PDF na mesma pasta do index.html (ou /public) com este nome:
-  const COMPARATIVO_PDF_URL = "./comparativo_materiais.pdf";
 
   // ====== STATE ======
   let transportadoras = [];
   let registrosCache = [];
   let nfeCache = [];
+
+  // Paradas (por enquanto local/memória - pronto pra trocar para Supabase depois)
   let paradasLocal = []; // { iniISO, fimISO, motivo }
 
-  // ====== DOM ======
   const dbDot = document.getElementById("dbDot");
   const dbStatusText = document.getElementById("dbStatusText");
   const sidebar = document.getElementById("sidebar");
   const sidebarOverlay = document.getElementById("sidebarOverlay");
 
-  // ====== UI STATUS ======
-  function setDbStatus(isOnline, msg) {
+  function setDbStatus(isOnline) {
     if (isOnline) {
       dbDot.classList.remove("offline");
-      dbStatusText.textContent = msg || "Banco: Online";
+      dbStatusText.textContent = "Banco: Online";
     } else {
       dbDot.classList.add("offline");
-      dbStatusText.textContent = msg || "Banco: Offline";
+      dbStatusText.textContent = "Banco: Offline";
     }
   }
 
-  // ====== HELPERS ======
-  const pad2 = (x) => String(x).padStart(2, "0");
-
-  function formatarDataHora(d) {
-    return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-  }
-
-  function startOfTodayLocal() {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d;
-  }
-
-  function toLocalInputValue(dt) {
-    const d = new Date(dt);
-    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-  }
-
-  function classificarTurno(d) {
-    const totalMin = d.getHours() * 60 + d.getMinutes();
-    const inicioT1 = 7 * 60;
-    const fimT1 = 19 * 60;
-    const turno = (totalMin >= inicioT1 && totalMin < fimT1) ? 1 : 2;
-
-    const diaTurno = new Date(d);
-    if (totalMin < inicioT1) diaTurno.setDate(diaTurno.getDate() - 1);
-
-    return { turno, diaTurno: diaTurno.toISOString().split("T")[0] };
-  }
-
-  function safeUUID() {
-    try {
-      if (crypto?.randomUUID) return crypto.randomUUID();
-    } catch {}
-    return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
-  }
-
-  // ====== MODAIS ======
-  const openModal = (id) => { const el = document.getElementById(id); if (el) el.style.display = "flex"; };
-  const closeModal = (id) => { const el = document.getElementById(id); if (el) el.style.display = "none"; };
-
-  // ✅ Fecha modal só se clicar no overlay (e não dentro do conteúdo)
-  document.querySelectorAll(".modal-overlay").forEach(overlay => {
-    overlay.addEventListener("click", (e) => {
-      if (e.target === overlay) overlay.style.display = "none";
-    });
-  });
-
-  // ====== SIDEBAR ======
+  // ====== SIDEBAR + NAVEGAÇÃO VIEWS ======
   const toggleSidebar = () => {
     sidebar.classList.toggle("open");
     sidebarOverlay.classList.toggle("active");
@@ -1052,48 +989,131 @@
     a.onclick = () => showView(a.getAttribute("data-view"));
   });
 
-  // Botões internos que usam data-view
-  document.querySelectorAll('button[data-view]').forEach(btn => {
+  document.querySelectorAll('[data-view]').forEach(btn => {
+    if (btn.classList.contains("nav-link")) return;
     btn.addEventListener("click", () => showView(btn.getAttribute("data-view")));
   });
 
-  // Atalhos
   document.getElementById("btnIrOperacoes").onclick = () => showView("viewOperacoes");
   document.getElementById("btnIrParadas").onclick = () => showView("viewParadas");
 
-  // ====== LINKS EXTERNOS (menu) ======
-  function goTo(url) {
-    if (sidebar.classList.contains("open")) toggleSidebar();
-    window.location.href = url;
-  }
-
+  // ====== LINK: REGISTRO REMANEJO ======
+  const REMANEJO_URL = "https://docs.google.com/spreadsheets/d/1WLfkZES26YbGPpg83bzoZJk5Rnn6_FH0d6qdW5QsC9k/edit?usp=sharing";
   const linkRegistroRemanejo = document.getElementById("linkRegistroRemanejo");
-  if (linkRegistroRemanejo) linkRegistroRemanejo.onclick = (e) => { e.preventDefault(); goTo(REMANEJO_URL); };
-
-  const linkSefazDispon = document.getElementById("linkSefazDispon");
-  if (linkSefazDispon) linkSefazDispon.onclick = (e) => { e.preventDefault(); goTo(SEFAZ_DISP_URL); };
-
-  const linkSefazConsultaNfe = document.getElementById("linkSefazConsultaNfe");
-  if (linkSefazConsultaNfe) linkSefazConsultaNfe.onclick = (e) => { e.preventDefault(); goTo(SEFAZ_CONSULTA_NFE_URL); };
-
-  const linkComparativoMateriais = document.getElementById("linkComparativoMateriais");
-  if (linkComparativoMateriais) {
-    linkComparativoMateriais.onclick = (e) => {
+  if (linkRegistroRemanejo) {
+    linkRegistroRemanejo.onclick = (e) => {
       e.preventDefault();
       if (sidebar.classList.contains("open")) toggleSidebar();
-      window.open(COMPARATIVO_PDF_URL, "_blank", "noopener,noreferrer");
+      window.open(REMANEJO_URL, "_blank", "noopener,noreferrer");
     };
   }
 
-  // ====== DASHBOARD: BARRAS ======
+  // ====== SEFAZ MODAL (IFRAME) ======
+  const modalSefaz = document.getElementById("modalSefaz");
+  const sefazIframe = document.getElementById("sefazIframe");
+  const sefazModalTitle = document.getElementById("sefazModalTitle");
+  const btnSefazOpenNewTab = document.getElementById("btnSefazOpenNewTab");
+  const btnFecharModalSefaz = document.getElementById("btnFecharModalSefaz");
+
+  let sefazCurrentUrl = "";
+
+  function openSefazModal(title, url) {
+    sefazCurrentUrl = url;
+
+    if (sidebar.classList.contains("open")) toggleSidebar();
+
+    sefazModalTitle.textContent = title;
+    modalSefaz.style.display = "flex";
+
+    sefazIframe.src = "about:blank";
+    setTimeout(() => { sefazIframe.src = url; }, 40);
+  }
+
+  function closeSefazModal() {
+    modalSefaz.style.display = "none";
+    sefazIframe.src = "about:blank";
+    sefazCurrentUrl = "";
+  }
+
+  btnFecharModalSefaz.onclick = closeSefazModal;
+
+  btnSefazOpenNewTab.onclick = () => {
+    if (!sefazCurrentUrl) return;
+    window.open(sefazCurrentUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const linkSefazDisponModal = document.getElementById("linkSefazDisponModal");
+  if (linkSefazDisponModal) {
+    linkSefazDisponModal.onclick = (e) => {
+      e.preventDefault();
+      openSefazModal("Disponibilidade SEFAZ", SEFAZ_DISP_URL);
+    };
+  }
+
+  const linkSefazConsultaNfeModal = document.getElementById("linkSefazConsultaNfeModal");
+  if (linkSefazConsultaNfeModal) {
+    linkSefazConsultaNfeModal.onclick = (e) => {
+      e.preventDefault();
+      openSefazModal("Consulta NF-e SEFAZ", SEFAZ_CONSULTA_NFE_URL);
+    };
+  }
+
+  modalSefaz.addEventListener("click", (e) => {
+    if (e.target === modalSefaz) closeSefazModal();
+  });
+
+  // ====== HELPERS ======
+  const pad2 = (x) => String(x).padStart(2, "0");
+  const formatarDataHora = (d) => `${pad2(d.getDate())}/${pad2(d.getMonth()+1)} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+
+  function startOfTodayLocal() {
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    return d;
+  }
+
+  function toLocalInputValue(dt) {
+    const d = new Date(dt);
+    return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  }
+
+  function classificarTurno(d) {
+    const h = d.getHours();
+    const m = d.getMinutes();
+    const totalMin = h * 60 + m;
+    const inicioT1 = 7 * 60;
+    const fimT1 = 19 * 60;
+    const turno = (totalMin >= inicioT1 && totalMin < fimT1) ? 1 : 2;
+    const diaTurno = new Date(d);
+    if (totalMin < inicioT1) diaTurno.setDate(diaTurno.getDate() - 1);
+    return { turno, diaTurno: diaTurno.toISOString().split("T")[0] };
+  }
+
+  const openModal = (id) => document.getElementById(id).style.display = "flex";
+  const closeModal = (id) => document.getElementById(id).style.display = "none";
+
+  // ✅ CORRIGIDO: fecha overlay e limpa iframe do SEFAZ quando fechar clicando fora
+  window.onclick = (e) => {
+    if (e.target && e.target.classList && e.target.classList.contains("modal-overlay")) {
+      e.target.style.display = "none";
+      if (e.target.id === "modalSefaz") {
+        const fr = document.getElementById("sefazIframe");
+        if (fr) fr.src = "about:blank";
+        sefazCurrentUrl = "";
+      }
+    }
+  };
+
+  // ====== DASHBOARD: RENDER BARS ======
   function renderBars(containerId, items, { showValueTop = true } = {}) {
     const el = document.getElementById(containerId);
     if (!el) return;
     el.innerHTML = "";
 
-    const max = Math.max(1, ...items.map(x => x.value));
+    const values = items.map(x => x.value);
+    const max = Math.max(1, ...values);
 
-    for (const it of items) {
+    items.forEach((it) => {
       const bar = document.createElement("div");
       bar.className = "bar";
       const h = Math.max(10, Math.round((it.value / max) * 150));
@@ -1111,7 +1131,7 @@
       bar.appendChild(lab);
 
       el.appendChild(bar);
-    }
+    });
   }
 
   function renderExpedidasDemo() {
@@ -1127,15 +1147,15 @@
     renderBars("chartExpedidas", demo);
   }
 
-  // ====== 7D helpers ======
-  function isoDateOnlyLocal(d) {
-    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  // ====== DASHBOARD: SUPABASE QUERIES ======
+  function isoDateOnly(d) {
+    return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
   }
 
   function lastNDaysList(n) {
     const out = [];
     const today = startOfTodayLocal();
-    for (let i = n - 1; i >= 0; i--) {
+    for (let i = n-1; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(today.getDate() - i);
       out.push(d);
@@ -1143,11 +1163,11 @@
     return out;
   }
 
-  // ====== LOAD: CANCELADAS 7D ======
   async function loadCanceladasLast7d() {
     const days = lastNDaysList(7);
-    const start = new Date(days[0]); start.setHours(0,0,0,0);
-    const end = new Date(days[6]); end.setHours(23,59,59,999);
+    const start = new Date(days[0]);
+    const end = new Date(days[6]);
+    end.setHours(23,59,59,999);
 
     try {
       const { data, error } = await supabase
@@ -1160,35 +1180,38 @@
       if (error) throw error;
 
       const counts = {};
-      days.forEach(d => counts[isoDateOnlyLocal(d)] = 0);
+      days.forEach(d => counts[isoDateOnly(d)] = 0);
 
       (data || []).forEach(r => {
         const dt = new Date(r.ts);
-        const key = isoDateOnlyLocal(dt);
+        const key = isoDateOnly(dt);
         if (counts[key] !== undefined) counts[key] += 1;
       });
 
       const items = days.map(d => {
-        const key = isoDateOnlyLocal(d);
-        return { label: `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}`, value: counts[key] || 0 };
+        const key = isoDateOnly(d);
+        const label = `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}`;
+        return { label, value: counts[key] || 0 };
       });
 
       renderBars("chartCanceladas7d", items);
-      document.getElementById("kpiCanceladas7d").textContent = String(items.reduce((a,b)=>a+b.value,0));
+      document.getElementById("kpiCanceladas7d").textContent = items.reduce((a,b)=>a+b.value,0);
 
       setDbStatus(true);
     } catch (e) {
-      console.error("Canceladas7d:", e);
-      setDbStatus(false, "Banco: Offline");
+      console.error(e);
+      setDbStatus(false);
+
       const items = lastNDaysList(7).map(d => ({ label: `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}`, value: 0 }));
       renderBars("chartCanceladas7d", items);
       document.getElementById("kpiCanceladas7d").textContent = "0";
     }
   }
 
-  // ====== LOAD: CARRETAS HOJE ======
   async function loadCarretasHoje() {
     const start = startOfTodayLocal();
+    const sub = `${pad2(start.getHours())}:${pad2(start.getMinutes())} → agora`;
+    document.getElementById("kpiCarretasHojeSub").textContent = sub;
 
     try {
       const { data, error } = await supabase
@@ -1200,17 +1223,15 @@
       if (error) throw error;
 
       document.getElementById("kpiCarretasHoje").textContent = String((data || []).length);
-      document.getElementById("kpiCarretasHojeSub").textContent = "00:00 → agora";
       setDbStatus(true);
     } catch (e) {
-      console.error("CarretasHoje:", e);
+      console.error(e);
       setDbStatus(false);
       document.getElementById("kpiCarretasHoje").textContent = "0";
-      document.getElementById("kpiCarretasHojeSub").textContent = "00:00 → agora";
     }
   }
 
-  // ====== PARADAS (LOCAL) ======
+  // ====== PARADAS (LOCAL POR ENQUANTO) ======
   function diffMinutes(ini, fim) {
     const a = new Date(ini).getTime();
     const b = new Date(fim).getTime();
@@ -1228,34 +1249,24 @@
     return paradasLocal.filter(p => new Date(p.iniISO).getTime() >= start);
   }
 
-  function addRowText(tbody, cols) {
-    const tr = document.createElement("tr");
-    cols.forEach(text => {
-      const td = document.createElement("td");
-      td.textContent = text;
-      tr.appendChild(td);
-    });
-    tbody.appendChild(tr);
-  }
-
   function renderParadas() {
     const tbodyAll = document.getElementById("tbodyParadasAll");
     tbodyAll.innerHTML = "";
 
-    const sorted = paradasLocal.slice().sort((a,b)=> new Date(b.iniISO) - new Date(a.iniISO));
-    for (const p of sorted) {
-      const mins = diffMinutes(p.iniISO, p.fimISO);
-      const tr = document.createElement("tr");
-
-      const td1 = document.createElement("td"); td1.textContent = formatarDataHora(new Date(p.iniISO));
-      const td2 = document.createElement("td"); td2.textContent = formatarDataHora(new Date(p.fimISO));
-      const td3 = document.createElement("td"); td3.textContent = p.motivo || "";
-      td3.style.fontWeight = "800";
-      const td4 = document.createElement("td"); td4.textContent = fmtHHMM(mins);
-
-      tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tr.appendChild(td4);
-      tbodyAll.appendChild(tr);
-    }
+    paradasLocal
+      .slice()
+      .sort((a,b)=> new Date(b.iniISO) - new Date(a.iniISO))
+      .forEach(p => {
+        const tr = document.createElement("tr");
+        const mins = diffMinutes(p.iniISO, p.fimISO);
+        tr.innerHTML = `
+          <td>${formatarDataHora(new Date(p.iniISO))}</td>
+          <td>${formatarDataHora(new Date(p.fimISO))}</td>
+          <td style="font-weight:800;">${String(p.motivo || "").replaceAll("<","&lt;").replaceAll(">","&gt;")}</td>
+          <td>${fmtHHMM(mins)}</td>
+        `;
+        tbodyAll.appendChild(tr);
+      });
 
     const hoje = paradasHojeList();
     const total = hoje.length;
@@ -1268,21 +1279,24 @@
     tbodyHoje.innerHTML = "";
 
     if (!hoje.length) {
-      addRowText(tbodyHoje, ["Sem paradas registradas hoje.", "", ""]);
-      tbodyHoje.querySelectorAll("td")[0].colSpan = 3;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td colspan="3" style="color:var(--text-muted); font-weight:700;">Sem paradas registradas hoje.</td>`;
+      tbodyHoje.appendChild(tr);
       return;
     }
 
-    const sortedHoje = hoje.slice().sort((a,b)=> new Date(b.iniISO) - new Date(a.iniISO));
-    for (const p of sortedHoje) {
-      const tr = document.createElement("tr");
-      const td1 = document.createElement("td"); td1.textContent = formatarDataHora(new Date(p.iniISO));
-      const td2 = document.createElement("td"); td2.textContent = formatarDataHora(new Date(p.fimISO));
-      const td3 = document.createElement("td"); td3.textContent = p.motivo || "";
-      td3.style.fontWeight = "800";
-      tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
-      tbodyHoje.appendChild(tr);
-    }
+    hoje
+      .slice()
+      .sort((a,b)=> new Date(b.iniISO) - new Date(a.iniISO))
+      .forEach(p => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${formatarDataHora(new Date(p.iniISO))}</td>
+          <td>${formatarDataHora(new Date(p.fimISO))}</td>
+          <td style="font-weight:800;">${String(p.motivo || "").replaceAll("<","&lt;").replaceAll(">","&gt;")}</td>
+        `;
+        tbodyHoje.appendChild(tr);
+      });
   }
 
   function initParadasDefaults() {
@@ -1294,9 +1308,9 @@
     document.getElementById("paradaFim").value = toLocalInputValue(now);
   }
 
-  document.getElementById("btnPreencherAgora").onclick = initParadasDefaults;
+  document.getElementById("btnPreencherAgora").onclick = () => initParadasDefaults();
 
-  document.getElementById("btnSalvarParadaLocal").onclick = () => {
+  document.getElementById("btnSalvarParadaLocal").onclick = async () => {
     const iniVal = document.getElementById("paradaIni").value;
     const fimVal = document.getElementById("paradaFim").value;
     const motivo = document.getElementById("paradaMotivo").value.trim();
@@ -1304,18 +1318,34 @@
     const msg = document.getElementById("msgParada");
     msg.textContent = "";
 
-    if (!iniVal || !fimVal || !motivo) { msg.textContent = "Preencha início, fim e motivo."; return; }
+    if (!iniVal || !fimVal || !motivo) {
+      msg.textContent = "Preencha início, fim e motivo.";
+      return;
+    }
 
     const ini = new Date(iniVal);
     const fim = new Date(fimVal);
+    if (isNaN(ini.getTime()) || isNaN(fim.getTime())) {
+      msg.textContent = "Datas inválidas.";
+      return;
+    }
+    if (fim <= ini) {
+      msg.textContent = "O horário final deve ser maior que o inicial.";
+      return;
+    }
 
-    if (isNaN(ini.getTime()) || isNaN(fim.getTime())) { msg.textContent = "Datas inválidas."; return; }
-    if (fim <= ini) { msg.textContent = "O horário final deve ser maior que o inicial."; return; }
+    paradasLocal.push({
+      iniISO: ini.toISOString(),
+      fimISO: fim.toISOString(),
+      motivo
+    });
 
-    paradasLocal.push({ iniISO: ini.toISOString(), fimISO: fim.toISOString(), motivo });
+    // FUTURO (pronto pra integrar):
+    // await supabase.from("paradas_balanca").insert([{ ini: ini.toISOString(), fim: fim.toISOString(), motivo }]);
+
     document.getElementById("paradaMotivo").value = "";
     initParadasDefaults();
-    msg.textContent = "Parada salva (local). Pronto pra integrar no Supabase depois.";
+    msg.textContent = "Parada salva (local). Pronto para integrar no Supabase depois.";
     renderParadas();
   };
 
@@ -1326,10 +1356,16 @@
     document.getElementById("msgParada").textContent = "Paradas de hoje removidas (local).";
   };
 
-  // ====== BOTÕES EXISTENTES ======
+  // ====== MODAIS / BOTOES EXISTENTES ======
   document.getElementById("btnAbrirModalCarreta").onclick = () => openModal("modalCarreta");
   document.getElementById("btnAbrirModalNF").onclick = () => openModal("modalNF");
   document.getElementById("btnAddTranspModal").onclick = () => openModal("modalAddTransp");
+
+  document.getElementById("btnAbrirRegistros").onclick = async () => { await carregarRegistros24h(); openModal("modalRegistros"); };
+  document.getElementById("btnAbrirRelatorio").onclick = () => { initRelDates("inicioRel", "fimRel"); openModal("modalRelatorio"); };
+
+  document.getElementById("btnAbrirNF24h").onclick = async () => { await carregarNF24h(); openModal("modalNF24h"); };
+  document.getElementById("btnAbrirRelatorioNF").onclick = () => { initRelDates("inicioRelNF", "fimRelNF"); openModal("modalRelatorioNF"); };
 
   document.getElementById("btnFecharModalCarreta").onclick = () => closeModal("modalCarreta");
   document.getElementById("btnFecharModalNF").onclick = () => closeModal("modalNF");
@@ -1341,36 +1377,41 @@
   document.getElementById("btnFecharRelatorioNF").onclick = () => closeModal("modalRelatorioNF");
 
   // Atalhos do Dashboard
+  document.getElementById("btnDashAbrirRegistros24h").onclick = async () => { await carregarRegistros24h(); openModal("modalRegistros"); };
+  document.getElementById("btnDashAbrirNF24h").onclick = async () => { await carregarNF24h(); openModal("modalNF24h"); };
   document.getElementById("btnDashAbrirRegistrarCarreta").onclick = () => openModal("modalCarreta");
   document.getElementById("btnDashAbrirRegistrarNF").onclick = () => openModal("modalNF");
 
-  // ====== TRANSPORTADORAS ======
+  // ====== SELECTS TRANSPORTADORAS ======
   function renderSelects() {
     const selects = [document.getElementById("transportadoraModal"), document.getElementById("transportadoraNFModal")];
-    for (const s of selects) {
+    selects.forEach(s => {
       s.innerHTML = '<option value="">Selecione...</option>';
-      for (const t of transportadoras) {
+      transportadoras.forEach(t => {
         const opt = document.createElement("option");
         opt.value = t;
         opt.textContent = t;
         s.appendChild(opt);
-      }
-    }
+      });
+    });
   }
 
   async function carregarTransportadoras() {
     try {
-      const { data, error } = await supabase.from("transportadoras").select("nome").order("nome", { ascending: true });
+      const { data, error } = await supabase
+        .from("transportadoras")
+        .select("nome")
+        .order("nome", { ascending: true });
+
       if (error) throw error;
       transportadoras = (data || []).map(x => x.nome);
       renderSelects();
       setDbStatus(true);
     } catch (e) {
-      console.error("Transportadoras:", e);
-      // fallback
+      console.error(e);
+      setDbStatus(false);
       transportadoras = ["CAIO TRANSPORTES", "ECOMINING", "RODOMINAS"];
       renderSelects();
-      setDbStatus(false);
     }
   }
 
@@ -1382,12 +1423,13 @@
     try {
       const { error } = await supabase.from("transportadoras").insert([{ nome }]);
       if (error) throw error;
+
       document.getElementById("nomeNovaTransp").value = "";
       await carregarTransportadoras();
       closeModal("modalAddTransp");
     } catch (e) {
-      console.error("AddTransp:", e);
-      alert("Falha ao salvar transportadora (verifique se já existe / policies).");
+      console.error(e);
+      alert("Falha ao salvar transportadora (talvez já exista).");
       setDbStatus(false);
     }
   };
@@ -1405,12 +1447,14 @@
     reader.readAsDataURL(file);
   };
 
-  // ====== UPLOAD ======
+  // ====== UPLOAD STORAGE ======
   async function uploadImagem(file) {
     if (!file) return { path: null, url: null };
 
     const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-    const safeName = `${safeUUID()}.${ext}`;
+    const uuid = (crypto?.randomUUID?.() ?? (String(Date.now()) + Math.random()));
+    const safeName = `${uuid}.${ext}`;
+
     const now = new Date();
     const y = now.getFullYear();
     const m = String(now.getMonth() + 1).padStart(2, "0");
@@ -1426,7 +1470,364 @@
     return { path, url: data?.publicUrl || null };
   }
 
-  // ====== DASHBOARD BOOT ======
+  // ====== SALVAR CARRETA ======
+  document.getElementById("btnSalvarCarreta").onclick = async () => {
+    const placa = document.getElementById("placaModal").value.trim().toUpperCase();
+    const transp = document.getElementById("transportadoraModal").value;
+    if (!placa || !transp) return alert("Preencha os campos obrigatórios.");
+
+    const agora = new Date();
+    const info = classificarTurno(agora);
+    const file = document.getElementById("imagemCarreta")?.files?.[0] || null;
+
+    try {
+      const { path, url } = await uploadImagem(file);
+
+      const { error } = await supabase.from("registros_bascula").insert([{
+        placa,
+        transportadora_nome: transp,
+        ts: agora.toISOString(),
+        turno: info.turno,
+        dia_turno: info.diaTurno,
+        imagem_path: path,
+        imagem_url: url
+      }]);
+
+      if (error) throw error;
+
+      setDbStatus(true);
+      alert("Registro salvo no Supabase!");
+      closeModal("modalCarreta");
+
+      document.getElementById("placaModal").value = "";
+      document.getElementById("imagemCarreta").value = "";
+      const prev = document.getElementById("imgPreviewCarreta");
+      prev.style.display = "none";
+      prev.src = "";
+
+      await refreshDashboard();
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+      alert("Falha ao salvar no Supabase. Verifique internet/policies.");
+    }
+  };
+
+  // ====== LISTAR REGISTROS 24h ======
+  async function carregarRegistros24h() {
+    const now = new Date();
+    const since = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+
+    try {
+      const { data, error } = await supabase
+        .from("registros_bascula")
+        .select("*")
+        .gte("ts", since)
+        .order("ts", { ascending: false })
+        .limit(200);
+
+      if (error) throw error;
+      registrosCache = data || [];
+      setDbStatus(true);
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+      registrosCache = [];
+    }
+
+    const tbody = document.getElementById("tbodyRegistros");
+    tbody.innerHTML = "";
+
+    registrosCache.slice(0, 50).forEach(r => {
+      const d = new Date(r.ts);
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${formatarDataHora(d)}</td>
+        <td><span class="status-badge" style="background:rgba(59,130,246,0.1); color:var(--primary); border:none;">T${r.turno}</span></td>
+        <td style="font-weight:800;">${r.placa}</td>
+        <td>${r.transportadora_nome}</td>
+        <td>${r.imagem_url ? `<img src="${r.imagem_url}" style="width:45px; height:35px; object-fit:cover; border-radius:8px; cursor:pointer;" onclick="viewImg('${r.imagem_url}')">` : '-'}</td>
+        <td>
+          <button class="btn" style="padding:6px 12px; font-size:0.75rem; background:rgba(239,68,68,.15); color:#fecaca; border:1px solid rgba(239,68,68,.25);" onclick="deletarReg('${r.id}')">Excluir</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ====== EXCLUIR REGISTRO + IMAGEM ======
+  window.deletarReg = async (id) => {
+    const ok = confirm("Deseja excluir este registro?");
+    if (!ok) return;
+
+    try {
+      const { data: row, error: e1 } = await supabase
+        .from("registros_bascula")
+        .select("imagem_path")
+        .eq("id", id)
+        .single();
+
+      if (e1) throw e1;
+
+      const { error: e2 } = await supabase
+        .from("registros_bascula")
+        .delete()
+        .eq("id", id);
+
+      if (e2) throw e2;
+
+      if (row?.imagem_path) {
+        await supabase.storage.from(BUCKET_EVIDENCIAS).remove([row.imagem_path]);
+      }
+
+      setDbStatus(true);
+      await carregarRegistros24h();
+      await refreshDashboard();
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+      alert("Falha ao excluir no Supabase.");
+    }
+  };
+
+  window.viewImg = (src) => {
+    document.getElementById("imagemGrande").src = src;
+    openModal("modalVisualizarImagem");
+  };
+
+  function initRelDates(iId, fId) {
+    const agora = new Date();
+    const ini = new Date(); ini.setDate(agora.getDate() - 7);
+    document.getElementById(iId).value = new Date(ini.getTime() - ini.getTimezoneOffset()*60000).toISOString().slice(0,16);
+    document.getElementById(fId).value = new Date(agora.getTime() - agora.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  }
+
+  // ====== RELATÓRIO CARRETAS ======
+  document.getElementById("btnRelatorioPdf").onclick = async () => {
+    const di = new Date(document.getElementById("inicioRel").value);
+    const df = new Date(document.getElementById("fimRel").value);
+    if (isNaN(di.getTime()) || isNaN(df.getTime())) return alert("Selecione início e fim.");
+
+    try {
+      const { data, error } = await supabase
+        .from("registros_bascula")
+        .select("*")
+        .gte("ts", di.toISOString())
+        .lte("ts", df.toISOString())
+        .order("ts", { ascending: false })
+        .limit(2000);
+
+      if (error) throw error;
+
+      const filtrados = data || [];
+      if (!filtrados.length) return alert("Sem dados no período.");
+
+      let html = `<html><head><meta charset="utf-8"><style>
+        body{font-family:sans-serif; padding:40px; background:#f8fafc;}
+        .card{background:white; border:1px solid #e2e8f0; padding:25px; margin-bottom:25px; border-radius:16px; page-break-inside:avoid;}
+        img{max-width:100%; border-radius:12px; margin-top:15px;}
+      </style></head><body>`;
+      html += `<h1>Relatório de Carretas</h1><p>Período: ${formatarDataHora(di)} a ${formatarDataHora(df)}</p>`;
+
+      filtrados.forEach((r, i) => {
+        html += `<div class="card">
+          <h3>#${i+1} - Placa: ${r.placa}</h3>
+          <p>Transportadora: ${r.transportadora_nome} | Turno: ${r.turno}</p>
+          <p>Data: ${formatarDataHora(new Date(r.ts))}</p>
+          ${r.imagem_url ? `<img src="${r.imagem_url}">` : ''}
+        </div>`;
+      });
+
+      html += `</body></html>`;
+      const win = window.open("", "_blank");
+      win.document.write(html);
+      win.document.close();
+      setTimeout(() => win.print(), 500);
+    } catch (e) {
+      console.error(e);
+      alert("Falha ao gerar relatório (verifique conexão/policies).");
+    }
+  };
+
+  // ====== SALVAR NF ======
+  document.getElementById("btnSalvarNF").onclick = async () => {
+    const placa = document.getElementById("placaNFModal").value.trim().toUpperCase();
+    const transp = document.getElementById("transportadoraNFModal").value;
+    const nfCanc = document.getElementById("nfCanceladaModal").value.trim();
+    const nfSub = document.getElementById("nfSubstitutaModal").value.trim();
+    const motivo = document.getElementById("motivoCancelamentoModal").value.trim();
+
+    if (!placa || !transp || !nfCanc || !nfSub) return alert("Preencha os campos obrigatórios.");
+
+    const agora = new Date();
+    const info = classificarTurno(agora);
+
+    try {
+      const { error } = await supabase.from("nfe_canceladas").insert([{
+        placa,
+        transportadora_nome: transp,
+        nf_cancelada: nfCanc,
+        nf_substituta: nfSub,
+        motivo: motivo || null,
+        ts: agora.toISOString(),
+        turno: info.turno,
+        dia_turno: info.diaTurno
+      }]);
+
+      if (error) throw error;
+
+      setDbStatus(true);
+      alert("Vínculo salvo no Supabase!");
+      closeModal("modalNF");
+
+      document.getElementById("placaNFModal").value = "";
+      document.getElementById("nfCanceladaModal").value = "";
+      document.getElementById("nfSubstitutaModal").value = "";
+      document.getElementById("motivoCancelamentoModal").value = "";
+      document.getElementById("transportadoraNFModal").value = "";
+
+      await refreshDashboard();
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+      alert("Falha ao salvar NF no Supabase.");
+    }
+  };
+
+  // ====== LISTAR NF 24h ======
+  async function carregarNF24h() {
+    const now = new Date();
+    const since = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+
+    try {
+      const { data, error } = await supabase
+        .from("nfe_canceladas")
+        .select("*")
+        .gte("ts", since)
+        .order("ts", { ascending: false })
+        .limit(300);
+
+      if (error) throw error;
+      nfeCache = data || [];
+      setDbStatus(true);
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+      nfeCache = [];
+    }
+
+    const tbody = document.getElementById("tbodyNF24h");
+    tbody.innerHTML = "";
+
+    nfeCache.slice(0, 80).forEach(r => {
+      const d = new Date(r.ts);
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${formatarDataHora(d)}</td>
+        <td><span class="status-badge" style="background:rgba(59,130,246,0.1); color:var(--primary); border:none;">T${r.turno}</span></td>
+        <td style="font-weight:800;">${r.placa}</td>
+        <td>${r.transportadora_nome}</td>
+        <td>${r.nf_cancelada}</td>
+        <td>${r.nf_substituta}</td>
+        <td>
+          <button class="btn" style="padding:6px 12px; font-size:0.75rem; background:rgba(239,68,68,.15); color:#fecaca; border:1px solid rgba(239,68,68,.25);" onclick="deletarNF('${r.id}')">Excluir</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ====== EXCLUIR NF ======
+  window.deletarNF = async (id) => {
+    const ok = confirm("Deseja excluir este vínculo de NF-e?");
+    if (!ok) return;
+
+    try {
+      const { error } = await supabase.from("nfe_canceladas").delete().eq("id", id);
+      if (error) throw error;
+      setDbStatus(true);
+      await carregarNF24h();
+      await refreshDashboard();
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+      alert("Falha ao excluir NF-e no Supabase.");
+    }
+  };
+
+  // ====== RELATÓRIO NF ======
+  document.getElementById("btnRelatorioPdfNF").onclick = async () => {
+    const di = new Date(document.getElementById("inicioRelNF").value);
+    const df = new Date(document.getElementById("fimRelNF").value);
+    if (isNaN(di.getTime()) || isNaN(df.getTime())) return alert("Selecione início e fim.");
+
+    try {
+      const { data, error } = await supabase
+        .from("nfe_canceladas")
+        .select("*")
+        .gte("ts", di.toISOString())
+        .lte("ts", df.toISOString())
+        .order("ts", { ascending: false })
+        .limit(3000);
+
+      if (error) throw error;
+
+      const filtrados = data || [];
+      if (!filtrados.length) return alert("Sem dados no período.");
+
+      let html = `<html><head><meta charset="utf-8"><style>
+        body{font-family:sans-serif; padding:40px; background:#f8fafc;}
+        .card{background:white; border:1px solid #e2e8f0; padding:25px; margin-bottom:25px; border-radius:16px; page-break-inside:avoid;}
+        .row{margin-top:6px;}
+      </style></head><body>`;
+      html += `<h1>Relatório NF-e Canceladas</h1><p>Período: ${formatarDataHora(di)} a ${formatarDataHora(df)}</p>`;
+
+      filtrados.forEach((r, i) => {
+        html += `<div class="card">
+          <h3>#${i+1} - Placa: ${r.placa}</h3>
+          <div class="row">Transportadora: ${r.transportadora_nome} | Turno: ${r.turno}</div>
+          <div class="row">Data: ${formatarDataHora(new Date(r.ts))}</div>
+          <div class="row"><b>NF Cancelada:</b> ${r.nf_cancelada}</div>
+          <div class="row"><b>NF Substituta:</b> ${r.nf_substituta}</div>
+          ${r.motivo ? `<div class="row"><b>Motivo:</b> ${String(r.motivo).replaceAll("<","&lt;").replaceAll(">","&gt;")}</div>` : ""}
+        </div>`;
+      });
+
+      html += `</body></html>`;
+      const win = window.open("", "_blank");
+      win.document.write(html);
+      win.document.close();
+      setTimeout(() => win.print(), 500);
+    } catch (e) {
+      console.error(e);
+      alert("Falha ao gerar relatório NF (verifique conexão/policies).");
+    }
+  };
+
+  document.getElementById("btnVerTabelaNF").onclick = async () => {
+    const di = new Date(document.getElementById("inicioRelNF").value);
+    const df = new Date(document.getElementById("fimRelNF").value);
+    if (isNaN(di.getTime()) || isNaN(df.getTime())) return alert("Selecione início e fim.");
+
+    try {
+      const { data, error } = await supabase
+        .from("nfe_canceladas")
+        .select("id")
+        .gte("ts", di.toISOString())
+        .lte("ts", df.toISOString())
+        .limit(1);
+
+      if (error) throw error;
+      alert("Período válido. Use 'Gerar PDF' para imprimir o relatório.");
+      setDbStatus(true);
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+      alert("Falha ao consultar NF no Supabase.");
+    }
+  };
+
+  // ====== DASHBOARD REFRESH ======
   async function refreshDashboard() {
     renderExpedidasDemo();
     renderParadas();
@@ -1441,11 +1842,19 @@
 
   // ====== BOOT ======
   (async () => {
-    await carregarTransportadoras();
+    try {
+      await carregarTransportadoras();
+      const { data, error } = await supabase.from("transportadoras").select("id").limit(1);
+      if (error) throw error;
+      setDbStatus(true);
+    } catch (e) {
+      console.error(e);
+      setDbStatus(false);
+    }
+
     initParadasDefaults();
     await refreshDashboard();
   })();
 </script>
-
 </body>
 </html>
