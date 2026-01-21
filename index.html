@@ -2,13 +2,15 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<title> | Painel Operacional</title>
+<title>Painel Operacional | Gestão Integrada</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
   :root {
@@ -146,7 +148,6 @@
   }
   .sidebar.open { transform: translateX(300px); }
 
-  /* ✅ CORRIGIDO: aqui era onde você colou HTML dentro do CSS */
   .sidebar-overlay {
     position: fixed;
     inset: 0;
@@ -157,7 +158,6 @@
     visibility: hidden;
     transition: all 0.3s;
   }
-
   .sidebar-overlay.active { opacity: 1; visibility: visible; }
 
   .nav-link {
@@ -189,6 +189,7 @@
     border-radius: 28px;
     padding: 28px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    margin-bottom: 24px;
   }
 
   .card-header {
@@ -245,6 +246,7 @@
     z-index: 2000;
     padding: 20px;
   }
+  .modal-overlay.active { display: flex; }
 
   .modal-content {
     background: #1e293b;
@@ -257,8 +259,6 @@
     padding: 40px;
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
   }
-
-  .modal-large { max-width: 1100px; }
 
   .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
 
@@ -297,149 +297,17 @@
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
   }
 
-  .table-container {
-    overflow-x: auto;
-    border-radius: 20px;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--border);
-  }
-  table { width: 100%; border-collapse: collapse; }
-  th {
-    text-align: left;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.03);
-    color: var(--text-muted);
-    font-weight: 700;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-  td { padding: 18px 20px; border-top: 1px solid var(--border); vertical-align: top; }
-
-  .upload-area {
-    border: 2px dashed var(--border);
-    border-radius: 20px;
-    padding: 32px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    background: rgba(255, 255, 255, 0.02);
-  }
-  .upload-area:hover { border-color: var(--primary); background: rgba(59, 130, 246, 0.05); }
-
-  footer {
-    margin-top: auto;
-    padding: 60px 24px 32px;
-    text-align: center;
-    background: linear-gradient(to top, rgba(15, 23, 42, 0.8), transparent);
-  }
-  .support-link {
-    color: var(--accent);
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 700;
-    padding: 10px 20px;
-    border-radius: 12px;
-    background: rgba(14, 165, 233, 0.1);
-    transition: all 0.2s;
-  }
-  .support-link:hover { background: var(--accent); color: white; }
-
-  .right-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
-
-  /* ===== DASHBOARD GRID ===== */
-  .dash-grid {
-    display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 24px;
-  }
-  .dash-col { display: flex; flex-direction: column; gap: 24px; }
-
-  .mini-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  .kpi {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 18px;
-    border-radius: 22px;
-    background: rgba(0,0,0,0.18);
-    border: 1px solid var(--border);
-  }
-  .kpi .label { font-size: .75rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: .1em; }
-  .kpi .value { font-size: 1.6rem; font-weight: 900; }
-  .kpi .sub { font-size: .85rem; color: var(--text-muted); font-weight: 600; }
-
-  .chart-wrap {
-    margin-top: 14px;
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-    height: 160px;
-    padding: 14px;
-    border-radius: 22px;
-    background: rgba(0,0,0,0.18);
-    border: 1px solid var(--border);
-    overflow: hidden;
-  }
-  .bar {
-    flex: 1;
-    min-width: 18px;
-    border-radius: 14px;
-    background: linear-gradient(180deg, rgba(59,130,246,0.95), rgba(99,102,241,0.75));
-    box-shadow: 0 10px 24px rgba(59,130,246,.25);
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-  }
-  .bar small{
-    position: absolute;
-    bottom: -22px;
-    font-size: .72rem;
-    color: var(--text-muted);
-    font-weight: 700;
-    white-space: nowrap;
-  }
-  .bar .tip{
-    position: absolute;
-    top: 8px;
-    font-size: .75rem;
-    font-weight: 800;
-    color: rgba(255,255,255,.92);
-    text-shadow: 0 2px 10px rgba(0,0,0,.35);
-  }
-
   .view { display: none; }
   .view.active { display: block; }
 
-  @media (max-width: 980px) {
-    .dash-grid { grid-template-columns: 1fr; }
-  }
-
-  @media (max-width: 768px) {
-    .modal-grid { grid-template-columns: 1fr; }
-    .card-header { flex-direction: column; align-items: stretch; }
-    .btn { width: 100%; }
-    .modal-content { padding: 24px; }
-    .right-actions { align-items: stretch; }
-    .mini-grid { grid-template-columns: 1fr; }
+  /* Específico para Remanejo */
+  .btn-remanejo {
+    background: linear-gradient(135deg, #0ea5e9, #6366f1);
   }
 </style>
 </head>
 
 <body>
-<script>
-  // ⚠️ Mantive como você tinha, mas isso costuma dar problema (referrer pode vir vazio).
-  // Se quiser, depois trocamos por validação via token no localStorage.
-  if (!document.referrer.includes("login.html")) {
-    window.location.href = "login.html";
-  }
-</script>
 
 <div id="sidebarOverlay" class="sidebar-overlay"></div>
 <aside id="sidebar" class="sidebar">
@@ -452,22 +320,10 @@
     <a class="nav-link active" data-view="viewDashboard">Dashboard</a>
     <a class="nav-link" data-view="viewOperacoes">Operações</a>
     <a class="nav-link" data-view="viewParadas">Paradas da Balança</a>
-
-    <a id="linkSefazDisponModal" class="nav-link">Gestão de Carregamento (BI)</a>
-    <a id="linkSefazConsultaNfeModal" class="nav-link">Consulta NF-e SEFAZ</a>
-
     <a id="linkRegistroRemanejo" class="nav-link">Registro Remanejo</a>
-    <a id="linkPage1" class="nav-link">#1</a>
-    <a id="linkPage2" class="nav-link">#2</a>
-    <a id="linkPage3" class="nav-link">#3</a>
-
+    <a class="nav-link">Gestão de Carregamento (BI)</a>
+    <a class="nav-link">Consulta NF-e SEFAZ</a>
   </nav>
-
-  <div style="margin-top:22px; padding-top:18px; border-top:1px solid var(--border);">
-    <div style="font-size:.8rem; color:var(--text-muted); font-weight:700;">
-      Dica: o Dashboard puxa <b>Canceladas 7d</b> e <b>Carretas Hoje</b> do Supabase.
-    </div>
-  </div>
 </aside>
 
 <div class="app-container">
@@ -485,218 +341,48 @@
     </div>
   </header>
 
-  <!-- ===================== VIEW: DASHBOARD ===================== -->
   <section id="viewDashboard" class="view active">
     <section class="card">
       <div class="card-header">
-        <div class="card-title">Dashboard</div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button id="btnRefreshDash" class="btn btn-ghost">Atualizar</button>
-          <button id="btnIrOperacoes" class="btn btn-primary">Abrir Operações</button>
-        </div>
+        <div class="card-title">Dashboard Operacional</div>
+        <button id="btnIrOperacoes" class="btn btn-primary">Abrir Operações</button>
       </div>
-
-      <div class="dash-grid">
-        <!-- COL ESQUERDA -->
-        <div class="dash-col">
-          <!-- GRÁFICO NF EXPEDIDAS (representativo) -->
-          <div class="card" style="padding:22px; border-radius:26px;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
-              <div>
-                <div style="font-size:1.05rem; font-weight:900;">NF-e Expedidas (Representativo)</div>
-                <div style="color:var(--text-muted); font-weight:600; font-size:.85rem;">Por enquanto é só visual (sem dados).</div>
-              </div>
-              <div class="status-badge" style="background:rgba(59,130,246,0.12); border:none; color:#bfdbfe;">
-                Demo
-              </div>
-            </div>
-
-            <div id="chartExpedidas" class="chart-wrap"></div>
-          </div>
-
-          <!-- PARADAS BALANÇA (HOJE) + TABELA -->
-          <div class="card" style="padding:22px; border-radius:26px;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
-              <div>
-                <div style="font-size:1.05rem; font-weight:900;">Paradas da Balança (Hoje)</div>
-                <div style="color:var(--text-muted); font-weight:600; font-size:.85rem;">Tempo inoperante da balança sem razão programada <b></b>.</div>
-              </div>
-              <button id="btnIrParadas" class="btn btn-primary" style="padding:10px 16px; border-radius:14px;">
-                + Registrar Parada
-              </button>
-            </div>
-
-            <div class="mini-grid" style="margin-top:14px;">
-              <div class="kpi">
-                <div class="label">Total de Paradas</div>
-                <div id="kpiParadasTotal" class="value">0</div>
-                <div class="sub" id="kpiParadasSub">Hoje</div>
-              </div>
-              <div class="kpi">
-                <div class="label">Tempo Parado</div>
-                <div id="kpiParadasTempo" class="value">00:00</div>
-                <div class="sub">Soma do dia</div>
-              </div>
-            </div>
-
-            <div class="table-container" style="margin-top:16px;">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data/Hora Inicial</th>
-                    <th>Data/Hora Final</th>
-                    <th>Motivo</th>
-                  </tr>
-                </thead>
-                <tbody id="tbodyParadasHoje"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- COL DIREITA -->
-        <div class="dash-col">
-          <!-- KPI: CARRETAS HOJE -->
-          <div class="card" style="padding:22px; border-radius:26px;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
-              <div>
-                <div style="font-size:1.05rem; font-weight:900;">Carretas Contaminadas (Hoje)</div>
-                <div style="color:var(--text-muted); font-weight:600; font-size:.85rem;">Puxado do Supabase (registros_bascula)</div>
-              </div>
-            </div>
-
-            <div class="kpi" style="margin-top:14px;">
-              <div class="label">Total Hoje</div>
-              <div id="kpiCarretasHoje" class="value">0</div>
-              <div class="sub" id="kpiCarretasHojeSub">00:00 → agora</div>
-            </div>
-          </div>
-
-          <!-- GRÁFICO: NF CANCELADAS 7 DIAS -->
-          <div class="card" style="padding:22px; border-radius:26px;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
-              <div>
-                <div style="font-size:1.05rem; font-weight:900;">NF-e Canceladas (Últimos 7 dias)</div>
-                <div style="color:var(--text-muted); font-weight:600; font-size:.85rem;">Puxado do Supabase (nfe_canceladas)</div>
-              </div>
-              <div class="status-badge" style="background:rgba(245,158,11,0.12); border:none; color:#fde68a;">
-                7D
-              </div>
-            </div>
-
-            <div id="chartCanceladas7d" class="chart-wrap"></div>
-
-            <div style="margin-top:10px; color:var(--text-muted); font-weight:700; font-size:.85rem;">
-              Total 7d: <span id="kpiCanceladas7d" style="color:#fff; font-weight:900;">0</span>
-            </div>
-          </div>
-
-          <!-- Atalhos -->
-          <div class="card" style="padding:22px; border-radius:26px;">
-            <div style="font-size:1.05rem; font-weight:900;">Atalhos</div>
-            <div style="margin-top:14px; display:grid; grid-template-columns: 1fr; gap:10px;">
-              <button id="btnDashAbrirRegistros24h" class="btn btn-ghost">Ver Carretas (24h)</button>
-              <button id="btnDashAbrirNF24h" class="btn btn-ghost">Ver NF-e (24h)</button>
-              <button id="btnDashAbrirRegistrarCarreta" class="btn btn-primary">+ Registrar Caminhão</button>
-              <button id="btnDashAbrirRegistrarNF" class="btn btn-primary">+ Registrar NF-e</button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <p style="color:var(--text-muted); font-size: 0.9rem;">Bem-vindo ao sistema integrado. Selecione uma operação no menu ou nos atalhos abaixo.</p>
     </section>
   </section>
 
-  <!-- ===================== VIEW: OPERACOES (cards antigos) ===================== -->
   <section id="viewOperacoes" class="view">
     <section class="card">
-      <div class="card-header">
-        <div class="card-title">Operações</div>
-        <button class="btn btn-ghost" data-view="viewDashboard">Voltar ao Dashboard</button>
-      </div>
-
-      <section class="card" style="padding:24px; border-radius:26px; margin-bottom:18px;">
         <div class="card-header">
-          <div class="card-title">Carretas Contaminadas</div>
-          <button id="btnAbrirModalCarreta" class="btn btn-primary">
-            <span>+</span> Registrar Caminhão
-          </button>
+          <div class="card-title">Menu de Operações</div>
         </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
-          <div style="display:flex; gap:12px;">
-            <span class="status-badge" style="background:rgba(16, 185, 129, 0.1); color:var(--success); border:none;">T1: 07h - 19h</span>
-            <span class="status-badge" style="background:rgba(245, 158, 11, 0.1); color:var(--warning); border:none;">T2: 19h - 07h</span>
-          </div>
-          <div style="display:flex; gap:12px; flex-wrap:wrap;">
-            <button id="btnAbrirRegistros" class="btn btn-ghost">Últimos Registros</button>
-            <button id="btnAbrirRelatorio" class="btn btn-ghost">Relatórios</button>
-          </div>
-        </div>
-      </section>
 
-      <section class="card" style="padding:24px; border-radius:26px;">
-        <div class="card-header">
-          <div class="card-title">NF-e Canceladas</div>
-          <div class="right-actions">
-            <button id="btnAbrirModalNF" class="btn btn-primary">
-              <span>+</span> Registrar NF-e
-            </button>
-            <div style="display:flex; gap:12px; flex-wrap:wrap;">
-              <button id="btnAbrirNF24h" class="btn btn-ghost">Últimos Registros</button>
-              <button id="btnAbrirRelatorioNF" class="btn btn-ghost">Relatórios</button>
+        <div class="card" style="padding:20px; border-radius:20px; background: rgba(255,255,255,0.02);">
+            <div class="card-header">
+                <div class="card-title" style="font-size: 1rem;">Carretas Contaminadas</div>
+                <button class="btn btn-primary btn-sm"><span>+</span> Registrar</button>
             </div>
-          </div>
         </div>
-      </section>
-    </section>
-  </section>
 
-  <!-- ===================== VIEW: PARADAS ===================== -->
-  <section id="viewParadas" class="view">
-    <section class="card">
-      <div class="card-header">
-        <div class="card-title">Registro de Paradas da Balança</div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button class="btn btn-ghost" data-view="viewDashboard">Voltar ao Dashboard</button>
-          <button id="btnLimparParadasHoje" class="btn btn-ghost">Limpar Paradas (hoje)</button>
+        <div class="card" style="padding:20px; border-radius:20px; background: rgba(255,255,255,0.02);">
+            <div class="card-header">
+                <div class="card-title" style="font-size: 1rem;">NF-e Canceladas</div>
+                <button class="btn btn-primary btn-sm"><span>+</span> Registrar</button>
+            </div>
         </div>
-      </div>
 
-      <div class="modal-grid" style="margin-top:6px;">
-        <div class="form-group">
-          <label class="form-label">Data/Horário Inicial</label>
-          <input id="paradaIni" type="datetime-local" class="form-control">
+        <div class="card" style="padding:20px; border-radius:20px; border-left: 4px solid var(--accent); background: rgba(14, 165, 233, 0.05);">
+            <div class="card-header">
+                <div class="card-title" style="font-size: 1rem;">Registro de Remanejo</div>
+                <button id="btnAbrirRemanejo" class="btn btn-remanejo">
+                    <span>+</span> Novo Registro
+                </button>
+            </div>
+            <div style="display:flex; justify-content: flex-end; gap:12px;">
+                <button onclick="window.location.href='consulta.html'" class="btn btn-ghost" style="padding: 8px 16px; font-size: 0.8rem;">Site de Consulta</button>
+                <button id="btnRelatorioRemanejo" class="btn btn-ghost" style="padding: 8px 16px; font-size: 0.8rem;">Imprimir Relatório (PDF)</button>
+            </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Data/Horário Final</label>
-          <input id="paradaFim" type="datetime-local" class="form-control">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Motivo</label>
-        <input id="paradaMotivo" class="form-control" placeholder="Ex.: Manutenção / Falha no sistema / Sem internet / etc.">
-      </div>
-
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
-        <button id="btnSalvarParadaLocal" class="btn btn-primary">Salvar Parada</button>
-        <button id="btnPreencherAgora" class="btn btn-ghost">Preencher com Agora</button>
-      </div>
-
-      <p id="msgParada" style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-top:16px; font-weight:600;"></p>
-
-      <div style="margin-top:18px;" class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Data/Hora Inicial</th>
-              <th>Data/Hora Final</th>
-              <th>Motivo</th>
-              <th>Duração</th>
-            </tr>
-          </thead>
-          <tbody id="tbodyParadasAll"></tbody>
-        </table>
-      </div>
     </section>
   </section>
 
@@ -708,1175 +394,158 @@
   </footer>
 </div>
 
-<!-- ===================== MODAIS EXISTENTES (mantidos) ===================== -->
-
-<!-- MODAL CARRETA -->
-<div id="modalCarreta" class="modal-overlay">
+<div id="modalRemanejo" class="modal-overlay">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 style="font-size:1.4rem; font-weight:800;">Registrar Carreta</h3>
-      <button id="btnFecharModalCarreta" class="menu-trigger">✕</button>
+      <h3 style="font-size:1.4rem; font-weight:800; color: var(--accent);">Novo Remanejo</h3>
+      <button id="btnFecharRemanejo" class="menu-trigger">✕</button>
     </div>
-    <div class="modal-grid">
-      <div class="form-group">
-        <label class="form-label">Placa do Veículo</label>
-        <input id="placaModal" class="form-control" placeholder="ABC1D23" maxlength="10">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Transportadora</label>
-        <select id="transportadoraModal" class="form-control"></select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Evidência Fotográfica</label>
-      <div class="upload-area" onclick="document.getElementById('imagemCarreta').click()">
-        <span style="font-size:0.9rem; color:var(--text-muted); font-weight:600;">Clique para selecionar ou tirar foto</span>
-        <input type="file" id="imagemCarreta" accept="image/*" style="display:none">
-        <img id="imgPreviewCarreta" style="margin-top:16px; width:100%; border-radius:16px; display:none;">
-      </div>
-    </div>
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
-      <button id="btnAddTranspModal" class="btn btn-ghost">Nova Transportadora</button>
-      <button id="btnSalvarCarreta" class="btn btn-primary">Salvar Registro</button>
-    </div>
+    
+    <form id="formRemanejo">
+        <div class="modal-grid">
+          <div class="form-group">
+            <label class="form-label">TAG CB</label>
+            <select id="tag_cb" required class="form-control">
+                <option value="">Selecione...</option>
+                <option>CB-1049</option><option>CB-1050</option><option>CB-1051</option>
+                <option>CB-1052</option><option>CB-1073</option><option>CB-1083</option>
+                <option>CB-1129</option><option>CB-1138</option><option>CB-2006</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Material</label>
+            <input id="material" required class="form-control" placeholder="Bobina, Chapa...">
+          </div>
+        </div>
+
+        <div class="modal-grid">
+            <div class="form-group">
+              <label class="form-label">Origem</label>
+              <select id="origem" required class="form-control">
+                  <option value="">Selecione...</option>
+                  <option>PULMÃO</option><option>PLANTA</option>
+                  <option>1000</option><option>1010</option><option>1020</option>
+                  <option>1030 OESTE</option><option>1030 LESTE</option><option>1040</option>
+                  <option>1050</option><option>1060</option><option>1070</option><option>1080</option>
+                  <option>1090</option><option>1100</option><option>1110</option><option>1120</option><option>1130</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Destino</label>
+              <select id="destino" required class="form-control">
+                <option value="">Selecione...</option>
+                <option>PULMÃO</option><option>PLANTA</option>
+                <option>1000</option><option>1010</option><option>1020</option>
+                <option>1030 OESTE</option><option>1030 LESTE</option><option>1040</option>
+                <option>1050</option><option>1060</option><option>1070</option><option>1080</option>
+                <option>1090</option><option>1100</option><option>1110</option><option>1120</option><option>1130</option>
+              </select>
+            </div>
+        </div>
+
+        <div class="modal-grid">
+            <div class="form-group">
+              <label class="form-label">Peso (KG)</label>
+              <input type="number" step="0.001" id="peso" required class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Turno</label>
+              <select id="turno" class="form-control">
+                  <option>1º Turno</option><option>2º Turno</option><option>3º Turno</option>
+              </select>
+            </div>
+        </div>
+
+        <button type="submit" id="btnSalvarRemanejo" class="btn btn-primary" style="width: 100%; padding: 18px;">Confirmar e Salvar no Supabase</button>
+    </form>
   </div>
 </div>
 
-<!-- MODAL NF -->
-<div id="modalNF" class="modal-overlay">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 style="font-size:1.4rem; font-weight:800;">Registrar NF-e</h3>
-      <button id="btnFecharModalNF" class="menu-trigger">✕</button>
-    </div>
-    <div class="modal-grid">
-      <div class="form-group">
-        <label class="form-label">Placa</label>
-        <input id="placaNFModal" class="form-control" placeholder="ABC1D23">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Transportadora</label>
-        <select id="transportadoraNFModal" class="form-control"></select>
-      </div>
-    </div>
-    <div class="modal-grid">
-      <div class="form-group">
-        <label class="form-label">NF Cancelada</label>
-        <input id="nfCanceladaModal" class="form-control" placeholder="000000">
-      </div>
-      <div class="form-group">
-        <label class="form-label">NF Substituta</label>
-        <input id="nfSubstitutaModal" class="form-control" placeholder="000000">
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Motivo do Cancelamento</label>
-      <textarea id="motivoCancelamentoModal" class="form-control" placeholder="Descreva o motivo detalhadamente..."></textarea>
-    </div>
-    <button id="btnSalvarNF" class="btn btn-primary" style="width:100%;">Salvar Vínculo</button>
-  </div>
-</div>
+<script>
+  // CONTROLE DE SIDEBAR E VIEWS
+  const btnOpenSidebar = document.getElementById('btnOpenSidebar');
+  const btnCloseSidebar = document.getElementById('btnCloseSidebar');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
 
-<!-- MODAL REGISTROS 24h CARRETAS -->
-<div id="modalRegistros" class="modal-overlay">
-  <div class="modal-content modal-large">
-    <div class="modal-header">
-      <h3 style="font-size:1.4rem; font-weight:800;">Últimos Registros (24h)</h3>
-      <button id="btnFecharRegistros" class="menu-trigger">✕</button>
-    </div>
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Horário</th>
-            <th>Turno</th>
-            <th>Placa</th>
-            <th>Transportadora</th>
-            <th>Foto</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyRegistros"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
+  btnOpenSidebar.onclick = () => { sidebar.classList.add('open'); overlay.classList.add('active'); };
+  btnCloseSidebar.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
+  overlay.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); };
 
-<!-- MODAL RELATÓRIO CARRETAS -->
-<div id="modalRelatorio" class="modal-overlay">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 style="font-size:1.4rem; font-weight:800;">Relatórios e Gráficos (Carretas)</h3>
-      <button id="btnFecharRelatorio" class="menu-trigger">✕</button>
-    </div>
-    <div class="modal-grid">
-      <div class="form-group">
-        <label class="form-label">Início</label>
-        <input id="inicioRel" type="datetime-local" class="form-control">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Fim</label>
-        <input id="fimRel" type="datetime-local" class="form-control">
-      </div>
-    </div>
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
-      <button id="btnRelatorioPdf" class="btn btn-primary">Gerar PDF</button>
-      <button id="btnGrafico7d" class="btn btn-ghost">Ver Gráfico</button>
-    </div>
-    <p id="msgRel" style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-top:20px; font-weight:500;"></p>
-  </div>
-</div>
-
-<!-- MODAL NF 24H -->
-<div id="modalNF24h" class="modal-overlay">
-  <div class="modal-content modal-large">
-    <div class="modal-header">
-      <h3 style="font-size:1.4rem; font-weight:800;">Últimos Registros</h3>
-      <button id="btnFecharNF24h" class="menu-trigger">✕</button>
-    </div>
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Horário</th>
-            <th>Turno</th>
-            <th>Placa</th>
-            <th>Transportadora</th>
-            <th>NF Cancelada</th>
-            <th>NF Substituta</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyNF24h"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL RELATÓRIO NF -->
-<div id="modalRelatorioNF" class="modal-overlay">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3 style="font-size:1.4rem; font-weight:800;">Relatórios</h3>
-      <button id="btnFecharRelatorioNF" class="menu-trigger">✕</button>
-    </div>
-    <div class="modal-grid">
-      <div class="form-group">
-        <label class="form-label">Início</label>
-        <input id="inicioRelNF" type="datetime-local" class="form-control">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Fim</label>
-        <input id="fimRelNF" type="datetime-local" class="form-control">
-      </div>
-    </div>
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
-      <button id="btnRelatorioPdfNF" class="btn btn-primary">Gerar PDF</button>
-      <button id="btnVerTabelaNF" class="btn btn-ghost">Carregar</button>
-    </div>
-    <p id="msgRelNF" style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-top:20px; font-weight:500;"></p>
-  </div>
-</div>
-
-<!-- MODAL VISUALIZAR IMAGEM -->
-<div id="modalVisualizarImagem" class="modal-overlay">
-  <div class="modal-content" style="max-width:900px; padding:16px;">
-    <div class="modal-header">
-      <span></span>
-      <button id="btnFecharModalImagem" class="menu-trigger">✕</button>
-    </div>
-    <img id="imagemGrande" src="" style="width:100%; border-radius:24px; box-shadow:0 30px 60px rgba(0,0,0,0.7);">
-  </div>
-</div>
-
-<!-- MODAL ADD TRANSP -->
-<div id="modalAddTransp" class="modal-overlay">
-  <div class="modal-content" style="max-width:450px;">
-    <div class="modal-header">
-      <h3 style="font-size:1.2rem; font-weight:800;">Nova Transportadora</h3>
-      <button id="btnFecharAddTransp" class="menu-trigger">✕</button>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Nome da Empresa</label>
-      <input id="nomeNovaTransp" class="form-control" placeholder="Digite o nome completo...">
-    </div>
-    <button id="btnSalvarTransp" class="btn btn-primary" style="width:100%;">Salvar Transportadora</button>
-  </div>
-</div>
-
-<!-- MODAL SEFAZ (IFRAME) -->
-<div id="modalSefaz" class="modal-overlay">
-  <div class="modal-content modal-large" style="padding:16px; max-width:1200px;">
-    <div class="modal-header" style="margin-bottom:12px;">
-      <div>
-        <h3 id="sefazModalTitle" style="font-size:1.2rem; font-weight:900; margin-bottom:2px;">SEFAZ</h3>
-        <p style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">
-          Se não carregar aqui, use “Abrir em nova aba”.
-        </p>
-      </div>
-      <div style="display:flex; gap:10px; align-items:center;">
-        <button id="btnSefazOpenNewTab" class="btn btn-ghost" style="padding:10px 14px; border-radius:14px;">
-          Abrir em nova aba
-        </button>
-        <button id="btnFecharModalSefaz" class="menu-trigger">✕</button>
-      </div>
-    </div>
-
-    <div style="border:1px solid var(--border); border-radius:20px; overflow:hidden; background:rgba(0,0,0,0.25);">
-      <iframe id="sefazIframe"
-              src="about:blank"
-              style="width:100%; height:70vh; border:0; display:block;"
-              referrerpolicy="no-referrer"
-              loading="lazy"></iframe>
-    </div>
-  </div>
-</div>
-
-<script type="module">
-  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-  // ====== SUPABASE ======
-  const SUPABASE_URL = "https://rficsflnaxayyrddxald.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_5oVEei3ZTGog0ycrbBbs2w_oDImnx9K";
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const BUCKET_EVIDENCIAS = "bascula-evidencias";
-
-  // ====== SEFAZ URLs ======
-  const SEFAZ_DISP_URL = "https://app.powerbi.com/view?r=eyJrIjoiODFkZTM5M2MtZWE3MS00MDNjLTljMDctZDU2YWViN2UxYTA4IiwidCI6ImY4ZjY3ZGQzLTcxODEtNGM2ZC05NjVkLTk4ZTY1NzkwYWU2OCJ9&theme=dark&toolbar=1&navContentPaneEnabled=true";
-  const SEFAZ_CONSULTA_NFE_URL = "https://www.nfe.fazenda.gov.br/portal/consultaRecaptcha.aspx?tipoConsulta=resumo&tipoConteudo=7PhJ+gAVw2g=";
-
-  // ====== STATE ======
-  let transportadoras = [];
-  let registrosCache = [];
-  let nfeCache = [];
-
-  // Paradas (por enquanto local/memória - pronto pra trocar para Supabase depois)
-  let paradasLocal = []; // { iniISO, fimISO, motivo }
-
-  const dbDot = document.getElementById("dbDot");
-  const dbStatusText = document.getElementById("dbStatusText");
-  const sidebar = document.getElementById("sidebar");
-  const sidebarOverlay = document.getElementById("sidebarOverlay");
-
-  function setDbStatus(isOnline) {
-    if (isOnline) {
-      dbDot.classList.remove("offline");
-      dbStatusText.textContent = "Banco: Online";
-    } else {
-      dbDot.classList.add("offline");
-      dbStatusText.textContent = "Banco: Offline";
-    }
-  }
-
-  // ====== SIDEBAR + NAVEGAÇÃO VIEWS ======
-  const toggleSidebar = () => {
-    sidebar.classList.toggle("open");
-    sidebarOverlay.classList.toggle("active");
-  };
-  document.getElementById("btnOpenSidebar").onclick = toggleSidebar;
-  document.getElementById("btnCloseSidebar").onclick = toggleSidebar;
-  sidebarOverlay.onclick = toggleSidebar;
-
-  function showView(viewId) {
-    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-    const el = document.getElementById(viewId);
-    if (el) el.classList.add("active");
-
-    document.querySelectorAll(".nav-link[data-view]").forEach(a => a.classList.remove("active"));
-    document.querySelectorAll(`.nav-link[data-view="${viewId}"]`).forEach(a => a.classList.add("active"));
-
-    if (sidebar.classList.contains("open")) toggleSidebar();
-  }
-
-  document.querySelectorAll(".nav-link[data-view]").forEach(a => {
-    a.onclick = () => showView(a.getAttribute("data-view"));
+  document.querySelectorAll('.nav-link[data-view]').forEach(link => {
+    link.onclick = (e) => {
+        const targetView = e.target.getAttribute('data-view');
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(targetView).classList.add('active');
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        e.target.classList.add('active');
+        sidebar.classList.remove('open'); overlay.classList.remove('active');
+    };
   });
 
-  document.querySelectorAll('[data-view]').forEach(btn => {
-    if (btn.classList.contains("nav-link")) return;
-    btn.addEventListener("click", () => showView(btn.getAttribute("data-view")));
-  });
+  // CONTROLE DO MODAL REMANEJO
+  const btnAbrirRemanejo = document.getElementById('btnAbrirRemanejo');
+  const btnFecharRemanejo = document.getElementById('btnFecharRemanejo');
+  const modalRemanejo = document.getElementById('modalRemanejo');
+  const linkRemanejoMenu = document.getElementById('linkRegistroRemanejo');
 
-  document.getElementById("btnIrOperacoes").onclick = () => showView("viewOperacoes");
-  document.getElementById("btnIrParadas").onclick = () => showView("viewParadas");
+  const abrirModal = () => modalRemanejo.classList.add('active');
+  const fecharModal = () => modalRemanejo.classList.remove('active');
 
-  // ====== LINK: REGISTRO REMANEJO ======
-  const REMANEJO_URL = "https://docs.google.com/spreadsheets/d/1WLfkZES26YbGPpg83bzoZJk5Rnn6_FH0d6qdW5QsC9k/edit?usp=sharing";
-  const linkRegistroRemanejo = document.getElementById("linkRegistroRemanejo");
-  if (linkRegistroRemanejo) {
-    linkRegistroRemanejo.onclick = (e) => {
-      e.preventDefault();
-      if (sidebar.classList.contains("open")) toggleSidebar();
-      window.open(REMANEJO_URL, "_blank", "noopener,noreferrer");
-    };// ====== LINKS #1 #2 #3 (edite depois) ======
-const PAGE1_URL = "https://example.com";
-const PAGE2_URL = "https://example.com";
-const PAGE3_URL = "https://example.com";
+  btnAbrirRemanejo.onclick = abrirModal;
+  linkRemanejoMenu.onclick = abrirModal;
+  btnFecharRemanejo.onclick = fecharModal;
 
-function goTo(url) {
-  if (sidebar.classList.contains("open")) toggleSidebar();
-  window.location.href = url;
-}
+  // CONEXÃO SUPABASE
+  const SUPABASE_URL = 'https://lkbyphypfmouahxpzhst.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_N9X2k--CcuTcdNFUDU0K8w_wEKZaJvV';
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const linkPage1 = document.getElementById("linkPage1");
-if (linkPage1) linkPage1.onclick = (e) => { e.preventDefault(); goTo(PAGE1_URL); };
-
-const linkPage2 = document.getElementById("linkPage2");
-if (linkPage2) linkPage2.onclick = (e) => { e.preventDefault(); goTo(PAGE2_URL); };
-
-const linkPage3 = document.getElementById("linkPage3");
-if (linkPage3) linkPage3.onclick = (e) => { e.preventDefault(); goTo(PAGE3_URL); };
-
-  }
-
-  // ====== SEFAZ MODAL (IFRAME) ======
-  const modalSefaz = document.getElementById("modalSefaz");
-  const sefazIframe = document.getElementById("sefazIframe");
-  const sefazModalTitle = document.getElementById("sefazModalTitle");
-  const btnSefazOpenNewTab = document.getElementById("btnSefazOpenNewTab");
-  const btnFecharModalSefaz = document.getElementById("btnFecharModalSefaz");
-
-  let sefazCurrentUrl = "";
-
-  function openSefazModal(title, url) {
-    sefazCurrentUrl = url;
-
-    if (sidebar.classList.contains("open")) toggleSidebar();
-
-    sefazModalTitle.textContent = title;
-    modalSefaz.style.display = "flex";
-
-    sefazIframe.src = "about:blank";
-    setTimeout(() => { sefazIframe.src = url; }, 40);
-  }
-
-  function closeSefazModal() {
-    modalSefaz.style.display = "none";
-    sefazIframe.src = "about:blank";
-    sefazCurrentUrl = "";
-  }
-
-  btnFecharModalSefaz.onclick = closeSefazModal;
-
-  btnSefazOpenNewTab.onclick = () => {
-    if (!sefazCurrentUrl) return;
-    window.open(sefazCurrentUrl, "_blank", "noopener,noreferrer");
-  };
-
-  const linkSefazDisponModal = document.getElementById("linkSefazDisponModal");
-  if (linkSefazDisponModal) {
-    linkSefazDisponModal.onclick = (e) => {
-      e.preventDefault();
-      openSefazModal("Gestão de Carregamento (BI)", SEFAZ_DISP_URL);
-    };
-  }
-
-  const linkSefazConsultaNfeModal = document.getElementById("linkSefazConsultaNfeModal");
-  if (linkSefazConsultaNfeModal) {
-    linkSefazConsultaNfeModal.onclick = (e) => {
-      e.preventDefault();
-      openSefazModal("Consulta NF-e SEFAZ", SEFAZ_CONSULTA_NFE_URL);
-    };
-  }
-
-  modalSefaz.addEventListener("click", (e) => {
-    if (e.target === modalSefaz) closeSefazModal();
-  });
-
-  // ====== HELPERS ======
-  const pad2 = (x) => String(x).padStart(2, "0");
-  const formatarDataHora = (d) => `${pad2(d.getDate())}/${pad2(d.getMonth()+1)} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-
-  function startOfTodayLocal() {
-    const d = new Date();
-    d.setHours(0,0,0,0);
-    return d;
-  }
-
-  function toLocalInputValue(dt) {
-    const d = new Date(dt);
-    return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
-  }
-
-  function classificarTurno(d) {
-    const h = d.getHours();
-    const m = d.getMinutes();
-    const totalMin = h * 60 + m;
-    const inicioT1 = 7 * 60;
-    const fimT1 = 19 * 60;
-    const turno = (totalMin >= inicioT1 && totalMin < fimT1) ? 1 : 2;
-    const diaTurno = new Date(d);
-    if (totalMin < inicioT1) diaTurno.setDate(diaTurno.getDate() - 1);
-    return { turno, diaTurno: diaTurno.toISOString().split("T")[0] };
-  }
-
-  const openModal = (id) => document.getElementById(id).style.display = "flex";
-  const closeModal = (id) => document.getElementById(id).style.display = "none";
-
-  // ✅ CORRIGIDO: fecha overlay e limpa iframe do SEFAZ quando fechar clicando fora
-  window.onclick = (e) => {
-    if (e.target && e.target.classList && e.target.classList.contains("modal-overlay")) {
-      e.target.style.display = "none";
-      if (e.target.id === "modalSefaz") {
-        const fr = document.getElementById("sefazIframe");
-        if (fr) fr.src = "about:blank";
-        sefazCurrentUrl = "";
+  // Verificação de Status do Banco
+  async function checkDB() {
+      const { data, error } = await _supabase.from('movimentacoes').select('count', { count: 'exact', head: true });
+      if (!error) {
+          document.getElementById('dbDot').classList.remove('offline');
+          document.getElementById('dbStatusText').innerText = "Banco: Online";
       }
-    }
-  };
+  }
+  checkDB();
 
-  // ====== DASHBOARD: RENDER BARS ======
-  function renderBars(containerId, items, { showValueTop = true } = {}) {
-    const el = document.getElementById(containerId);
-    if (!el) return;
-    el.innerHTML = "";
+  // ENVIO DO FORMULÁRIO DE REMANEJO
+  document.getElementById('formRemanejo').onsubmit = async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnSalvarRemanejo');
+      btn.disabled = true; btn.innerText = "ENVIANDO AO BANCO...";
 
-    const values = items.map(x => x.value);
-    const max = Math.max(1, ...values);
+      const payload = {
+          tag_cb: document.getElementById('tag_cb').value,
+          material: document.getElementById('material').value,
+          origem: document.getElementById('origem').value,
+          destino: document.getElementById('destino').value,
+          peso: parseFloat(document.getElementById('peso').value),
+          turno: document.getElementById('turno').value,
+          data: new Date().toLocaleDateString('pt-BR'),
+          horario: new Date().toLocaleTimeString('pt-BR')
+      };
 
-    items.forEach((it) => {
-      const bar = document.createElement("div");
-      bar.className = "bar";
-      const h = Math.max(10, Math.round((it.value / max) * 150));
-      bar.style.height = `${h}px`;
+      const { error } = await _supabase.from('movimentacoes').insert([payload]);
 
-      if (showValueTop) {
-        const tip = document.createElement("div");
-        tip.className = "tip";
-        tip.textContent = String(it.value);
-        bar.appendChild(tip);
+      if (error) {
+          alert("Erro no Supabase: " + error.message);
+      } else {
+          alert("✅ REGISTRO DE REMANEJO SALVO COM SUCESSO!");
+          e.target.reset();
+          fecharModal();
       }
-
-      const lab = document.createElement("small");
-      lab.textContent = it.label;
-      bar.appendChild(lab);
-
-      el.appendChild(bar);
-    });
-  }
-
-  function renderExpedidasDemo() {
-    const demo = [
-      { label: "Seg", value: 14 },
-      { label: "Ter", value: 22 },
-      { label: "Qua", value: 18 },
-      { label: "Qui", value: 30 },
-      { label: "Sex", value: 26 },
-      { label: "Sáb", value: 10 },
-      { label: "Dom", value: 8 },
-    ];
-    renderBars("chartExpedidas", demo);
-  }
-
-  // ====== DASHBOARD: SUPABASE QUERIES ======
-  function isoDateOnly(d) {
-    return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
-  }
-
-  function lastNDaysList(n) {
-    const out = [];
-    const today = startOfTodayLocal();
-    for (let i = n-1; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(today.getDate() - i);
-      out.push(d);
-    }
-    return out;
-  }
-
-  async function loadCanceladasLast7d() {
-    const days = lastNDaysList(7);
-    const start = new Date(days[0]);
-    const end = new Date(days[6]);
-    end.setHours(23,59,59,999);
-
-    try {
-      const { data, error } = await supabase
-        .from("nfe_canceladas")
-        .select("ts")
-        .gte("ts", start.toISOString())
-        .lte("ts", end.toISOString())
-        .limit(5000);
-
-      if (error) throw error;
-
-      const counts = {};
-      days.forEach(d => counts[isoDateOnly(d)] = 0);
-
-      (data || []).forEach(r => {
-        const dt = new Date(r.ts);
-        const key = isoDateOnly(dt);
-        if (counts[key] !== undefined) counts[key] += 1;
-      });
-
-      const items = days.map(d => {
-        const key = isoDateOnly(d);
-        const label = `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}`;
-        return { label, value: counts[key] || 0 };
-      });
-
-      renderBars("chartCanceladas7d", items);
-      document.getElementById("kpiCanceladas7d").textContent = items.reduce((a,b)=>a+b.value,0);
-
-      setDbStatus(true);
-    } catch (e) {
-      console.error(e);
-      setDbStatus(false);
-
-      const items = lastNDaysList(7).map(d => ({ label: `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}`, value: 0 }));
-      renderBars("chartCanceladas7d", items);
-      document.getElementById("kpiCanceladas7d").textContent = "0";
-    }
-  }
-
-  async function loadCarretasHoje() {
-    const start = startOfTodayLocal();
-    const sub = `${pad2(start.getHours())}:${pad2(start.getMinutes())} → agora`;
-    document.getElementById("kpiCarretasHojeSub").textContent = sub;
-
-    try {
-      const { data, error } = await supabase
-        .from("registros_bascula")
-        .select("id, ts")
-        .gte("ts", start.toISOString())
-        .limit(5000);
-
-      if (error) throw error;
-
-      document.getElementById("kpiCarretasHoje").textContent = String((data || []).length);
-      setDbStatus(true);
-    } catch (e) {
-      console.error(e);
-      setDbStatus(false);
-      document.getElementById("kpiCarretasHoje").textContent = "0";
-    }
-  }
-
-  // ====== PARADAS (LOCAL POR ENQUANTO) ======
-  function diffMinutes(ini, fim) {
-    const a = new Date(ini).getTime();
-    const b = new Date(fim).getTime();
-    return Math.max(0, Math.round((b - a) / 60000));
-  }
-
-  function fmtHHMM(totalMinutes) {
-    const h = Math.floor(totalMinutes / 60);
-    const m = totalMinutes % 60;
-    return `${pad2(h)}:${pad2(m)}`;
-  }
-
-  function paradasHojeList() {
-    const start = startOfTodayLocal().getTime();
-    return paradasLocal.filter(p => new Date(p.iniISO).getTime() >= start);
-  }
-
-  function renderParadas() {
-    const tbodyAll = document.getElementById("tbodyParadasAll");
-    tbodyAll.innerHTML = "";
-
-    paradasLocal
-      .slice()
-      .sort((a,b)=> new Date(b.iniISO) - new Date(a.iniISO))
-      .forEach(p => {
-        const tr = document.createElement("tr");
-        const mins = diffMinutes(p.iniISO, p.fimISO);
-        tr.innerHTML = `
-          <td>${formatarDataHora(new Date(p.iniISO))}</td>
-          <td>${formatarDataHora(new Date(p.fimISO))}</td>
-          <td style="font-weight:800;">${String(p.motivo || "").replaceAll("<","&lt;").replaceAll(">","&gt;")}</td>
-          <td>${fmtHHMM(mins)}</td>
-        `;
-        tbodyAll.appendChild(tr);
-      });
-
-    const hoje = paradasHojeList();
-    const total = hoje.length;
-    const totalMin = hoje.reduce((acc,p)=> acc + diffMinutes(p.iniISO, p.fimISO), 0);
-
-    document.getElementById("kpiParadasTotal").textContent = String(total);
-    document.getElementById("kpiParadasTempo").textContent = fmtHHMM(totalMin);
-
-    const tbodyHoje = document.getElementById("tbodyParadasHoje");
-    tbodyHoje.innerHTML = "";
-
-    if (!hoje.length) {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td colspan="3" style="color:var(--text-muted); font-weight:700;">Sem paradas registradas hoje.</td>`;
-      tbodyHoje.appendChild(tr);
-      return;
-    }
-
-    hoje
-      .slice()
-      .sort((a,b)=> new Date(b.iniISO) - new Date(a.iniISO))
-      .forEach(p => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${formatarDataHora(new Date(p.iniISO))}</td>
-          <td>${formatarDataHora(new Date(p.fimISO))}</td>
-          <td style="font-weight:800;">${String(p.motivo || "").replaceAll("<","&lt;").replaceAll(">","&gt;")}</td>
-        `;
-        tbodyHoje.appendChild(tr);
-      });
-  }
-
-  function initParadasDefaults() {
-    const now = new Date();
-    const ini = new Date(now);
-    ini.setMinutes(now.getMinutes() - 10);
-
-    document.getElementById("paradaIni").value = toLocalInputValue(ini);
-    document.getElementById("paradaFim").value = toLocalInputValue(now);
-  }
-
-  document.getElementById("btnPreencherAgora").onclick = () => initParadasDefaults();
-
-  document.getElementById("btnSalvarParadaLocal").onclick = async () => {
-    const iniVal = document.getElementById("paradaIni").value;
-    const fimVal = document.getElementById("paradaFim").value;
-    const motivo = document.getElementById("paradaMotivo").value.trim();
-
-    const msg = document.getElementById("msgParada");
-    msg.textContent = "";
-
-    if (!iniVal || !fimVal || !motivo) {
-      msg.textContent = "Preencha início, fim e motivo.";
-      return;
-    }
-
-    const ini = new Date(iniVal);
-    const fim = new Date(fimVal);
-    if (isNaN(ini.getTime()) || isNaN(fim.getTime())) {
-      msg.textContent = "Datas inválidas.";
-      return;
-    }
-    if (fim <= ini) {
-      msg.textContent = "O horário final deve ser maior que o inicial.";
-      return;
-    }
-
-    paradasLocal.push({
-      iniISO: ini.toISOString(),
-      fimISO: fim.toISOString(),
-      motivo
-    });
-
-    // FUTURO (pronto pra integrar):
-    // await supabase.from("paradas_balanca").insert([{ ini: ini.toISOString(), fim: fim.toISOString(), motivo }]);
-
-    document.getElementById("paradaMotivo").value = "";
-    initParadasDefaults();
-    msg.textContent = "Parada salva (local). Pronto para integrar no Supabase depois.";
-    renderParadas();
+      btn.disabled = false; btn.innerText = "Confirmar e Salvar no Supabase";
   };
 
-  document.getElementById("btnLimparParadasHoje").onclick = () => {
-    const start = startOfTodayLocal().getTime();
-    paradasLocal = paradasLocal.filter(p => new Date(p.iniISO).getTime() < start);
-    renderParadas();
-    document.getElementById("msgParada").textContent = "Paradas de hoje removidas (local).";
+  // Botão Relatório PDF (Simulação)
+  document.getElementById('btnRelatorioRemanejo').onclick = () => {
+      alert("Gerando PDF das movimentações de hoje... (Aguarde o download)");
+      window.print(); // Abre a opção de salvar como PDF do próprio navegador
   };
-
-  // ====== MODAIS / BOTOES EXISTENTES ======
-  document.getElementById("btnAbrirModalCarreta").onclick = () => openModal("modalCarreta");
-  document.getElementById("btnAbrirModalNF").onclick = () => openModal("modalNF");
-  document.getElementById("btnAddTranspModal").onclick = () => openModal("modalAddTransp");
-
-  document.getElementById("btnAbrirRegistros").onclick = async () => { await carregarRegistros24h(); openModal("modalRegistros"); };
-  document.getElementById("btnAbrirRelatorio").onclick = () => { initRelDates("inicioRel", "fimRel"); openModal("modalRelatorio"); };
-
-  document.getElementById("btnAbrirNF24h").onclick = async () => { await carregarNF24h(); openModal("modalNF24h"); };
-  document.getElementById("btnAbrirRelatorioNF").onclick = () => { initRelDates("inicioRelNF", "fimRelNF"); openModal("modalRelatorioNF"); };
-
-  document.getElementById("btnFecharModalCarreta").onclick = () => closeModal("modalCarreta");
-  document.getElementById("btnFecharModalNF").onclick = () => closeModal("modalNF");
-  document.getElementById("btnFecharAddTransp").onclick = () => closeModal("modalAddTransp");
-  document.getElementById("btnFecharRegistros").onclick = () => closeModal("modalRegistros");
-  document.getElementById("btnFecharRelatorio").onclick = () => closeModal("modalRelatorio");
-  document.getElementById("btnFecharModalImagem").onclick = () => closeModal("modalVisualizarImagem");
-  document.getElementById("btnFecharNF24h").onclick = () => closeModal("modalNF24h");
-  document.getElementById("btnFecharRelatorioNF").onclick = () => closeModal("modalRelatorioNF");
-
-  // Atalhos do Dashboard
-  document.getElementById("btnDashAbrirRegistros24h").onclick = async () => { await carregarRegistros24h(); openModal("modalRegistros"); };
-  document.getElementById("btnDashAbrirNF24h").onclick = async () => { await carregarNF24h(); openModal("modalNF24h"); };
-  document.getElementById("btnDashAbrirRegistrarCarreta").onclick = () => openModal("modalCarreta");
-  document.getElementById("btnDashAbrirRegistrarNF").onclick = () => openModal("modalNF");
-
-  // ====== SELECTS TRANSPORTADORAS ======
-  function renderSelects() {
-    const selects = [document.getElementById("transportadoraModal"), document.getElementById("transportadoraNFModal")];
-    selects.forEach(s => {
-      s.innerHTML = '<option value="">Selecione...</option>';
-      transportadoras.forEach(t => {
-        const opt = document.createElement("option");
-        opt.value = t;
-        opt.textContent = t;
-        s.appendChild(opt);
-      });
-    });
-  }
-
-  async function carregarTransportadoras() {
-    try {
-      const { data, error } = await supabase
-        .from("transportadoras")
-        .select("nome")
-        .order("nome", { ascending: true });
-
-      if (error) throw error;
-      transportadoras = (data || []).map(x => x.nome);
-      renderSelects();
-      setDbStatus(true);
-    } catch (e) {
-      console.error(e);
-      setDbStatus(false);
-      transportadoras = ["CAIO TRANSPORTES", "ECOMINING", "RODOMINAS"];
-      renderSelects();
-    }
-  }
-
-  // ====== ADD TRANSPORTADORA ======
-  document.getElementById("btnSalvarTransp").onclick = async () => {
-    const nome = document.getElementById("nomeNovaTransp").value.trim().toUpperCase();
-    if (!nome) return;
-
-    try {
-      const { error } = await supabase.from("transportadoras").insert([{ nome }]);
-      if (error) throw error;
-
-      document.getElementById("nomeNovaTransp").value = "";
-      await carregarTransportadoras();
-      closeModal("modalAddTransp");
-    } catch (e) {
-      console.error(e);
-      alert("Falha ao salvar transportadora (talvez já exista).");
-      setDbStatus(false);
-    }
-  };
-
-  // ====== PREVIEW IMAGEM ======
-  document.getElementById("imagemCarreta").onchange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const img = document.getElementById("imgPreviewCarreta");
-      img.src = ev.target.result;
-      img.style.display = "block";
-    };
-    reader.readAsDataURL(file);
-  };
-
-  // ====== UPLOAD STORAGE ======
-  async function uploadImagem(file) {
-    if (!file) return { path: null, url: null };
-
-    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-    const uuid = (crypto?.randomUUID?.() ?? (String(Date.now()) + Math.random()));
-    const safeName = `${uuid}.${ext}`;
-
-    const now = new Date();
-    const y = now.getFullYear();
-    const m = String(now.getMonth() + 1).padStart(2, "0");
-    const path = `${y}/${m}/${safeName}`;
-
-    const { error: upErr } = await supabase.storage.from(BUCKET_EVIDENCIAS).upload(path, file, {
-      cacheControl: "3600",
-      upsert: false
-    });
-    if (upErr) throw upErr;
-
-    const { data } = supabase.storage.from(BUCKET_EVIDENCIAS).getPublicUrl(path);
-    return { path, url: data?.publicUrl || null };
-  }
-
-  // ====== SALVAR CARRETA ======
-  document.getElementById("btnSalvarCarreta").onclick = async () => {
-    const placa = document.getElementById("placaModal").value.trim().toUpperCase();
-    const transp = document.getElementById("transportadoraModal").value;
-    if (!placa || !transp) return alert("Preencha os campos obrigatórios.");
-
-    const agora = new Date();
-    const info = classificarTurno(agora);
-    const file = document.getElementById("imagemCarreta")?.files?.[0] || null;
-
-    try {
-      const { path, url } = await uploadImagem(file);
-
-      const { error } = await supabase.from("registros_bascula").insert([{
-        placa,
-        transportadora_nome: transp,
-        ts: agora.toISOString(),
-        turno: info.turno,
-        dia_turno: info.diaTurno,
-        imagem_path: path,
-        imagem_url: url
-      }]);
-
-      if (error) throw error;
-
-      setDbStatus(true);
-      alert("Registro salvo no Supabase!");
-      closeModal("modalCarreta");
-
-      document.getElementById("placaModal").value = "";
-      document.getElementById("imagemCarreta").value = "";
-      const prev = document.getElementById("imgPreviewCarreta");
-      prev.style.display = "none";
-      prev.src = "";
-
-      await refreshDashboard();
-    } catch (e) {
-      console.error(e);
-      setDbStatus(false);
-      alert("Falha ao salvar no Supabase. Verifique internet/policies.");
-    }
-  };
-
-  // ====== LISTAR REGISTROS 24h ======
-  async function carregarRegistros24h() {
-    const now = new Date();
-    const since = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-
-    try {
-      const { data, error } = await supabase
-        .from("registros_bascula")
-        .select("*")
-        .gte("ts", since)
-        .order("ts", { ascending: false })
-        .limit(200);
-
-      if (error) throw error;
-      registrosCache = data || [];
-      setDbStatus(true);
-    } catch (e) {
-      console.error(e);
-      setDbStatus(false);
-      registrosCache = [];
-    }
-
-    const tbody = document.getElementById("tbodyRegistros");
-    tbody.innerHTML = "";
-
-    registrosCache.slice(0, 50).forEach(r => {
-      const d = new Date(r.ts);
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${formatarDataHora(d)}</td>
-        <td><span class="status-badge" style="background:rgba(59,130,246,0.1); color:var(--primary); border:none;">T${r.turno}</span></td>
-        <td style="font-weight:800;">${r.placa}</td>
-        <td>${r.transportadora_nome}</td>
-        <td>${r.imagem_url ? `<img src="${r.imagem_url}" style="width:45px; height:35px; object-fit:cover; border-radius:8px; cursor:pointer;" onclick="viewImg('${r.imagem_url}')">` : '-'}</td>
-        <td>
-          <button class="btn" style="padding:6px 12px; font-size:0.75rem; background:rgba(239,68,68,.15); color:#fecaca; border:1px solid rgba(239,68,68,.25);" onclick="deletarReg('${r.id}')">Excluir</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  // ====== EXCLUIR REGISTRO + IMAGEM ======
-  window.deletarReg = async (id) => {
-    const ok = confirm("Deseja excluir este registro?");
-    if (!ok) return;
-
-    try {
-      const { data: row, error: e1 } = await supabase
-        .from("registros_bascula")
-        .select("imagem_path")
-        .eq("id", id)
-        .single();
-
-      if (e1) throw e1;
-
-      const { error: e2 } = await supabase
-        .from("registros_bascula")
-        .delete()
-        .eq("id", id);
-
-      if (e2) throw e2;
-
-      if (row?.imagem_path) {
-        await supabase.storage.from(BUCKET_EVIDENCIAS).remove([row.imagem_path]);
-      }
-
-      setDbStatus(true);
-      await carregarRegistros24h();
-      await refreshDashboard();
-    } catch (e) {
-      console.error(e);
-      setDbStatus(false);
-      alert("Falha ao excluir no Supabase.");
-    }
-  };
-
-  window.viewImg = (src) => {
-    document.getElementById("imagemGrande").src = src;
-    openModal("modalVisualizarImagem");
-  };
-
-  function initRelDates(iId, fId) {
-    const agora = new Date();
-    const ini = new Date(); ini.setDate(agora.getDate() - 7);
-    document.getElementById(iId).value = new Date(ini.getTime() - ini.getTimezoneOffset()*60000).toISOString().slice(0,16);
-    document.getElementById(fId).value = new Date(agora.getTime() - agora.getTimezoneOffset()*60000).toISOString().slice(0,16);
-  }
-
-  // ====== RELATÓRIO CARRETAS ======
-  document.getElementById("btnRelatorioPdf").onclick = async () => {
-    const di = new Date(document.getElementById("inicioRel").value);
-    const df = new Date(document.getElementById("fimRel").value);
-    if (isNaN(di.getTime()) || isNaN(df.getTime())) return alert("Selecione início e fim.");
-
-    try {
-      const { data, error } = await supabase
-        .from("registros_bascula")
-        .select("*")
-        .gte("ts", di.toISOString())
-        .lte("ts", df.toISOString())
-        .order("ts", { ascending: false })
-        .limit(2000);
-
-      if (error) throw error;
-
-      const filtrados = data || [];
-      if (!filtrados.length) return alert("Sem dados no período.");
-
-      let html = `<html><head><meta charset="utf-8"><style>
-        body{font-family:sans-serif; padding:40px; background:#f8fafc;}
-        .card{background:white; border:1px solid #e2e8f0; padding:25px; margin-bottom:25px; border-radius:16px; page-break-inside:avoid;}
-        img{max-width:100%; border-radius:12px; margin-top:15px;}
-      </style></head><body>`;
-      html += `<h1>Relatório de Carretas</h1><p>Período: ${formatarDataHora(di)} a ${formatarDataHora(df)}</p>`;
-
-      filtrados.forEach((r, i) => {
-        html += `<div class="card">
-          <h3>#${i+1} - Placa: ${r.placa}</h3>
-          <p>Transportadora: ${r.transportadora_nome} | Turno: ${r.turno}</p>
-          <p>Data: ${formatarDataHora(new Date(r.ts))}</p>
-          ${r.imagem_url ? `<img src="${r.imagem_url}">` : ''}
-        </div>`;
-      });
-
-      html += `</body></html>`;
-      const win = window.open("", "_blank");
-      win.document.write(html);
-      win.document.close();
-      setTimeout(() => win.print(), 500);
-    } catch (e) {
-      console.error(e);
-      alert("Falha ao gerar relatório (verifique conexão/policies).");
-    }
-  };
-
-  // ====== SALVAR NF ======
-  document.getElementById("btnSalvarNF").onclick = async () => {
-    const placa = document.getElementById("placaNFModal").value.trim().toUpperCase();
-    const transp = document.getElementById("transportadoraNFModal").value;
-    const nfCanc = document.getElementById("nfCanceladaModal").value.trim();
-    const nfSub = document.getElementById("nfSubstitutaModal").value.trim();
-    const motivo = document.getElementById("motivoCancelamentoModal").value.trim();
-
-    if (!placa || !transp || !nfCanc || !nfSub) return alert("Preencha os campos obrigatórios.");
-
-    const agora = new Date();
-    const info = classificarTurno(agora);
-
-    try {
-      const { error } = await supabase.from("nfe_canceladas").insert([{
-        placa,
-        transportadora_nome: transp,
-        nf_cancelada: nfCanc,
-        nf_substituta: nfSub,
-        motivo: motivo || null,
-        ts: agora.toISOString(),
-        turno: info.turno,
-        dia_turno: info.diaTurno
-      }]);
-
-      if (error) throw error;
-
-      setDbStatus(true);
-      alert("Vínculo salvo no Supabase!");
-      closeModal("modalNF");
-
-      document.getElementById("placaNFModal").value = "";
-      document.getElementById("nfCanceladaModal").value = "";
-      document.getElementById("nfSubstitutaModal").value = "";
-      document.getElementById("motivoCancelamentoModal").value = "";
-      document.getElementById("transportadoraNFModal").value = "";
-
-      await refreshDashboard();
-    } catch (e) {
-      console.error(e);
-      setDbStatus(false);
-      alert("Falha ao salvar NF no Supabase.");
-    }
-  };
-
-  // ====== LISTAR NF 24h ======
-  async function carregarNF24h() {
-    const now = new Date();
-    const since = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-
-    try {
-      const { data, error } = await supabase
-        .from("nfe_canceladas")
-        .select("*")
-        .gte("ts", since)
-        .order("ts", { ascending: false })
-        .limit(300);
-
-      if (error) throw error;
-      nfeCache = data || [];
-      setDbStatus(true);
-    } catch (e) {
-      console.error(e);
-      setDbStatus(false);
-      nfeCache = [];
-    }
-
-    const tbody = document.getElementById("tbodyNF24h");
-    tbody.innerHTML = "";
-
-    nfeCache.slice(0, 80).forEach(r => {
-      const d = new Date(r.ts);
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${formatarDataHora(d)}</td>
-        <td><span class="status-badge" style="background:rgba(59,130,246,0.1); color:var(--primary); border:none;">T${r.turno}</span></td>
-        <td style="font-weight:800;">${r.placa}</td>
-        <td>${r.transportadora_nome}</td>
-        <td>${r.nf_cancelada}</td>
-        <td>${r.nf_substituta}</td>
-        <td>
-          <button class="btn" style="padding:6px 12px; font-size:0.75rem; background:rgba(239,68,68,.15); color:#fecaca; border:1px solid rgba(239,68,68,.25);" onclick="deletarNF('${r.id}')">Excluir</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  // ====== EXCLUIR NF ======
-  window.deletarNF = async (id) => {
-    const ok = confirm("Deseja excluir este vínculo de NF-e?");
-    if (!ok) return;
-
-    try {
-      const { error } = await supabase.from("nfe_canceladas").delete().eq("id", id);
-      if (error) throw error;
-      setDbStatus(true);
-      await carregarNF24h();
-      await refreshDashboard();
-    } catch (e) {
-      console.error(e);
-      setDbStatus(false);
-      alert("Falha ao excluir NF-e no Supabase.");
-    }
-  };
-
-  // ====== RELATÓRIO NF ======
-  document.getElementById("btnRelatorioPdfNF").onclick = async () => {
-    const di = new Date(document.getElementById("inicioRelNF").value);
-    const df = new Date(document.getElementById("fimRelNF").value);
-    if (isNaN(di.getTime()) || isNaN(df.getTime())) return alert("Selecione início e fim.");
-
-    try {
-      const { data, error } = await supabase
-        .from("nfe_canceladas")
-        .select("*")
-        .gte("ts", di.toISOString())
-        .lte("ts", df.toISOString())
-        .order("ts", { ascending: false })
-        .limit(3000);
-
-      if (error) throw error;
-
-      const filtrados = data || [];
-      if (!filtrados.length) return alert("Sem dados no período.");
-
-      let html = `<html><head><meta charset="utf-8"><style>
-        body{font-family:sans-serif; padding:40px; background:#f8fafc;}
-        .card{background:white; border:1px solid #e2e8f0; padding:25px; margin-bottom:25px; border-radius:16px; page-break-inside:avoid;}
-        .row{margin-top:6px;}
-      </style></head><body>`;
-      html += `<h1>Relatório NF-e Canceladas</h1><p>Período: ${formatarDataHora(di)} a ${formatarDataHora(df)}</p>`;
-
-      filtrados.forEach((r, i) => {
-        html += `<div class="card">
-          <h3>#${i+1} - Placa: ${r.placa}</h3>
-          <div class="row">Transportadora: ${r.transportadora_nome} | Turno: ${r.turno}</div>
-          <div class="row">Data: ${formatarDataHora(new Date(r.ts))}</div>
-          <div class="row"><b>NF Cancelada:</b> ${r.nf_cancelada}</div>
-          <div class="row"><b>NF Substituta:</b> ${r.nf_substituta}</div>
-          ${r.motivo ? `<div class="row"><b>Motivo:</b> ${String(r.motivo).replaceAll("<","&lt;").replaceAll(">","&gt;")}</div>` : ""}
-        </div>`;
-      });
-
-      html += `</body></html>`;
-      const win = window.open("", "_blank");
-      win.document.write(html);
-      win.document.close();
-      setTimeout(() => win.print(), 500);
-    } catch (e) {
-      console.error(e);
-      alert("Falha ao gerar relatório NF (verifique conexão/policies).");
-    }
-  };
-
-  document.getElementById("btnVerTabelaNF").onclick = async () => {
-    const di = new Date(document.getElementById("inicioRelNF").value);
-    const df = new Date(document.getElementById("fimRelNF").value);
-    if (isNaN(di.getTime()) || isNaN(df.getTime())) return alert("Selecione início e fim.");
-
-    try {
-      const { data, error } = await supabase
-        .from("nfe_canceladas")
-        .select("id")
-        .gte("ts", di.toISOString())
-        .lte("ts", df.toISOString())
-        .limit(1);
-
-      if (error) throw error;
-      alert("Período válido. Use 'Gerar PDF' para imprimir o relatório.");
-      setDbStatus(true);
-    } catch (e) {
-      console.error(e);
-      setDbStatus(false);
-      alert("Falha ao consultar NF no Supabase.");
-    }
-  };
-
-  // ====== DASHBOARD REFRESH ======
-  async function refreshDashboard() {
-    renderExpedidasDemo();
-    renderParadas();
-    await loadCanceladasLast7d();
-    await loadCarretasHoje();
-  }
-
-  document.getElementById("btnRefreshDash").onclick = async () => {
-    await refreshDashboard();
-    alert("Dashboard atualizado.");
-  };
-
-  // ====== BOOT ======
-  (async () => {
-    try {
-      await carregarTransportadoras();
-      const { data, error } = await supabase.from("transportadoras").select("id").limit(1);
-      if (error) throw error;
-      setDbStatus(true);
-    } catch (e) {
-      console.error(e);
-      setDbStatus(false);
-    }
-
-    initParadasDefaults();
-    await refreshDashboard();
-  })();
 </script>
+
 </body>
 </html>
